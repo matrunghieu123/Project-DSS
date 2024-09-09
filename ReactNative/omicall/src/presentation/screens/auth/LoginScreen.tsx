@@ -21,7 +21,7 @@ const initValues = {
   password: '',
 };
 
-const LoginScreen = ({navigation}: {navigation: any}) => {
+const LoginScreen = ({navigation}: any) => {
   const emailRef = useRef<any>();
   const passwordRef = useRef<any>();
   const [values, setValues] = useState(initValues);
@@ -32,6 +32,11 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
 
   const handleChange = (name: string, value: string) => {
     setValues({...values, [name]: value});
+  };
+
+  const handleLogin = () => {
+    console.log('Login');
+    navigation.navigate('HomeScreen');
   };
 
   useEffect(() => {
@@ -45,7 +50,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={[Styles.container]}>
+      <SafeAreaView style={Styles.container}>
         <Image source={{uri: Constants.logoUrl}} style={styles.image} />
         <Text style={styles.title}>Đăng nhập</Text>
         <TextFieldComponent
@@ -76,10 +81,10 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
             Mật khẩu tối thiểu phải có 6 kí tự
           </Text>
         ) : null}
-        <ForgotPassword navigation={navigation} />
+        <ForgotPassword/>
         <ButtonComponent
           title="Đăng nhập"
-          onPress={() => {}}
+          onPress={handleLogin}
           disabled={!(validValues.email && validValues.password)}
         />
       </SafeAreaView>
@@ -87,7 +92,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
   );
 };
 
-const ForgotPassword = ({navigation}: {navigation: any}) => {
+const ForgotPassword = ({navigation}: any) => {
   return (
     <TouchableOpacity
       style={styles.forgotPasswordContainer}

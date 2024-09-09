@@ -1,6 +1,10 @@
 export const AppColors = {
   primary: '#02B1FF',
-  grey: '#E4DFDF',
+  secondary: '#1E3050',
+  grey: '#9D9898',
   greyIcon: '#807A7A',
   red: '#FF0000',
+  lightGrey: '#f5f5f5',
+  black: '#000000',
+  transparent: '#F2F2F2',
 };

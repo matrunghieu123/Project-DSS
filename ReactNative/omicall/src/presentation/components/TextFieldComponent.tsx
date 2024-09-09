@@ -1,4 +1,4 @@
-import {StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TextInput, TouchableOpacity, View, ViewStyle} from 'react-native';
 import React, {forwardRef, ReactNode, Ref, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../core/constants/AppColors';
@@ -21,13 +21,14 @@ interface InputComponentProps {
   height?: number;
   width?: number;
   style?: any;
+  styleContainer?: ViewStyle;
   maxLength?: number;
   onKeyPress?: (event: any) => void;
   onSubmitEditing?: () => void;
   multiline?: boolean;
 }
 
-const InputComponent = forwardRef(
+const TextFieldComponent = forwardRef(
   (props: InputComponentProps, ref: Ref<TextInput>) => {
     const [isSecure, setIsSecure] = useState(props.secureTextEntry || false);
 
@@ -45,6 +46,7 @@ const InputComponent = forwardRef(
             width: props.width || '100%',
             height: props.height || 56,
           },
+          props.styleContainer,
         ]}
         onPress={handlePress}
         activeOpacity={1}>
@@ -105,4 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InputComponent;
+export default TextFieldComponent;

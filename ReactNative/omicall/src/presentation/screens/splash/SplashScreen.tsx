@@ -21,7 +21,7 @@ const SplashScreen = () => {
 
 const styles = StyleSheet.create({
   image: {
-    width: '70%',
+    width: '80%',
     height: '10%',
   },
 });
