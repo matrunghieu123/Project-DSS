@@ -1,8 +1,8 @@
-package com.involveininnovation.chat.controller;
+package com.dss.chatapp.controller;
 
-import com.involveininnovation.chat.bot.TelegramBot;
-import com.involveininnovation.chat.model.CustomMessage;
-import com.involveininnovation.chat.service.ChatService;
+import com.dss.chatapp.bot.TelegramBot;
+import com.dss.chatapp.model.CustomMessage;
+import com.dss.chatapp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -27,7 +27,6 @@ public class ChatController {
         Long chatID = getChatID();
         telegramBot.handleChatMessage(message, chatID);
     }
-
 
     @MessageMapping("/private-message")
     public CustomMessage recMessage(@Payload CustomMessage customMessage){

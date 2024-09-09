@@ -1,8 +1,7 @@
-package com.involveininnovation.chat.config;
+package com.dss.chatapp.config;
 
-import com.involveininnovation.chat.bot.TelegramBot;
+import com.dss.chatapp.bot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.involveininnovation.chat.bot;
+package com.dss.chatapp.bot;
 
 import org.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -31,16 +31,17 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             log.info("Message received from chat ID {}: {}", chatId, messageText);
 
-            // Echo the received message back to Telegram (you can customize this)
+            // Echo the received message back to Telegram
             sendMessageToTelegram(chatId, "You said: " + messageText);
 
-            // Optionally, broadcast the message to your chat app
+            // Broadcast the message to chat app
             broadcastMessageToChatApp(chatId, messageText);
         }
     }
 
     // Method to send messages to Telegram
     public void sendMessageToTelegram(Long chatId, String message) {
+
         SendMessage telegramMessage = new SendMessage();
         telegramMessage.setChatId(chatId.toString());
         telegramMessage.setText(message);
@@ -53,7 +54,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    // Method to handle incoming messages from your chat app and forward them to Telegram
+    // Method to handle incoming messages from chat app and forward them to Telegram
     public void handleChatMessage(String chatMessageJson, Long chatId) {
         // Parse the incoming JSON message
         JSONObject jsonObject = new JSONObject(chatMessageJson);
@@ -70,7 +71,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         messageJson.put("message", messageText);
         messageJson.put("status", "MESSAGE");
 
-        // Send the message to the WebSocket topic (e.g., /chatroom/public)
+        // Send the message to the WebSocket topic
         messagingTemplate.convertAndSend("/chatroom/public", messageJson.toString());
 
         log.info("Broadcasted message to chat app: {}", messageJson.toString());
