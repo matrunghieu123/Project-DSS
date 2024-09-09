@@ -1,0 +1,84 @@
+.navbar-container {
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+  position: relative;
+}
+
+.nav-items-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.nav-icon-container {
+  margin-right: 10px;
+}
+
+.nav-item-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-item-button:hover,
+.nav-item-button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-icons {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.nav-caption {
+  color: white;
+  font-size: 10px;
+}
+
+/* Menu ẩn */
+.nav-more-menu-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #223366;
+  width: 100%;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid #ffffff;
+}
+
+/* Menu mở khi bấm vào Đa kênh */
+.nav-more-menu-content.open {
+  display: block;
+}
+
+@media screen and (max-width: 1180px) {
+  .nav-items-container {
+    overflow: hidden;
+  }
+
+  .nav-icon-container {
+    display: none;
+  }
+
+  .nav-icon-container:nth-child(4) {
+    display: block;
+  }
+
+  .nav-more-menu-content {
+    display: none;
+  }
+
+  .nav-more-menu-content.open {
+    display: block;
+  }
+}

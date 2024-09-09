@@ -1,0 +1,19 @@
+.send-message {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+  
+  .input-message {
+    flex-grow: 1;
+    font-size: 1.2em;
+    border-radius: 50px;
+    padding-left: 20px; /* Lùi vào 2 space (2 x 10px = 20px) */
+  }
+
+  .send-button {
+    width: 20%;
+    border-radius: 50px;
+    margin-left: 5px;
+    cursor: pointer;
+  }

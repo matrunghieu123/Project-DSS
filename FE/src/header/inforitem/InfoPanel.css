@@ -1,0 +1,70 @@
+.info-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  margin-top: 5px;
+}
+
+.info-item:focus {
+  outline: none;
+}
+
+.info-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 2px solid transparent;
+  background-color: transparent;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.info-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.info-icon.has-border {
+  border-color: #d0d5dd; /* Vòng tròn nhỏ xung quanh số 0 */
+}
+
+.info-icon.icon-only {
+  margin: 0;
+  border: none; /* Ẩn vòng tròn khi chỉ có icon */
+}
+
+.info-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+.info-icon span {
+  font-size: 14px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+
+.info-label {
+  font-size: 10px;
+  color: #ffffff;
+  text-align: center;
+}
