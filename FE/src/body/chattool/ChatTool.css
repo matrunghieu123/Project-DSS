@@ -1,0 +1,15 @@
+.ant-card .ant-card-body {
+    padding: 16px !important;
+}
+
+.ant-collapse {
+    border: none;
+}
+
+.ant-collapse>.ant-collapse-item:last-child>.ant-collapse-header {
+    border-top: none;
+}
+
+.ant-collapse > .ant-collapse-item {
+  border-bottom: none !important;
+}

@@ -75,42 +75,20 @@ button {
   margin-left: 10px;
 }
 
-.member {
-  padding: 20px; /* Kích thước padding */
-  font-size: 1em; /* Kích thước chữ */
-  background: #eee;
-  cursor: pointer;
-  margin: 10px 5px; /* Khoảng cách giữa các member */
-  box-shadow: 0 8px 8px -4px lightblue;
-  border-radius: 8px; /* Bo góc */
-  transition: transform 0.2s ease-in-out; /* Hiệu ứng khi hover */
-}
-
-.member.active {
-  background: blueviolet;
-}
-
-.member:hover {
-  background: rgba(169, 169, 169, 0.784);
-  color: #fff;
-  transform: scale(1.05); /* Phóng to khi hover */
-}
-
-/* Nổi bật tên người dùng của người gửi tin nhắn tự thân */
-.avatar.self {
-  width: 40px;
-  height: 40px;
-  justify-content: center;
+.chat-border {
   display: flex;
-  align-items: center;
-  background-color: black;
-  color: #fff; /* Màu chữ sáng để nổi bật trên nền tối */
-  font-weight: bold; /* Chữ đậm */
-  border-radius: 8px; /* Bo góc */
-  padding: 0 6px; /* Padding lớn hơn */
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6); /* Hiệu ứng bóng sáng */
-  margin: 0 8px; /* Khoảng cách xung quanh */
-  text-align: center; /* Căn giữa chữ */
+  flex-direction: row;
+  height: -webkit-fill-available;
+}
+
+.text-input {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.chat-tool {
+  width: 30%;
 }
 
 .register {

@@ -14,6 +14,12 @@ const formatDate = (timestamp) => {
 };
 
 const MemberList = ({ privateChats, setTab, tab }) => {
+    // Hàm để lấy avatar
+    const getAvatar = (name) => {
+        // Lấy URL từ database hoặc API
+        return `https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg`;
+    };
+
     const getLastMessageTime = (name) => {
         const chat = privateChats.get(name);
         if (chat && chat.length > 0) {
@@ -38,7 +44,11 @@ const MemberList = ({ privateChats, setTab, tab }) => {
                         <div className="member-item">
                             {/* Avatar */}
                             <div className="avatar-member-list">
-                                <Typography.Text>{name.charAt(0).toUpperCase()}</Typography.Text>
+                                <img
+                                    src={getAvatar(name)}  // Thay chữ bằng ảnh avatar
+                                    alt={`${name}'s avatar`}
+                                    className="avatar-image"
+                                />
                             </div>
 
                             {/* Thông tin thành viên */}

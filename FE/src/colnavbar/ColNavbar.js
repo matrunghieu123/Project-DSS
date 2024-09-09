@@ -8,7 +8,7 @@ import LogoVB from './logo-img/Logo-Viber.png';
 
 const { Sider } = Layout;
 
-const Sidebar = () => {
+const Sidebar = ({ setTab }) => {
   return (
     <Sider theme="light" width={70}>
       <Menu
@@ -31,13 +31,14 @@ const Sidebar = () => {
             title="Chat tổng"
             placement="top"
             overlayInnerStyle={{
-              backgroundColor: "#fff",  // Màu trắng
-              color: "#000",            // Màu chữ đen
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",  // Box shadow
-              borderRadius: "4px"       // Độ bo góc
+              backgroundColor: "#fff",
+              color: "#000",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",  
+              borderRadius: "4px"
             }}
           >
             <div
+              onClick={() => setTab("CHATROOM")} /* Gọi setTab khi nhấn vào */
               style={{
                 fontSize: "20px",
                 color: "#1890ff",
@@ -54,124 +55,56 @@ const Sidebar = () => {
           </Tooltip>
         </Menu.Item>
 
-        <Menu.Item
-          key="5"
-          style={{
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            margin: "0 5px",
-          }}
-        >
-          <Tooltip
-            title="Facebook"
-            placement="top"
-            overlayInnerStyle={{
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-              borderRadius: "4px"
-            }}
-          >
-            <img
-              src={LogoFB}
-              alt="LogoFB"
-              style={{ width: "20px", height: "auto", cursor: "pointer" }}
-            />
+        {/* Facebook, Zalo, Telegram, Viber */}
+        <Menu.Item key="5" style={menuItemStyle}>
+          <Tooltip title="Facebook" placement="top" overlayInnerStyle={tooltipStyle}>
+            <img src={LogoFB} alt="LogoFB" style={iconStyle} />
           </Tooltip>
         </Menu.Item>
 
-        <Menu.Item
-          key="3"
-          style={{
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            margin: "0 5px",
-          }}
-        >
-          <Tooltip
-            title="Zalo"
-            placement="top"
-            overlayInnerStyle={{
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-              borderRadius: "4px"
-            }}
-          >
-            <img
-              src={LogoZL}
-              alt="LogoZL"
-              style={{ width: "20px", height: "auto", cursor: "pointer" }}
-            />
+        <Menu.Item key="3" style={menuItemStyle}>
+          <Tooltip title="Zalo" placement="top" overlayInnerStyle={tooltipStyle}>
+            <img src={LogoZL} alt="LogoZL" style={iconStyle} />
           </Tooltip>
         </Menu.Item>
 
-        <Menu.Item
-          key="2"
-          style={{
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            margin: "0 5px",
-          }}
-        >
-          <Tooltip
-            title="Telegram"
-            placement="top"
-            overlayInnerStyle={{
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-              borderRadius: "4px"
-            }}
-          >
-            <img
-              src={LogoTL}
-              alt="LogoTL"
-              style={{ width: "20px", height: "auto", cursor: "pointer" }}
-            />
+        <Menu.Item key="2" style={menuItemStyle}>
+          <Tooltip title="Telegram" placement="top" overlayInnerStyle={tooltipStyle}>
+            <img src={LogoTL} alt="LogoTL" style={iconStyle} />
           </Tooltip>
         </Menu.Item>
 
-        <Menu.Item
-          key="4"
-          style={{
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            margin: "0 5px",
-          }}
-        >
-          <Tooltip
-            title="Viber"
-            placement="top"
-            overlayInnerStyle={{
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-              borderRadius: "4px"
-            }}
-          >
-            <img
-              src={LogoVB}
-              alt="LogoVB"
-              style={{ width: "20px", height: "auto", cursor: "pointer" }}
-            />
+        <Menu.Item key="4" style={menuItemStyle}>
+          <Tooltip title="Viber" placement="top" overlayInnerStyle={tooltipStyle}>
+            <img src={LogoVB} alt="LogoVB" style={iconStyle} />
           </Tooltip>
         </Menu.Item>
       </Menu>
     </Sider>
   );
+};
+
+// Style cho các Menu.Item và Tooltip
+const menuItemStyle = {
+  height: "60px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  margin: "0 5px",
+};
+
+const tooltipStyle = {
+  backgroundColor: "#fff",
+  color: "#000",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+  borderRadius: "4px",
+};
+
+const iconStyle = {
+  width: "20px",
+  height: "auto",
+  cursor: "pointer",
 };
 
 export default Sidebar;

@@ -3,12 +3,11 @@ import './MessageList.css'
 
 const MessageList = ({ chats, tab, userData, endOfMessagesRef }) => {
 
-    // Cuộn tới cuối danh sách tin nhắn khi có tin nhắn mới
     useEffect(() => {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [chats]); // Cuộn mỗi khi danh sách chats thay đổi
+    }, [chats]);
 
     return (
         <ul className="chat-messages">
@@ -18,9 +17,12 @@ const MessageList = ({ chats, tab, userData, endOfMessagesRef }) => {
                     key={index}
                 >
                     {chat.senderName !== userData.username && (
-                        <div className="message-avatar" style={{ backgroundColor: 'black', color: 'white' }}>
-                            {chat.senderName[0]} {/* Hiển thị chữ cái đầu trong tên */}
-                        </div>
+                        <img
+                            className="message-avatar"
+                            src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'} // Đặt avatar, nếu không có thì dùng ảnh mặc định
+                            alt="avatar"
+                            style={{ backgroundColor: 'black', color: 'white' }}
+                        />
                     )}
                     <div className="message-data">
                         {chat.senderName !== userData.username && (
@@ -30,9 +32,12 @@ const MessageList = ({ chats, tab, userData, endOfMessagesRef }) => {
                         <span className="message-time">{chat.time}</span> {/* Thời gian nhắn tin cuối cùng */}
                     </div>
                     {chat.senderName === userData.username && (
-                        <div className="avatar self" style={{ backgroundColor: 'black', color: 'white' }}>
-                            {chat.senderName[0]} {/* Hiển thị chữ cái đầu trong tên */}
-                        </div>
+                        <img
+                            className="avatar self"
+                            src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'} // Avatar của người dùng
+                            alt="avatar"
+                            style={{ backgroundColor: 'black', color: 'white' }}
+                        />
                     )}
                 </li>
             ))}

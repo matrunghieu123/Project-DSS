@@ -7,6 +7,8 @@ import MessageList from '../body/message/MessageList';
 import SendMessage from '../body/message/sendmessage/SendMessage';
 import MemberList from '../body/member/MemberList';
 import Search from 'antd/es/input/Search';
+import FilterBar from '../body/filterbar/FilterMenu';
+import ChatTool from '../body/chattool/ChatTool';
 
 var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -159,7 +161,7 @@ const ChatRoom = () => {
                     <div className="body-nav">
                         <div className="body-col-nav">
                             <div className="col-nav">
-                                <ColNavbar />
+                                <ColNavbar setTab={setTab} />
                             </div>
                         </div>
                         
@@ -168,6 +170,7 @@ const ChatRoom = () => {
                                 <div className='member-seach'>
                                     <div className='seach-box'>
                                     <Search
+                                        className='seach-button'
                                         placeholder="Tìm kiếm"
                                         allowClear
                                         onSearch={onSearch}
@@ -184,15 +187,25 @@ const ChatRoom = () => {
                                     </div>
                                 </div>
                                 <div className="chat-content">
-                                    <MessageList 
-                                        chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
-                                        tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
-                                    />
-                                    <SendMessage 
-                                        userData={userData} handleMessage={handleMessage} 
-                                        handleKeyPress={handleKeyPress} sendValue={sendValue} 
-                                        sendPrivateValue={sendPrivateValue} tab={tab} 
-                                    />
+                                    <div>
+                                        <FilterBar />
+                                    </div>
+                                    <div className='chat-border'>
+                                        <div className='text-input'>
+                                            <MessageList 
+                                                chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
+                                                tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
+                                            />
+                                            <SendMessage 
+                                                userData={userData} handleMessage={handleMessage} 
+                                                handleKeyPress={handleKeyPress} sendValue={sendValue} 
+                                                sendPrivateValue={sendPrivateValue} tab={tab} 
+                                            />
+                                        </div>
+                                        <div className='chat-tool'>
+                                            <ChatTool />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
