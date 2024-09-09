@@ -2,6 +2,7 @@ package com.involveininnovation.chat.controller;
 
 import com.involveininnovation.chat.bot.TelegramBot;
 import com.involveininnovation.chat.model.CustomMessage;
+import com.involveininnovation.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,6 +16,8 @@ public class ChatController {
 
     @Autowired TelegramBot telegramBot;
     @Autowired
+    ChatService chatService;
+    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/message")
@@ -22,10 +25,8 @@ public class ChatController {
     public void receiveMessage(@RequestParam String message){
         simpMessagingTemplate.convertAndSend("/chatroom/public", message);
         Long chatID = getChatID();
-        telegramBot.sendMessageToTelegram(chatID, message.toString());
-        telegramBot.sendMessageToChatApp(message);
+        telegramBot.handleChatMessage(message, chatID);
     }
-
 
 
     @MessageMapping("/private-message")
