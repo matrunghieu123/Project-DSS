@@ -27,7 +27,7 @@ interface InputComponentProps {
   multiline?: boolean;
 }
 
-const InputComponent = forwardRef(
+const TextFieldComponent = forwardRef(
   (props: InputComponentProps, ref: Ref<TextInput>) => {
     const [isSecure, setIsSecure] = useState(props.secureTextEntry || false);
 
@@ -105,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InputComponent;
+export default TextFieldComponent;

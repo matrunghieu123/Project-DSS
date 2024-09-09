@@ -34,6 +34,11 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
     setValues({...values, [name]: value});
   };
 
+  const handleLogin = () => {
+    console.log('Login');
+    navigation.navigate('HomeScreen');
+  };
+
   useEffect(() => {
     const emailValidation = Validate.email(values.email);
     const passwordValidation = Validate.password(values.password);
@@ -45,7 +50,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={[Styles.container]}>
+      <SafeAreaView style={Styles.container}>
         <Image source={{uri: Constants.logoUrl}} style={styles.image} />
         <Text style={styles.title}>Đăng nhập</Text>
         <TextFieldComponent
@@ -79,7 +84,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
         <ForgotPassword navigation={navigation} />
         <ButtonComponent
           title="Đăng nhập"
-          onPress={() => {}}
+          onPress={handleLogin}
           disabled={!(validValues.email && validValues.password)}
         />
       </SafeAreaView>

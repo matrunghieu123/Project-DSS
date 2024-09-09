@@ -34,8 +34,8 @@ const ForgotPasswordScreen = ({navigation}: {navigation: any}) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={Styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Quên mật khẩu</Text>
+        <View style={Styles.headerContainer}>
+          <Text style={Styles.headerText}>Quên mật khẩu</Text>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <MaterialIcons name={'arrow-back-ios'} size={24} />
           </TouchableOpacity>
@@ -64,18 +64,6 @@ const ForgotPasswordScreen = ({navigation}: {navigation: any}) => {
   );
 };
 const styles = StyleSheet.create({
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 20,
-    fontFamily: Fonts.medium,
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-  },
   icon: {
     fontSize: 20,
     color: AppColors.greyIcon,

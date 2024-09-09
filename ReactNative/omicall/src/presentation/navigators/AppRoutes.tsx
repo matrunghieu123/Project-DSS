@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import SplashScreen from '../screens/splash/SplashScreen';
 import AuthNavigator from './AuthNavigator';
 import {NavigationContainer} from '@react-navigation/native';
+import {MainNavigator} from './MainNavigator.tsx';
 
 const AppRoutes = () => {
   const [isShowSplash, setIsShowSplash] = useState(true);
@@ -10,11 +11,15 @@ const AppRoutes = () => {
       setIsShowSplash(false);
     }, 2000);
   }, []);
-  return isShowSplash ? (
-    <SplashScreen />
-  ) : (
+  return (
     <NavigationContainer>
-      <AuthNavigator />
+      {isShowSplash ? (
+        <SplashScreen />
+      ) : 5 > 0 ? (
+        <MainNavigator />
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 };

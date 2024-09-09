@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {Text, TouchableOpacity, StyleSheet, ViewStyle, StyleProp, TextStyle} from 'react-native';
 import React from 'react';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
@@ -7,6 +7,8 @@ interface ButtonComponentProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+  styleText?: StyleProp<TextStyle>;
 }
 
 const ButtonComponent = (props: ButtonComponentProps) => {
@@ -15,9 +17,11 @@ const ButtonComponent = (props: ButtonComponentProps) => {
       style={[
         styles.button,
         props.disabled ? styles.buttonDisabled : styles.buttonEnabled,
+        props.style,
       ]}
+      onPress={props.onPress}
       disabled={props.disabled}>
-      <Text style={styles.text}>{props.title}</Text>
+      <Text style={[styles.text,props.styleText]}>{props.title}</Text>
     </TouchableOpacity>
   );
 };
