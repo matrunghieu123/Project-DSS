@@ -1,6 +1,7 @@
 import AvatarCircle from './AvatarCircle';
 import ButtonComponent from './ButtonComponent';
 import ChatComponent from './ChatComponent';
+import MessageBubble from './MessageBubble';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
 import TabLabel from './TabLabel';
@@ -16,4 +17,5 @@ export {
   TabLabel,
   ChatComponent,
   TopTabComponent,
+  MessageBubble,
 };

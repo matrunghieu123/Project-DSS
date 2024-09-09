@@ -13,6 +13,8 @@ import CallScreen from './call/CallScreen.tsx';
 import ContactsScreen from './contacts/ContactsScreen.tsx';
 import HistoryScreen from './history/HistoryScreen.tsx';
 import RecordScreen from './record/RecordScreen.tsx';
+import FilterScreen from './home/filter/FilterScreen.tsx';
+import ChatScreen from './home/chat/ChatScreen.tsx';
 
 export {
   SplashScreen,
@@ -26,6 +28,8 @@ export {
   FacebookChatScreen,
   TelegramChatScreen,
   ZaloChatScreen,
+  ChatScreen,
+  FilterScreen,
   CallScreen,
   ContactsScreen,
   HistoryScreen,

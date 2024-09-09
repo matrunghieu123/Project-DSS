@@ -4,9 +4,9 @@ import Svg, {G, Rect, Path, SvgProps} from 'react-native-svg';
 function SvgComponent(props: SvgProps) {
   return (
     <Svg
-      height={30}
+      height={25}
       viewBox="0 0 512 512"
-      width={30}
+      width={25}
       data-name="Layer 2"
       {...props}
     >

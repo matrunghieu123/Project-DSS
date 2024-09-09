@@ -3,7 +3,7 @@ import Svg, {LinearGradient, Stop, Path, SvgProps} from 'react-native-svg';
 
 function SvgComponent(props: SvgProps) {
   return (
-    <Svg x="0px" y="0px" width={30} height={30} viewBox="0 0 48 48" {...props}>
+    <Svg x="0px" y="0px" width={25} height={25} viewBox="0 0 48 48" {...props}>
       <LinearGradient
         id="a"
         x1={9.993}

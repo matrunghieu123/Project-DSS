@@ -21,7 +21,7 @@ const initValues = {
   password: '',
 };
 
-const LoginScreen = ({navigation}: {navigation: any}) => {
+const LoginScreen = ({navigation}: any) => {
   const emailRef = useRef<any>();
   const passwordRef = useRef<any>();
   const [values, setValues] = useState(initValues);
@@ -81,7 +81,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
             Mật khẩu tối thiểu phải có 6 kí tự
           </Text>
         ) : null}
-        <ForgotPassword navigation={navigation} />
+        <ForgotPassword/>
         <ButtonComponent
           title="Đăng nhập"
           onPress={handleLogin}
@@ -92,7 +92,7 @@ const LoginScreen = ({navigation}: {navigation: any}) => {
   );
 };
 
-const ForgotPassword = ({navigation}: {navigation: any}) => {
+const ForgotPassword = ({navigation}: any) => {
   return (
     <TouchableOpacity
       style={styles.forgotPasswordContainer}

@@ -4,9 +4,9 @@ import {
   CallScreen,
   ContactsScreen,
   HistoryScreen,
-  HomeScreen,
   RecordScreen,
 } from '../screens';
+import {HomeNavigator} from './HomeNavigator.tsx';
 
 const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -15,7 +15,7 @@ const BottomTabNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}>
-      <Tab.Screen name="Đa kênh" component={HomeScreen} />
+      <Tab.Screen name="Đa kênh" component={HomeNavigator} />
       <Tab.Screen name="Phiếu ghi" component={RecordScreen} />
       <Tab.Screen name="Cuộc gọi" component={CallScreen} />
       <Tab.Screen name="Danh bạ" component={ContactsScreen} />

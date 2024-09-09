@@ -6,8 +6,8 @@ function SvgComponent(props: SvgProps) {
     <Svg
       x="0px"
       y="0px"
-      width={30}
-      height={30}
+      width={25}
+      height={25}
       viewBox="0 0 48 48"
       {...props}
     >

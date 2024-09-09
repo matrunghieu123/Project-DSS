@@ -1,9 +1,13 @@
 import React from 'react';
 import {ChatComponent} from '../../../components';
 
-const AllChatScreen = () => {
+const AllChatScreen = ({navigation}: any) => {
   return (
-   <ChatComponent />
+    <ChatComponent
+      navigation={navigation}
+      name={'Quang Anh'}
+      content={'Bạn có tin nhắn mới'}
+    />
   );
 };
 

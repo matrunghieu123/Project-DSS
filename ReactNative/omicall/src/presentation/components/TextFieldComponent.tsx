@@ -1,4 +1,4 @@
-import {StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TextInput, TouchableOpacity, View, ViewStyle} from 'react-native';
 import React, {forwardRef, ReactNode, Ref, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../core/constants/AppColors';
@@ -21,6 +21,7 @@ interface InputComponentProps {
   height?: number;
   width?: number;
   style?: any;
+  styleContainer?: ViewStyle;
   maxLength?: number;
   onKeyPress?: (event: any) => void;
   onSubmitEditing?: () => void;
@@ -45,6 +46,7 @@ const TextFieldComponent = forwardRef(
             width: props.width || '100%',
             height: props.height || 56,
           },
+          props.styleContainer,
         ]}
         onPress={handlePress}
         activeOpacity={1}>

@@ -7,7 +7,11 @@ import {Fonts} from '../../../core/constants/Fonts.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ContentScreen from './ContentScreen.tsx';
 
-const HomeScreen = ({navigation}: {navigation: any}) => {
+interface HomeScreenProps {
+  navigation: any;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('all');
   const tabNames: {[key: string]: string} = {
     all: 'Tất cả',
@@ -18,7 +22,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
   };
   return (
     <View style={styles.container}>
-      <TopContainer navigation={navigation} />
+      <TopContainer navigation={navigation}/>
       <View style={styles.topTabContainer}>
         <Text style={styles.title}>Cuộc trò chuyện</Text>
         <Text style={styles.description}>{tabNames[activeTab]}</Text>
@@ -26,11 +30,16 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         <FilterButton navigation={navigation} />
         <TopTabComponent activeTab={activeTab} setActiveTab={setActiveTab} />
       </View>
-      <ContentScreen activeTab={activeTab} />
+      <ContentScreen activeTab={activeTab} navigation={navigation}/>
     </View>
   );
 };
-const TopContainer = ({navigation}: {navigation: any}) => {
+
+interface TopContainerProps {
+  navigation: any;
+}
+
+const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
   return (
     <View style={styles.topContainer}>
       <SafeAreaView>
@@ -47,14 +56,14 @@ const TopContainer = ({navigation}: {navigation: any}) => {
             <Text style={styles.name}>Name</Text>
             <Text style={styles.email}>abc@gmail.com</Text>
           </View>
-          <NotificationButton navigation={navigation} />
+          <NotificationButton navigation={navigation}/>
         </RowComponent>
       </SafeAreaView>
     </View>
   );
 };
 
-const NotificationButton = ({navigation}: {navigation: any}) => {
+const NotificationButton = ({navigation}: any) => {
   return (
     <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')}>
       <View style={styles.notificationContainer}>
@@ -65,7 +74,7 @@ const NotificationButton = ({navigation}: {navigation: any}) => {
   );
 };
 
-const SearchButton = ({navigation}: {navigation: any}) => {
+const SearchButton = ({navigation}: any) => {
   return (
     <TouchableOpacity
       style={styles.searchContainer}
@@ -75,7 +84,7 @@ const SearchButton = ({navigation}: {navigation: any}) => {
   );
 };
 
-const FilterButton = ({navigation}: {navigation: any}) => {
+const FilterButton = ({navigation}: any) => {
   return (
     <TouchableOpacity
       style={styles.filterContainer}
@@ -160,4 +169,5 @@ const styles = StyleSheet.create({
     top: 15,
   },
 });
+
 export default HomeScreen;

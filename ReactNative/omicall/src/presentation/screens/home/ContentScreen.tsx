@@ -9,12 +9,13 @@ import {
 
 interface ContentScreenProps {
   activeTab: string;
+  navigation: any;
 }
 
-const ContentScreen: React.FC<ContentScreenProps> = ({activeTab}) => {
+const ContentScreen: React.FC<ContentScreenProps> = ({activeTab, navigation}) => {
   switch (activeTab) {
     case 'all':
-      return <AllChatScreen />;
+      return <AllChatScreen navigation={navigation}/>;
     case 'internal':
       return <InternalChatScreen />;
     case 'facebook':

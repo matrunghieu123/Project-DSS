@@ -4,7 +4,7 @@ import {Styles} from '../../../core/constants/Styles.ts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Text, TouchableOpacity, View} from 'react-native';
 
-const SettingScreens = ({navigation}: {navigation: any}) => {
+const SettingScreens = ({navigation}: any) => {
   return (
     <SafeAreaView style={Styles.container}>
       <View style={Styles.headerContainer}>

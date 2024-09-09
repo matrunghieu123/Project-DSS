@@ -21,7 +21,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../../core/constants/AppColors.ts';
 import {Validate} from '../../../core/utils/validate.ts';
 
-const ForgotPasswordScreen = ({navigation}: {navigation: any}) => {
+const ForgotPasswordScreen = ({navigation}: any) => {
   const emailRef = useRef<any>();
   const [email, setEmail] = useState('');
   const [validEmail, setValidEmail] = useState(false);

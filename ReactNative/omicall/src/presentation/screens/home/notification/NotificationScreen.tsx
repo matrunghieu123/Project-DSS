@@ -6,7 +6,7 @@ import {Styles} from '../../../../core/constants/Styles.ts';
 import ConfirmModal from '../../../modal/ConfirmModal.tsx';
 import EmptyNotification from './EmptyNotification.tsx';
 
-const NotificationScreen = ({navigation}: {navigation: any}) => {
+const NotificationScreen = ({navigation}: any) => {
   const [visible, setVisible] = useState(false);
   return (
     <SafeAreaView style={Styles.container}>
