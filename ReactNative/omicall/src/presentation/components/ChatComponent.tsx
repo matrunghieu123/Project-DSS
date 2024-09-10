@@ -3,6 +3,7 @@ import React from 'react';
 import {AvatarCircle, RowComponent} from './index.ts';
 import {Fonts} from '../../core/constants/Fonts.ts';
 import {AppColors} from '../../core/constants/AppColors.ts';
+import {Styles} from '../../core/constants/Styles.ts';
 
 interface ChatComponentProps {
   navigation: any;
@@ -17,7 +18,7 @@ const ChatComponent = (props: ChatComponentProps) => {
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={handlePress}>
+    <TouchableOpacity style={[Styles.boxShadow, styles.container]} onPress={handlePress}>
       <RowComponent>
         <AvatarCircle />
         <View style={styles.textContainer}>

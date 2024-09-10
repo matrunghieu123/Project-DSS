@@ -23,4 +23,11 @@ export const Styles = {
     right: 0,
     textAlign: 'center' as 'center',
   },
+  boxShadow:{
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
 };

@@ -5,7 +5,7 @@ import FacebookIcon from '../../../assets/svg/FacebookIcon.tsx';
 import TelegramIcon from '../../../assets/svg/TelegramIcon.tsx';
 import ZaloIcon from '../../../assets/svg/ZaloIcon.tsx';
 import InternalIcon from '../../../assets/svg/InternalIcon.tsx';
-import {AppColors} from '../../core/constants/AppColors.ts';
+import {Styles} from '../../core/constants/Styles.ts';
 
 interface TopTabBarProps {
   activeTab: string;
@@ -27,8 +27,14 @@ const TopTabBar: React.FC<TopTabBarProps> = ({activeTab, setActiveTab}) => {
         <TouchableOpacity
           key={tab.key}
           onPress={() => setActiveTab(tab.key)}
-          style={[styles.touch, activeTab === tab.key ? styles.active : null]}>
-          {tab.icon}
+          style={[styles.touch]}>
+          <View
+            style={[
+              styles.view,
+              activeTab === tab.key ? Styles.boxShadow : null,
+            ]}>
+            {tab.icon}
+          </View>
         </TouchableOpacity>
       ))}
     </View>
@@ -41,11 +47,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   touch: {
-    padding: 10,
+    padding: 5,
   },
-  active: {
-    borderBottomWidth: 2,
-    borderBottomColor: AppColors.primary,
+  view: {
+    padding: 8,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
 
