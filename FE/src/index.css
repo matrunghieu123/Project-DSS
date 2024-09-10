@@ -44,6 +44,8 @@ button {
 .body-nav {
   display: flex;
   height: calc(100vh - 16px);
+  /* khi mà có header thì chỉnh lại */
+  /* height: 86vh; */
 }
 
 .chat-box-body {
@@ -64,7 +66,15 @@ button {
   display: flex;
   flex-direction: column;
   flex-shrink: 0; /* Ngăn thu nhỏ */
+  overflow-y: auto;
+  width: 22%;
 }
+
+/* phần thành viên */
+.member-box {
+  overflow-x: hidden;
+}
+
 
 /* phần chat */
 .chat-content {
@@ -85,12 +95,14 @@ button {
   display: flex;
   flex-direction: column;
   flex: 1;
+  max-height: 86vh;
 }
 
 .chat-tool {
   width: 30%;
 }
 
+/* phần đăng kí */
 .register {
   position: fixed;
   top: 50%;

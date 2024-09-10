@@ -1,8 +1,7 @@
 .member-list {
   width: 100%;
-  max-width: 300px; /* Đặt chiều rộng tối đa */
+  max-width: 310px; /* Đặt chiều rộng tối đa */
   overflow-y: auto;
-  margin-right: 10px;
 }
 
 ul {

@@ -9,6 +9,7 @@ import MemberList from '../body/member/MemberList';
 import Search from 'antd/es/input/Search';
 import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
+import CallDialog from './calldialog/CallDialog';
 
 var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -176,8 +177,10 @@ const ChatRoom = () => {
                                         onSearch={onSearch}
                                         size='large'
                                         style={{
-                                            width: 'auto',
-                                            marginTop: 16,
+                                            width: '100%',
+                                            maxWidth: 300,
+                                            marginTop: 5,
+                                            marginLeft: 5,
                                         }}
                                     />
                                     </div>
@@ -187,7 +190,12 @@ const ChatRoom = () => {
                                     </div>
                                 </div>
                                 <div className="chat-content">
-                                    <div>
+                                    <div 
+                                        style={{
+                                            paddingTop: 5,
+                                            paddingRight: 10,
+                                        }}
+                                    >
                                         <FilterBar />
                                     </div>
                                     <div className='chat-border'>
@@ -203,13 +211,17 @@ const ChatRoom = () => {
                                             />
                                         </div>
                                         <div className='chat-tool'>
-                                            <ChatTool />
+                                            <ChatTool 
+                                                avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
+                                                username={userData.username}  // Truyền username 
+                                            />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <CallDialog />
                 </div>
             ) : (
                 <div className="register">
