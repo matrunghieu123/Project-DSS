@@ -19,7 +19,7 @@ import {
 import {AppInfos} from '../../../core/constants/AppInfos.ts';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../../core/constants/AppColors.ts';
-import {Validate} from '../../../core/utils/validate.ts';
+import {Validate} from '../../../core/utils/Validate.ts';
 
 const ForgotPasswordScreen = ({navigation}: any) => {
   const emailRef = useRef<any>();

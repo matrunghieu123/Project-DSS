@@ -1,11 +1,9 @@
-import {View, Text} from 'react-native';
 import React from 'react';
+import {ChatComponent} from '../../../components';
 
-const TelegramChatScreen = () => {
+const TelegramChatScreen = ({navigation}: any) => {
   return (
-    <View>
-      <Text>TelegramChatScreen</Text>
-    </View>
+    <ChatComponent type={'telegram'} navigation={navigation} name={'Bot Telegram'} content={'Telegram'} />
   );
 };
 

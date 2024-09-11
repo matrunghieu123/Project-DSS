@@ -14,7 +14,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Fonts} from '../../../core/constants/Fonts';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../../core/constants/AppColors';
-import {Validate} from '../../../core/utils/validate.ts';
+import {Validate} from '../../../core/utils/Validate.ts';
 
 const initValues = {
   email: '',
