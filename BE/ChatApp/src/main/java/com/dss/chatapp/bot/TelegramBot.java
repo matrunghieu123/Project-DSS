@@ -98,7 +98,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public String getCurrentTime(){
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalDateTime.now().format(dateTimeFormatter);
     }
 

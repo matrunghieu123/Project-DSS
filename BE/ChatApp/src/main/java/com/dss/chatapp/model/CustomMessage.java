@@ -10,6 +10,7 @@ public class CustomMessage {
     private long chatId;
     private String senderName;
     private String receiverName;
+    private String fileUrl;
     private String message;
     private String time;
     private Status status;
