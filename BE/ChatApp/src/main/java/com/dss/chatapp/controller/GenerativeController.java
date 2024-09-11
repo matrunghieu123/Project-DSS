@@ -8,16 +8,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/chat")
+@RequestMapping("/api/chat")
 public class GenerativeController {
 
     private final GenAIService genAIService;
     @PostMapping
     public ChatResponse getChatResponse(@RequestBody ChatRequest request){
-//        return genAIService.getResponse(request);
-        return null;
+        return new ChatResponse(genAIService.getResponse(request));
     }
+
+
 }

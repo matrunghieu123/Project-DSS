@@ -22,7 +22,7 @@ public class ChatController {
 
     @MessageMapping("/message")
     @SendTo("/chatroom/public")
-    public void receiveMessage(@RequestParam String message){
+        public void receiveMessage(@RequestParam String message){
         simpMessagingTemplate.convertAndSend("/chatroom/public", message);
         Long chatID = getChatID();
         telegramBot.handleChatMessage(message, chatID);

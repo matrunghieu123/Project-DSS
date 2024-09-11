@@ -17,9 +17,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final String botName;
 
     // Constructor for the bot
-    public TelegramBot(String botName, String botToken){
+    public TelegramBot(String botName, String botToken, SimpMessagingTemplate messagingTemplate){
         super(botToken);
         this.botName = botName;
+        this.messagingTemplate =  messagingTemplate;
     }
 
     // Method to handle incoming messages from Telegram
@@ -32,7 +33,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             log.info("Message received from chat ID {}: {}", chatId, messageText);
 
             // Echo the received message back to Telegram
-            sendMessageToTelegram(chatId, "You said: " + messageText);
+//            sendMessageToTelegram(chatId, "You said: " + messageText);
 
             // Broadcast the message to chat app
             broadcastMessageToChatApp(chatId, messageText);
