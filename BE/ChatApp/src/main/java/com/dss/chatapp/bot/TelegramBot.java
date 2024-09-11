@@ -1,5 +1,7 @@
 package com.dss.chatapp.bot;
 
+import com.dss.chatapp.model.CustomMessage;
+import com.dss.chatapp.model.Status;
 import org.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
@@ -56,7 +61,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     // Method to handle incoming messages from chat app and forward them to Telegram
-    public void handleChatMessage(String chatMessageJson, Long chatId) {
+    public void handleChatMessage(Long chatId, String chatMessageJson) {
         // Parse the incoming JSON message
         JSONObject jsonObject = new JSONObject(chatMessageJson);
         String message = jsonObject.getString("message");
@@ -67,15 +72,34 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     // Broadcast message from Telegram to chat app using WebSocket
     public void broadcastMessageToChatApp(Long chatId, String messageText) {
-        JSONObject messageJson = new JSONObject();
-        messageJson.put("senderName", "Telegram");
-        messageJson.put("message", messageText);
-        messageJson.put("status", "MESSAGE");
+//        JSONObject messageJson = new JSONObject();
+//        messageJson.put("senderName", "Telegram");
+//        messageJson.put("message", messageText);
+//        messageJson.put("status", "MESSAGE");
+//
+//        // Send the message to the WebSocket topic
+//        messagingTemplate.convertAndSend("/chatroom/public", messageJson.toString());
+//
+//        log.info("Broadcasted message to chat app: {}", messageJson.toString());
+        String timestamp = getCurrentTime();
+
+        // Create a CustomMessage object
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setChatId(chatId);
+        customMessage.setMessage(messageText);
+        customMessage.setSenderName("Telegram");
+        customMessage.setTime(timestamp);  // Set timestamp
+        customMessage.setStatus(Status.MESSAGE);  // Set status (enum for status)
 
         // Send the message to the WebSocket topic
-        messagingTemplate.convertAndSend("/chatroom/public", messageJson.toString());
+        messagingTemplate.convertAndSend("/chatroom/public", customMessage);
 
-        log.info("Broadcasted message to chat app: {}", messageJson.toString());
+        log.info("Broadcasted message to chat app: {}", customMessage);
+    }
+
+    public String getCurrentTime(){
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+        return LocalDateTime.now().format(dateTimeFormatter);
     }
 
     @Override

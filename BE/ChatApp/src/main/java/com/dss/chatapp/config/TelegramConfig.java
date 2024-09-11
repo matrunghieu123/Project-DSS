@@ -31,6 +31,7 @@ public class TelegramConfig {
                     try {
                         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
                         telegramBotsApi.registerBot(telegramBotInstance);
+                        log.info("TelegramBot is being initialized: {}", botName);
                     } catch (TelegramApiException e) {
                         log.error("Exception during registration telegram api: {}", e.getMessage());
                     }

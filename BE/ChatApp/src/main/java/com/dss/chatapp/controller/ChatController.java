@@ -2,8 +2,10 @@ package com.dss.chatapp.controller;
 
 import com.dss.chatapp.bot.TelegramBot;
 import com.dss.chatapp.model.CustomMessage;
+import com.dss.chatapp.model.Status;
 import com.dss.chatapp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -22,10 +24,14 @@ public class ChatController {
 
     @MessageMapping("/message")
     @SendTo("/chatroom/public")
-        public void receiveMessage(@RequestParam String message){
+        public CustomMessage receiveMessage(@Payload String message){
+        CustomMessage customMessage = new CustomMessage();
+        customMessage.setMessage(message);
+        customMessage.setStatus(Status.MESSAGE);
         simpMessagingTemplate.convertAndSend("/chatroom/public", message);
-        Long chatID = getChatID();
-        telegramBot.handleChatMessage(message, chatID);
+        Long telegram_chatID = getChatID();
+        telegramBot.handleChatMessage(telegram_chatID, customMessage.getMessage());
+        return customMessage;
     }
 
     @MessageMapping("/private-message")
@@ -38,4 +44,6 @@ public class ChatController {
     private Long getChatID(){
         return 5739833199L;
     }
+
+
 }

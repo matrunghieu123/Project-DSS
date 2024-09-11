@@ -11,7 +11,7 @@ public class CustomMessage {
     private String senderName;
     private String receiverName;
     private String message;
-    private String date;
+    private String time;
     private Status status;
 
     public CustomMessage(){}
@@ -20,6 +20,7 @@ public class CustomMessage {
         this.chatId = chatId;
         this.message = message;
     }
+
 
 
 }
