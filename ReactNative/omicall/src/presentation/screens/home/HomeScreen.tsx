@@ -1,18 +1,26 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {AppColors} from '../../../core/constants/AppColors.ts';
+import {AppColors} from '../../../core/constants/AppColors';
 import {AvatarCircle, RowComponent, TopTabComponent} from '../../components';
-import {Fonts} from '../../../core/constants/Fonts.ts';
+import {Fonts} from '../../../core/constants/Fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import ContentScreen from './ContentScreen.tsx';
+import ContentScreen from './ContentScreen';
+import {useSelector} from 'react-redux';
+import {authSelector} from '../../redux/AuthReducer';
+import {Status} from '../../../core/constants/Status';
+import StompService from '../../../services/StompService';
+
 
 interface HomeScreenProps {
   navigation: any;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
+  const user = useSelector(authSelector);
   const [activeTab, setActiveTab] = useState('all');
+  const [isConnected, setIsConnected] = useState(false);
+  const stompService = StompService.getInstance(user.name);
   const tabNames: {[key: string]: string} = {
     all: 'Tất cả',
     internal: 'Nội bộ',
@@ -20,9 +28,32 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     telegram: 'Telegram',
     zalo: 'Zalo',
   };
+
+  useEffect(() => {
+    stompService.connect();
+    const checkConnection = setInterval(() => {
+      if (stompService.isConnected()) {
+        setIsConnected(true);
+        clearInterval(checkConnection);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkConnection);
+  }, [stompService]);
+
+  useEffect(() => {
+    if (isConnected) {
+      stompService.joinChatRoom({
+        senderName: user.name,
+        status: Status.JOIN,
+      });
+    }
+  }, [isConnected, user.name, stompService]);
+
+
   return (
     <View style={styles.container}>
-      <TopContainer navigation={navigation}/>
+      <TopContainer navigation={navigation} />
       <View style={styles.topTabContainer}>
         <Text style={styles.title}>Cuộc trò chuyện</Text>
         <Text style={styles.description}>{tabNames[activeTab]}</Text>
@@ -30,7 +61,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
         <FilterButton navigation={navigation} />
         <TopTabComponent activeTab={activeTab} setActiveTab={setActiveTab} />
       </View>
-      <ContentScreen activeTab={activeTab} navigation={navigation}/>
+      <ContentScreen activeTab={activeTab} navigation={navigation} />
     </View>
   );
 };
@@ -40,6 +71,7 @@ interface TopContainerProps {
 }
 
 const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
+  const user = useSelector(authSelector);
   return (
     <View style={styles.topContainer}>
       <SafeAreaView>
@@ -53,10 +85,10 @@ const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
             <AvatarCircle />
           </TouchableOpacity>
           <View style={styles.container}>
-            <Text style={styles.name}>Name</Text>
-            <Text style={styles.email}>abc@gmail.com</Text>
+            <Text style={styles.name}>{user.name}</Text>
+            <Text style={styles.email}>{user.email}</Text>
           </View>
-          <NotificationButton navigation={navigation}/>
+          <NotificationButton navigation={navigation} />
         </RowComponent>
       </SafeAreaView>
     </View>

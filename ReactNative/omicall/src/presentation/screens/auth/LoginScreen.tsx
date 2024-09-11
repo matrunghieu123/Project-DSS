@@ -14,7 +14,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Fonts} from '../../../core/constants/Fonts';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {AppColors} from '../../../core/constants/AppColors';
-import {Validate} from '../../../core/utils/validate.ts';
+import {Validate} from '../../../core/utils/Validate.ts';
+import {useDispatch} from 'react-redux';
+import {addAuth} from '../../redux/AuthReducer.ts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initValues = {
   email: '',
@@ -24,6 +27,7 @@ const initValues = {
 const LoginScreen = ({navigation}: any) => {
   const emailRef = useRef<any>();
   const passwordRef = useRef<any>();
+  const dispatch = useDispatch();
   const [values, setValues] = useState(initValues);
   const [validValues, setValidValues] = useState({
     email: false,
@@ -34,9 +38,17 @@ const LoginScreen = ({navigation}: any) => {
     setValues({...values, [name]: value});
   };
 
-  const handleLogin = () => {
-    console.log('Login');
-    navigation.navigate('HomeScreen');
+  const handleLogin = async () => {
+    const response = {
+      id: '1',
+      email: values.email,
+      name: values.email,
+      image: '',
+      accessToken: 'abcxyz',
+    };
+    dispatch(addAuth(response));
+    // Save to local storage
+    await AsyncStorage.setItem('auth', JSON.stringify(response));
   };
 
   useEffect(() => {
@@ -81,7 +93,7 @@ const LoginScreen = ({navigation}: any) => {
             Mật khẩu tối thiểu phải có 6 kí tự
           </Text>
         ) : null}
-        <ForgotPassword/>
+        <ForgotPassword navigation={navigation} />
         <ButtonComponent
           title="Đăng nhập"
           onPress={handleLogin}
