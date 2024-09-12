@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "256235301108",
+    "project_id": "chat-crm-f8a68",
+    "storage_bucket": "chat-crm-f8a68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256235301108:android:e0a28f3d8d4e4f934596a1",
+        "android_client_info": {
+          "package_name": "com.omicall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9oD1NAXuHm5EGJAN0RALuggUQT1lw8KQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -155,10 +155,14 @@ const SendMessage = ({
   return (
     <RowComponent style={[styles.row]}>
       <SpaceComponent width={10} />
+      <Ionicons name={'attach-sharp'} size={24} color={AppColors.secondary} />
+      <SpaceComponent width={10} />
+      <Ionicons name={'image'} size={24} color={AppColors.secondary} />
+      <SpaceComponent width={10} />
       <TextFieldComponent
         placeholder={'Nhập tin nhắn...'}
         height={40}
-        width={AppInfos.sizes.width * 0.85}
+        width={AppInfos.sizes.width * 0.67}
         styleContainer={styles.input}
         value={message}
         onChangeText={text => setMessage(text)}
