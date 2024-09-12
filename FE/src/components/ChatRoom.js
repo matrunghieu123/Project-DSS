@@ -9,6 +9,7 @@ import MemberList from '../body/member/MemberList';
 import Search from 'antd/es/input/Search';
 import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
+import CallDialog from './calldialog/CallDialog';
 
 var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -151,6 +152,19 @@ const ChatRoom = () => {
         }
     };
 
+    // Thêm trạng thái mới
+    const [isFilterCleared, setIsFilterCleared] = useState(false);
+
+    // Hàm xử lý khi nhấn vào icon xóa bộ lọc
+    const handleClearFilter = () => {
+        setIsFilterCleared(true);
+    };
+
+    // Hàm để quay lại trạng thái bình thường
+    const handleResetFilter = () => {
+        setIsFilterCleared(false);
+    };
+
     return (
         <div className="container">
             {userData.connected ? (
@@ -161,7 +175,7 @@ const ChatRoom = () => {
                     <div className="body-nav">
                         <div className="body-col-nav">
                             <div className="col-nav">
-                                <ColNavbar setTab={setTab} />
+                                <ColNavbar setTab={setTab} handleResetFilter={handleResetFilter} />
                             </div>
                         </div>
                         
@@ -176,8 +190,9 @@ const ChatRoom = () => {
                                         onSearch={onSearch}
                                         size='large'
                                         style={{
-                                            width: 'auto',
-                                            marginTop: 16,
+                                            width: '100%',
+                                            maxWidth: 300,
+                                            margin: 5,
                                         }}
                                     />
                                     </div>
@@ -187,29 +202,51 @@ const ChatRoom = () => {
                                     </div>
                                 </div>
                                 <div className="chat-content">
-                                    <div>
-                                        <FilterBar />
+                                    <div 
+                                        style={{
+                                            paddingTop: 5,
+                                            paddingRight: 10,
+                                        }}
+                                    >
+                                        {/* Truyền handleClearFilter vào FilterBar */}
+                                        <FilterBar onClearFilter={handleClearFilter} />
                                     </div>
+
+                                        {/* Kiểm tra trạng thái isFilterCleared */}
+                                        {isFilterCleared ? (
+                                            // Hiển thị màn hình rỗng với thông báo
+                                            <div className="empty-screen">
+                                                <p>Chưa chọn cuộc hội thoại</p>
+                                            </div>
+                                        ) : (
+                                            // Hiển thị nội dung chat bình thường
                                     <div className='chat-border'>
-                                        <div className='text-input'>
-                                            <MessageList 
-                                                chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
-                                                tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
-                                            />
-                                            <SendMessage 
-                                                userData={userData} handleMessage={handleMessage} 
-                                                handleKeyPress={handleKeyPress} sendValue={sendValue} 
-                                                sendPrivateValue={sendPrivateValue} tab={tab} 
-                                            />
-                                        </div>
+                                        
+                                            <div className='text-input'>
+                                                <MessageList 
+                                                    chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
+                                                    tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
+                                                />
+                                                <SendMessage 
+                                                    userData={userData} handleMessage={handleMessage} 
+                                                    handleKeyPress={handleKeyPress} sendValue={sendValue} 
+                                                    sendPrivateValue={sendPrivateValue} tab={tab} 
+                                                />
+                                            </div>
+                                        
                                         <div className='chat-tool'>
-                                            <ChatTool />
+                                            <ChatTool 
+                                                avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
+                                                username={userData.username}  // Truyền username 
+                                            />
                                         </div>
                                     </div>
+                                        )}
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <CallDialog />
                 </div>
             ) : (
                 <div className="register">

@@ -30,28 +30,37 @@ button {
 
 .container {
   width: auto;
-  height: calc(100vh - 16px);
+  height: 100vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.container-1 {
+  width: auto;
+  height: 100%;
   margin: 8px;
   border-radius: 16px;
   background-color: #fff; /* Màu nền cho chat box */
   box-sizing: border-box; /* Đảm bảo padding được tính vào kích thước */
   overflow: hidden; /* Ẩn thanh cuộn khi không cần thiết */
-  display: flex;
-  flex-direction: column;
 }
 
 .body-nav {
   display: flex;
-  height: calc(100vh - 16px);
+  height: -webkit-fill-available;
+  max-width: 100%;
 }
 
 .chat-box-body {
-  display: contents
+  display: flex;
+  height: 100%;
+  width: 100%;
 }
 
 .chat-box {
   flex: 1;
+  width: 100%;
+  height: auto;
   padding: 10px;
   display: flex;
   flex-direction: row;
@@ -63,12 +72,27 @@ button {
 .member-seach {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Ngăn thu nhỏ */
+  flex-shrink: 0;
+  max-height: 100vh; /* Đảm bảo nó chiếm toàn bộ chiều cao màn hình */
+  position: relative; /* Đảm bảo phần này không bị che */
+  z-index: 10; /* Đảm bảo nó luôn ở trên các thành phần khác */
 }
+
+.seach-box {
+  margin-right: 10px;
+}
+
+
+/* phần thành viên */
+.member-box {
+  overflow-x: hidden;
+}
+
 
 /* phần chat */
 .chat-content {
   width: 100%;
+  height: auto;
   flex-grow: 1; /* Cho phép phần này mở rộng */
   display: flex;
   flex-direction: column;
@@ -81,16 +105,35 @@ button {
   height: -webkit-fill-available;
 }
 
+.empty-screen {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+  margin: 16px 10px 16px 0;
+  border-radius: 16px;
+}
+
+/* màn hình trống */
+.empty-screen p {
+  font-size: 18px;
+  color: #888;
+}
+
 .text-input {
   display: flex;
   flex-direction: column;
   flex: 1;
+  max-height: 87vh;
 }
 
 .chat-tool {
-  width: 30%;
+  width: 333px;
 }
 
+/* phần đăng kí */
 .register {
   position: fixed;
   top: 50%;
