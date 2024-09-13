@@ -25,8 +25,8 @@ interface InputComponentProps {
   secureTextEntry?: boolean;
   prefix?: ReactNode;
   suffix?: ReactNode;
-  height?: number;
   width?: number;
+  height?: number;
   style?: any;
   styleContainer?: ViewStyle;
   maxLength?: number;
@@ -64,7 +64,7 @@ const TextFieldComponent = forwardRef(
             styles.inputContainer,
             {
               width: props.width || '100%',
-              height: props.height || 56,
+              height: props.height || null,
             },
           ]}
           onPress={handlePress}
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   prefix: {
     marginLeft: 15,

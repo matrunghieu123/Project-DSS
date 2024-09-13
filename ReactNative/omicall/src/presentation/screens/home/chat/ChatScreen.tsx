@@ -136,6 +136,7 @@ const ChatScreen = ({navigation, route}: any) => {
                   senderName={msg.senderName}
                   showSenderName={showSenderName && type === 'group'}
                   time={msg.time}
+                  image={msg.fileUrl}
                 />
               );
             })}
@@ -158,7 +159,7 @@ const SendMessage = ({
   );
   const handleSend = async () => {
     const trimmedMessage = message.trimStart();
-    if (trimmedMessage) {
+    if (trimmedMessage || imagePicked) {
       const fileUrl = imagePicked ? await handleUploadImage(imagePicked) : '';
       onSendMessage(trimmedMessage, fileUrl);
       setMessage('');
@@ -234,13 +235,13 @@ const SendMessage = ({
       <SpaceComponent width={10} />
       <TextFieldComponent
         placeholder={'Nhập tin nhắn...'}
-        height={40}
         width={AppInfos.sizes.width * 0.6}
         styleContainer={styles.input}
         value={message}
         onChangeText={text => setMessage(text)}
         image={imagePicked?.path}
         onRemoveImage={handleRemoveImage}
+        multiline={true}
       />
       <SpaceComponent width={15} />
       <TouchableOpacity style={styles.flex} onPress={handleSend}>

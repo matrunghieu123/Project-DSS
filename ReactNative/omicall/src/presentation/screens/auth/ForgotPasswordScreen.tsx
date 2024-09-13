@@ -42,6 +42,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         </View>
         <SpaceComponent height={AppInfos.sizes.height * 0.05} />
         <TextFieldComponent
+          height={56}
           prefix={<Icon name={'mail-outline'} style={styles.icon} />}
           placeholder="Nhập email"
           keyboardType={'email-address'}

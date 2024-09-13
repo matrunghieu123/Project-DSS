@@ -66,6 +66,7 @@ const LoginScreen = ({navigation}: any) => {
         <Image source={{uri: Constants.logoUrl}} style={styles.image} />
         <Text style={styles.title}>Đăng nhập</Text>
         <TextFieldComponent
+          height={56}
           prefix={<Icon name={'mail-outline'} style={styles.icon} />}
           placeholder="Nhập email"
           keyboardType={'email-address'}
@@ -79,6 +80,7 @@ const LoginScreen = ({navigation}: any) => {
           <Text style={styles.errorText}>Email không hợp lệ</Text>
         ) : null}
         <TextFieldComponent
+          height={56}
           prefix={<Icon name={'lock-outline'} style={styles.icon} />}
           placeholder="Nhập mật khẩu"
           keyboardType={'default'}
