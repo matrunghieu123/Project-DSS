@@ -10,25 +10,9 @@
 }
 
 .custom-icon {
-    margin-top: -5px;
-}
-
-.shadow-button {
-    margin: 10px 10px 0 0;
-    width: auto;
-    border: 0;
-}
-
-.btn-1 {
-    background-color: #f5f6fa;
-}
-
-.btn-2 {
-    height: 45px;
-}
-
-.custom-icon {
+    margin-top: -4px;
     transition: transform 0.3s ease;
+    transform-origin: 0.12cm 11px;
 }
   
 .custom-icon.rotate {

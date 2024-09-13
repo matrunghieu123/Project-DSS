@@ -1,0 +1,55 @@
+.ant-picker-dropdown .ant-picker-header button {
+    width: auto;
+}
+
+.ant-picker-dropdown .ant-picker-header >button {
+    visibility: visible;
+}
+
+/* CSS cho các nút */
+.shadow-button {
+    margin: 10px 10px 0 0;
+    width: auto;
+    border: 0;
+}
+
+/* tất cả các nút trừ nút 'áp dụng' */
+.btn-1 {
+    background-color: #f5f6fa; /* Màu nền của nút */
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+.btn-1:hover {
+    border-color: rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* nút 'áp dụng' và 'đóng' */
+.btn-2 {
+    height: 50px;
+    width: 100px;
+}
+
+/* nút đóng của bảng date */
+.ant-modal-close {
+    display: none;
+}
+
+/* CSS tùy chỉnh cho icon xóa trong DatePicker */
+.ant-picker-clear {
+    padding-top: 25px;
+}
+
+/* CSS cho trạng thái disabled */
+.btn-acp:disabled {
+    background-color: rgb(0, 115, 255); /* Màu nền nhạt hơn khi disabled */
+    border-color: transparent;
+    cursor: not-allowed; /* Hiển thị con trỏ khi không thể nhấn */
+    opacity: 0.6; /* Làm cho nút mờ đi để dễ nhận biết */
+    color: white
+}
+.btn-acp:disabled:hover {
+    background-color: rgb(67, 152, 255); /* Màu nền nhạt hơn khi disabled */
+    border-color: rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}

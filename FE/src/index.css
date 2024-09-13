@@ -17,7 +17,7 @@ code {
   margin-bottom: 6px;
 }
 
-button {
+.re-btn {
   border: none;
   padding: 10px;
   background: green;
@@ -61,7 +61,6 @@ button {
   flex: 1;
   width: 100%;
   height: auto;
-  padding: 10px;
   display: flex;
   flex-direction: row;
   background-color: #f5f6fa; /* Màu nền cho chat box */
@@ -69,7 +68,7 @@ button {
 }
 
 /* cột thành viên và tìm kiếm  */
-.member-seach {
+.member-search {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -78,25 +77,37 @@ button {
   z-index: 10; /* Đảm bảo nó luôn ở trên các thành phần khác */
 }
 
-.seach-box {
+.search-box {
   margin-right: 10px;
 }
-
+.search-button {
+  width: 100%;
+  max-width: 300px;
+  margin: 5px;
+  padding: 13px;
+  border-radius: 16px;
+  background-color: rgba(30, 49, 80, 0.05);
+  border: none;
+}
+/* chữ 'tìm kiếm' */
+.ant-input-affix-wrapper >input.ant-input {
+  font-weight: 500;
+}
 
 /* phần thành viên */
 .member-box {
   overflow-x: hidden;
 }
 
-
 /* phần chat */
 .chat-content {
   width: 100%;
   height: auto;
-  flex-grow: 1; /* Cho phép phần này mở rộng */
+  flex-grow: 0; /* Cho phép phần này mở rộng */
   display: flex;
   flex-direction: column;
   margin-left: 10px;
+  box-sizing: border-box;
 }
 
 .chat-border {
@@ -126,7 +137,9 @@ button {
   display: flex;
   flex-direction: column;
   flex: 1;
-  max-height: 87vh;
+  max-height: 85vh;
+  margin: 16px 0 16px 12px;
+  border-radius: 16px;
 }
 
 .chat-tool {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Dropdown, Menu, Row, Col, Button, Tooltip, Input, Modal, DatePicker } from 'antd';
+import { Dropdown, Menu, Row, Col, Button, Tooltip, Input } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faFilterCircleXmark, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
+import DateModal from './date/DateModal';
 import './FilterMenu.css';
 
-// Menu với trường tìm kiếm
 const FilterMenu = () => (
   <Menu>
     <Menu.Item key="search">
@@ -15,6 +15,7 @@ const FilterMenu = () => (
     <Menu.Item key="2">Bộ lọc mặc định</Menu.Item>
   </Menu>
 );
+
 const TagMenu = () => (
   <Menu>
     <Menu.Item key="search">
@@ -55,118 +56,6 @@ const StaffMenu = () => (
   </Menu>
 );
 
-const DateModal = ({ isVisible, onClose }) => (
-  <Modal
-    title="Ngày tạo"
-    visible={isVisible}
-    onCancel={onClose}
-    footer={null} // Bỏ footer nếu không cần nút OK/Cancel ở dưới
-  >
-    <Row>
-      <Col span={24}>
-        <div 
-          style={{ 
-            position: 'relative', 
-            width: '100%', 
-            marginTop: 20,
-          }}>
-          <span
-            style={{
-              position: 'absolute',
-              top: 10,
-              left: 7, 
-              padding: '0 4px',
-              color: 'black',
-              zIndex: 1,   // Đảm bảo chữ nằm trên DatePicker
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            Khoảng thời gian
-          </span>
-          <DatePicker.RangePicker
-            style={{
-              width: '100%',
-              height: 60,
-              paddingTop: 25,  // Tạo khoảng cách giữa chữ và nội dung bên trong DatePicker,
-              backgroundColor: '#f5f6fa',
-              border: 0,
-            }}
-          />
-        </div>
-      </Col>
-    </Row>
-    <Row style={{ marginTop: '10px' }}>
-      <span 
-        style={{
-          marginTop: 10,
-        }}
-      >
-        Gợi ý
-      </span>
-      <Col span={24} style={{ display: 'flex', flexWrap: 'wrap' }}>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Hôm nay
-        </Button>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Hôm qua
-        </Button>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Tuần này
-        </Button>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Tuần trước
-        </Button>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Tháng này
-        </Button>
-        <Button 
-          type="default" 
-          className="shadow-button btn-1"
-        >
-          Tháng trước
-        </Button>
-      </Col>
-    </Row>
-    <Row style={{ marginTop: '20px' }}>
-      <Col 
-        span={24} 
-        style={{ 
-          display: 'flex', 
-          textAlign: 'right',
-        }}
-      >
-        <Button
-          className="shadow-button btn-2"
-          type="primary"
-          style={{ marginRight: '8px' }}
-        >
-          Áp dụng
-        </Button>
-        <Button className="shadow-button btn-1 btn-2" type="default" onClick={onClose}>
-          Đóng
-        </Button>
-      </Col>
-    </Row>
-  </Modal>
-);
-
-
 const MoreAttributesMenu = () => (
   <Menu>
     <Menu.Item key="search">
@@ -177,11 +66,8 @@ const MoreAttributesMenu = () => (
   </Menu>
 );
 
-
 const FilterBar = ({ onClearFilter }) => {
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
-
-  //hàm kiểm tra dropdown
   const [dropdownOpen, setDropdownOpen] = useState({
     filter: false,
     tag: false,
@@ -192,33 +78,44 @@ const FilterBar = ({ onClearFilter }) => {
   });
 
   const toggleDropdown = (key) => {
+    if (key === 'date' && isDateModalVisible) {
+      return; // Không mở dropdown nếu modal đang mở
+    }
+  
     setDropdownOpen((prevState) => ({
       ...prevState,
       [key]: !prevState[key],
     }));
-  };  
+  };
 
-  // hiện ngày
   const showDateModal = () => {
     setIsDateModalVisible(true);
+    toggleDropdown('date'); // Đảm bảo dropdown 'date' cũng mở ra khi modal được hiển thị
   };
 
-  // đóng cửa sổ ngày
   const handleDateModalClose = () => {
     setIsDateModalVisible(false);
+    setDropdownOpen((prevState) => ({
+      ...prevState,
+      date: false, // Đảm bảo dropdown 'date' sẽ đóng lại
+    }));
   };
-  
+
+  const handleDateChange = (dates) => {
+    console.log('Selected Dates:', dates); // Xử lý dữ liệu ngày ở đây
+  };
+
   return (
     <div
       style={{
-        backgroundColor: 'rgb(220 223 227)',
+        backgroundColor: 'rgb(234 235 241)',
         padding: '10px',
-        borderRadius: '8px',
+        borderRadius: '10px',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <Row style={{ width: '100%', display: 'flex', flexWrap: 'wrap', }}>
+      <Row style={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}>
         <div
           className="left-side custom-button-padding"
           style={{
@@ -253,10 +150,10 @@ const FilterBar = ({ onClearFilter }) => {
           </Col>
           <Col>
             <Dropdown
-                overlay={TagMenu}
-                trigger={['click']}
-                onVisibleChange={() => toggleDropdown('tag')}
-              >
+              overlay={TagMenu}
+              trigger={['click']}
+              onVisibleChange={() => toggleDropdown('tag')}
+            >
               <Button type="text">
                 Tag
                 <FontAwesomeIcon
@@ -268,10 +165,10 @@ const FilterBar = ({ onClearFilter }) => {
           </Col>
           <Col>
             <Dropdown
-                overlay={StatusMenu}
-                trigger={['click']}
-                onVisibleChange={() => toggleDropdown('status')}
-              >
+              overlay={StatusMenu}
+              trigger={['click']}
+              onVisibleChange={() => toggleDropdown('status')}
+            >
               <Button type="text">
                 Trạng thái đã đọc
                 <FontAwesomeIcon
@@ -283,10 +180,10 @@ const FilterBar = ({ onClearFilter }) => {
           </Col>
           <Col>
             <Dropdown
-                overlay={CustomerMenu}
-                trigger={['click']}
-                onVisibleChange={() => toggleDropdown('customer')}
-              >
+              overlay={CustomerMenu}
+              trigger={['click']}
+              onVisibleChange={() => toggleDropdown('customer')}
+            >
               <Button type="text">
                 Khách hàng
                 <FontAwesomeIcon
@@ -298,10 +195,10 @@ const FilterBar = ({ onClearFilter }) => {
           </Col>
           <Col>
             <Dropdown
-                overlay={StaffMenu}
-                trigger={['click']}
-                onVisibleChange={() => toggleDropdown('staff')}
-              >
+              overlay={StaffMenu}
+              trigger={['click']}
+              onVisibleChange={() => toggleDropdown('staff')}
+            >
               <Button type="text">
                 Nhân viên tiếp nhận
                 <FontAwesomeIcon
@@ -312,15 +209,14 @@ const FilterBar = ({ onClearFilter }) => {
             </Dropdown>
           </Col>
           <Col>
-            <Button 
-              type="text" 
-              onClick={showDateModal} 
-              onVisibleChange={() => toggleDropdown('date')} 
+            <Button
+              type="text"
+              onClick={showDateModal}
             >
               Ngày tạo
               <FontAwesomeIcon
                 icon={faSortDown}
-                className={`custom-icon ${dropdownOpen.date ? 'rotate' : ''}`}
+                className={`custom-icon ${dropdownOpen.date || isDateModalVisible ? 'rotate' : ''}`}
               />
             </Button>
           </Col>
@@ -347,8 +243,8 @@ const FilterBar = ({ onClearFilter }) => {
           {/* Đường gạch thẳng */}
           <div
             style={{
-              width: '1px',
-              height: '24px',
+              width: 1,
+              height: 30,
               backgroundColor: '#ccc',
             }}
           />
@@ -363,14 +259,14 @@ const FilterBar = ({ onClearFilter }) => {
                 type="text"
               >
                 Thuộc tính khác
-                <FontAwesomeIcon icon={faSquarePlus} style={{ fontSize: 'medium' }} />
+                <FontAwesomeIcon icon={faSquarePlus} style={{ fontSize: 18, marginTop: 1, }} />
               </Button>
             </Dropdown>
           </Col>
         </div>
       </Row>
 
-      <DateModal isVisible={isDateModalVisible} onClose={handleDateModalClose} />
+      <DateModal isVisible={isDateModalVisible} onClose={handleDateModalClose} onDateChange={handleDateChange} />
     </div>
   );
 };

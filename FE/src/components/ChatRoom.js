@@ -3,18 +3,27 @@ import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
 // import ChatRoomHeader from '../header/ChatRoomHeader';
 import ColNavbar from '../colnavbar/ColNavbar';
-import MessageList from '../body/message/MessageList';
+import MessageList from '../body/message/messagelist/MessageList';
 import SendMessage from '../body/message/sendmessage/SendMessage';
+import MessageInfor from '../body/message/messageinfor/MessageInfor';
 import MemberList from '../body/member/MemberList';
-import Search from 'antd/es/input/Search';
 import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
 import CallDialog from './calldialog/CallDialog';
+import { SearchOutlined } from '@ant-design/icons';
+import { Input } from 'antd';
+// import { auth } from '../firebase/FireBase';
+// import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+
 
 var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const ChatRoom = () => {
+    // Thêm state để quản lý email và password
+    // const [email, setEmail] = useState('');
+    // const [password, setPassword] = useState('');
+
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab, setTab] = useState("CHATROOM");
@@ -27,6 +36,34 @@ const ChatRoom = () => {
 
     const endOfMessagesRef = useRef(null);
 
+    // Hàm đăng nhập Firebase
+    // const login = () => {
+    //     signInWithEmailAndPassword(auth, email, password)
+    //     .then((userCredential) => {
+    //         const user = userCredential.user;
+    //         console.log("Đăng nhập thành công:", user);
+    //         setUserData({ ...userData, username: user.email, connected: true });
+    //         connect();  // Kết nối đến WebSocket sau khi đăng nhập
+    //     })
+    //     .catch((error) => {
+    //         console.error("Đăng nhập thất bại:", error.message);
+    //     });
+    // };
+
+    // Hàm đăng ký người dùng mới
+    // const register = () => {
+    //     createUserWithEmailAndPassword(auth, email, password)
+    //     .then((userCredential) => {
+    //         const user = userCredential.user;
+    //         console.log("Đăng ký thành công:", user);
+    //         setUserData({ ...userData, username: user.email, connected: true });
+    //         connect();  // Kết nối sau khi đăng ký thành công
+    //     })
+    //     .catch((error) => {
+    //         console.error("Đăng ký thất bại:", error.message);
+    //     });
+    // };
+
     const connect = () => {
         let Sock = new SockJS('http://localhost:8080/ws');
         stompClient = over(Sock);
@@ -36,6 +73,7 @@ const ChatRoom = () => {
   
     const onConnected = () => {
         console.log("Đã kết nối đến WebSocket");
+        console.log("User Data:", userData);  // Kiểm tra trạng thái userData
         setUserData({ ...userData, connected: true });
         stompClient.subscribe('/chatroom/public', onMessageReceived);
         stompClient.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
@@ -52,6 +90,7 @@ const ChatRoom = () => {
 
     const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
+        console.log("Tin nhắn nhận được:", payloadData);  // Kiểm tra tin nhắn nhận được
         switch(payloadData.status) {
             case "JOIN":
                 if (!privateChats.get(payloadData.senderName)) {
@@ -91,6 +130,7 @@ const ChatRoom = () => {
         setUserData({ ...userData, message: value });
     };
 
+    // gửi ib trên chat tổng
     const sendValue = () => {
         if (stompClient && userData.message.trim() !== "") {
             const chatMessage = {
@@ -104,6 +144,7 @@ const ChatRoom = () => {
         }
     };
     
+    // gửi ib trên chat riêng
     const sendPrivateValue = () => {
         if (stompClient && userData.message.trim() !== "") {
             const chatMessage = {
@@ -128,11 +169,11 @@ const ChatRoom = () => {
         }
     };
 
+    // phần đăng nhập cũ
     const handleUsername = (event) => {
         const { value } = event.target;
         setUserData({ ...userData, username: value });
     };
-
     const registerUser = () => {
         if (userData.username.trim() === "") {
             alert("Tên người dùng trống");
@@ -181,19 +222,15 @@ const ChatRoom = () => {
                         
                         <div className="chat-box-body">
                             <div className="chat-box">
-                                <div className='member-seach'>
-                                    <div className='seach-box'>
-                                    <Search
-                                        className='seach-button'
+                                <div className='member-search'>
+                                    <div className='search-box'>
+                                    <Input
+                                        className='search-button'
                                         placeholder="Tìm kiếm"
                                         allowClear
                                         onSearch={onSearch}
                                         size='large'
-                                        style={{
-                                            width: '100%',
-                                            maxWidth: 300,
-                                            margin: 5,
-                                        }}
+                                        prefix={<SearchOutlined />}
                                     />
                                     </div>
 
@@ -204,8 +241,7 @@ const ChatRoom = () => {
                                 <div className="chat-content">
                                     <div 
                                         style={{
-                                            paddingTop: 5,
-                                            paddingRight: 10,
+                                            margin: '16px 16px 0px 12px',
                                         }}
                                     >
                                         {/* Truyền handleClearFilter vào FilterBar */}
@@ -221,19 +257,38 @@ const ChatRoom = () => {
                                         ) : (
                                             // Hiển thị nội dung chat bình thường
                                     <div className='chat-border'>
-                                        
-                                            <div className='text-input'>
+                                        <div className='text-input'>
+                                            <div
+                                                style={{
+                                                    height: '20%',
+                                                }}
+                                            >
+                                                <MessageInfor />
+                                            </div>
+                                            <div
+                                                style={{
+                                                    height: '72%',
+                                                }}
+                                            >
                                                 <MessageList 
                                                     chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
                                                     tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
                                                 />
+                                            </div>
+                                            <div
+                                                style={{
+                                                    height: '8%',
+                                                    backgroundColor: 'white'
+                                                }}
+                                            >
                                                 <SendMessage 
                                                     userData={userData} handleMessage={handleMessage} 
                                                     handleKeyPress={handleKeyPress} sendValue={sendValue} 
                                                     sendPrivateValue={sendPrivateValue} tab={tab} 
                                                 />
                                             </div>
-                                        
+                                        </div>
+                                    
                                         <div className='chat-tool'>
                                             <ChatTool 
                                                 avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
@@ -259,10 +314,28 @@ const ChatRoom = () => {
                         onChange={handleUsername}
                         margin="normal"
                     />
-                    <button type="button" onClick={registerUser}>
+                    <button className='re-btn' type="button" onClick={registerUser}>
                         Tham gia
                     </button>
                 </div>
+                // Giao diện đăng nhập/đăng ký
+                // <div className="register">
+                //     <input
+                //         className='name-input'
+                //         placeholder="Nhập email"
+                //         value={email}
+                //         onChange={(e) => setEmail(e.target.value)}
+                //     />
+                //     <input
+                //         className='name-input'
+                //         type="password"
+                //         placeholder="Nhập mật khẩu"
+                //         value={password}
+                //         onChange={(e) => setPassword(e.target.value)}
+                //     />
+                //     <button onClick={login}>Đăng nhập</button>
+                //     <button onClick={register}>Đăng ký</button>
+                // </div>
             )}
         </div>
     );
