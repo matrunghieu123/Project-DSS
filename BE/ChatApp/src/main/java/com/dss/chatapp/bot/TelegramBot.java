@@ -1,6 +1,6 @@
 package com.dss.chatapp.bot;
 
-import com.dss.chatapp.model.CustomMessage;
+import com.dss.chatapp.model.Message;
 import com.dss.chatapp.model.Status;
 import org.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     // Method to send messages to Telegram
     public void sendMessageToTelegram(Long chatId, String message) {
-
         SendMessage telegramMessage = new SendMessage();
         telegramMessage.setChatId(chatId.toString());
         telegramMessage.setText(message);
@@ -83,18 +82,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 //        log.info("Broadcasted message to chat app: {}", messageJson.toString());
         String timestamp = getCurrentTime();
 
-        // Create a CustomMessage object
-        CustomMessage customMessage = new CustomMessage();
-        customMessage.setChatId(chatId);
-        customMessage.setMessage(messageText);
-        customMessage.setSenderName("Telegram");
-        customMessage.setTime(timestamp);  // Set timestamp
-        customMessage.setStatus(Status.MESSAGE);  // Set status (enum for status)
+        // Create a Message object
+        Message message = new Message();
+        message.setChatId(chatId);
+        message.setMessage(messageText);
+        message.setSenderName("Telegram");
+        message.setTime(timestamp);  // Set timestamp
+        message.setStatus(Status.MESSAGE);  // Set status (enum for status)
 
         // Send the message to the WebSocket topic
-        messagingTemplate.convertAndSend("/chatroom/public", customMessage);
+        messagingTemplate.convertAndSend("/chatroom/public", message);
 
-        log.info("Broadcasted message to chat app: {}", customMessage);
+        log.info("Broadcast message to chat app: {}", message);
     }
 
     public String getCurrentTime(){
