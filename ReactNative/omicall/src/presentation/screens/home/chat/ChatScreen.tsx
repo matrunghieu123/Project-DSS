@@ -1,14 +1,14 @@
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
+  InteractionManager,
   KeyboardAvoidingView,
   Platform,
-  InteractionManager,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import React, {useRef, useEffect, useMemo} from 'react';
+import React, {useEffect, useRef, useState, useCallback} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
@@ -22,32 +22,69 @@ import {Fonts} from '../../../../core/constants/Fonts';
 import {AppColors} from '../../../../core/constants/AppColors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {AppInfos} from '../../../../core/constants/AppInfos';
+import StompService from '../../../../services/StompService';
+import {Status} from '../../../../core/constants/Status';
+import {MessageModel} from '../../../../models/MessageModel';
+import {authSelector} from '../../../redux/AuthReducer';
+import {useSelector} from 'react-redux';
 
-const ChatScreen = ({navigation}: any) => {
+const ChatScreen = ({navigation, route}: any) => {
+  const {name, type} = route.params;
   const scrollViewRef = useRef<ScrollView>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const user = useSelector(authSelector);
+  const stompService = StompService.getInstance(user.name);
 
-  const messages = useMemo(
-    () => [
-      {id: 1, text: 'Hey, how’s it going?', isSent: true},
-      {id: 2, text: 'I’m good! How about you?', isSent: false},
-      {id: 3, text: 'I’m doing well, thanks!', isSent: true},
-      {id: 4, text: 'What are you up to today?', isSent: true},
-      {id: 5, text: 'Just working on some projects. You?', isSent: false},
-      {id: 6, text: 'Same here! Lots to do!', isSent: true},
-      {id: 7, text: 'Do you have time to meet later?', isSent: false},
-      {
-        id: 8,
-        text: 'Yeah, I’m free after 5. Where do you want to meet?',
-        isSent: true,
-      },
-      {id: 9, text: 'How about that new coffee shop?', isSent: false},
-      {id: 10, text: 'Sounds good! See you there.', isSent: true},
-      {id: 11, text: 'Can you help me with something?', isSent: false},
-      {id: 12, text: 'Sure, what do you need?', isSent: true},
-      {id: 13, text: 'I’m having trouble with this project.', isSent: false},
-    ],
-    [],
+  const handleNewMessage = useCallback(
+    (message: MessageModel) => {
+      if (
+        message.status === Status.MESSAGE &&
+        message.senderName !== user.name
+      ) {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          {
+            id: prevMessages.length + 1,
+            text: message.message,
+            senderName: message.senderName,
+            time: message.time,
+          },
+        ]);
+      }
+    },
+    [user.name],
   );
+
+  const handleSendMessage = (message: string) => {
+    const newMessage = {
+      id: messages.length + 1,
+      text: message,
+      senderName: user.name,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages([...messages, newMessage]);
+    switch (type) {
+      case 'group': {
+        stompService.sendMessagePublic({
+          senderName: user.name,
+          message,
+          status: Status.MESSAGE,
+        });
+        break;
+      }
+      case 'private': {
+        stompService.sendMessagePrivate({
+          senderName: user.name,
+          receiverName: name,
+          message,
+          status: Status.MESSAGE,
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  };
 
   useEffect(() => {
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
@@ -58,21 +95,13 @@ const ChatScreen = ({navigation}: any) => {
   }, [messages]);
 
   useEffect(() => {
-    const ws = new WebSocket('http://localhost:8080/ws');
-    ws.onopen = () => {
-      console.log('Connected');
-    };
-    ws.onmessage = (e) => {
-      console.log(e.data);
-    };
-    ws.onerror = (e) => {
-      console.log(`Error: ${e.message}`);
-    };
-  }, []);
+    stompService.setOnMessageCallback(handleNewMessage);
+
+  }, [stompService, handleNewMessage]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <HeaderChat navigation={navigation} />
+      <HeaderChat navigation={navigation} name={name} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
@@ -87,40 +116,66 @@ const ChatScreen = ({navigation}: any) => {
             onLayout={() =>
               scrollViewRef.current?.scrollToEnd({animated: true})
             }>
-            {messages.map(msg => (
-              <MessageBubble
-                key={msg.id}
-                message={msg.text}
-                isSent={msg.isSent}
-              />
-            ))}
+            {messages.map((msg, index) => {
+              const showSenderName =
+                index === 0 ||
+                messages[index - 1].senderName !== msg.senderName;
+              return (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg.text}
+                  senderName={msg.senderName}
+                  showSenderName={showSenderName && type === 'group'}
+                  time={msg.time}
+                />
+              );
+            })}
           </ScrollView>
         </View>
-        <SendMessage />
+        <SendMessage onSendMessage={handleSendMessage} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-const SendMessage = () => {
+const SendMessage = ({
+  onSendMessage,
+}: {
+  onSendMessage: (message: string) => void;
+}) => {
+  const [message, setMessage] = useState('');
+  const handleSend = () => {
+    const trimmedMessage = message.trimStart();
+    if (trimmedMessage) {
+      onSendMessage(trimmedMessage);
+      setMessage('');
+    }
+  };
+
   return (
     <RowComponent style={[styles.row]}>
+      <SpaceComponent width={10} />
+      <Ionicons name={'attach-sharp'} size={24} color={AppColors.secondary} />
+      <SpaceComponent width={10} />
+      <Ionicons name={'image'} size={24} color={AppColors.secondary} />
       <SpaceComponent width={10} />
       <TextFieldComponent
         placeholder={'Nhập tin nhắn...'}
         height={40}
-        width={AppInfos.sizes.width * 0.85}
+        width={AppInfos.sizes.width * 0.67}
         styleContainer={styles.input}
+        value={message}
+        onChangeText={text => setMessage(text)}
       />
       <SpaceComponent width={15} />
-      <TouchableOpacity style={styles.flex}>
+      <TouchableOpacity style={styles.flex} onPress={handleSend}>
         <Ionicons name={'send'} size={24} color={AppColors.secondary} />
       </TouchableOpacity>
     </RowComponent>
   );
 };
 
-const HeaderChat = ({navigation}: any) => {
+const HeaderChat = ({navigation, name}: any) => {
   return (
     <RowComponent style={[styles.row, styles.header]}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -132,7 +187,7 @@ const HeaderChat = ({navigation}: any) => {
       </TouchableOpacity>
       <AvatarCircle style={styles.avatar} />
       <View>
-        <Text style={styles.name}>Quang Anh</Text>
+        <Text style={styles.name}>{name}</Text>
         <Text style={styles.online}>Đang hoạt động</Text>
       </View>
       <View style={styles.flex} />

@@ -17,13 +17,13 @@ const ContentScreen: React.FC<ContentScreenProps> = ({activeTab, navigation}) =>
     case 'all':
       return <AllChatScreen navigation={navigation}/>;
     case 'internal':
-      return <InternalChatScreen />;
+      return <InternalChatScreen navigation={navigation} />;
     case 'facebook':
-      return <FacebookChatScreen />;
+      return <FacebookChatScreen navigation={navigation} />;
     case 'zalo':
-      return <ZaloChatScreen />;
+      return <ZaloChatScreen navigation={navigation}/>;
     case 'telegram':
-      return <TelegramChatScreen />;
+      return <TelegramChatScreen navigation={navigation}/>;
     default:
       return null;
   }

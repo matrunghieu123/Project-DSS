@@ -9,16 +9,22 @@ interface ChatComponentProps {
   navigation: any;
   name: string;
   content: string;
+  type: 'group' | 'private';
 }
 
 const ChatComponent = (props: ChatComponentProps) => {
-  const {navigation, name, content} = props;
+  const {navigation, name, content, type} = props;
   const handlePress = () => {
-    navigation.navigate('ChatScreen');
+    navigation.navigate('ChatScreen', {
+      name,
+      type,
+    });
   };
 
   return (
-    <TouchableOpacity style={[Styles.boxShadow, styles.container]} onPress={handlePress}>
+    <TouchableOpacity
+      style={[Styles.boxShadow, styles.container]}
+      onPress={handlePress}>
       <RowComponent>
         <AvatarCircle />
         <View style={styles.textContainer}>
@@ -39,7 +45,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     backgroundColor: 'white',
     alignSelf: 'center',
-    marginVertical: 15,
+    marginTop: 15,
     borderRadius: 15,
     paddingTop: 12,
   },

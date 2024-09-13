@@ -1,7 +1,20 @@
+.ant-modal .ant-modal-title{
+    font-size: 18px;
+}
+
+.ant-btn {
+    font-weight: 500;
+}
 .custom-button-padding .ant-btn {
     padding: 4px 10px !important;
 }
 
 .custom-icon {
-    margin-top: -5px;
+    margin-top: -4px;
+    transition: transform 0.3s ease;
+    transform-origin: 0.12cm 11px;
+}
+  
+.custom-icon.rotate {
+    transform: rotate(180deg);
 }

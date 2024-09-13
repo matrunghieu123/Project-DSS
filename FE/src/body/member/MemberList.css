@@ -1,8 +1,7 @@
 .member-list {
-  width: 100%;
-  max-width: 300px; /* Đặt chiều rộng tối đa */
+  width: 300px; /* Đặt chiều rộng cố định */
+  max-width: 300px; /* Đặt chiều rộng tối đa là cố định */
   overflow-y: auto;
-  margin-right: 10px;
 }
 
 ul {
@@ -67,5 +66,5 @@ ul {
 .member:hover {
   background: rgba(169, 169, 169, 0.784);
   color: #fff;
-  transform: scale(1.05); /* Phóng to khi hover */
+  transform: scale(1.03); /* Phóng to khi hover */
 }
