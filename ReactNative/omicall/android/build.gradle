@@ -10,6 +10,8 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // ADD THIS
+        maven { url "https://www.jitpack.io" }
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
@@ -20,3 +22,24 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // ADD THIS
+        maven { url "https://www.jitpack.io" }
+    }
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+        // ADD THIS
+        vectorDrawables.useSupportLibrary = true
+    }
+}

@@ -21,12 +21,15 @@ import {
 import {Fonts} from '../../../../core/constants/Fonts';
 import {AppColors} from '../../../../core/constants/AppColors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import {AppInfos} from '../../../../core/constants/AppInfos';
 import StompService from '../../../../services/StompService';
 import {Status} from '../../../../core/constants/Status';
 import {MessageModel} from '../../../../models/MessageModel';
 import {authSelector} from '../../../redux/AuthReducer';
 import {useSelector} from 'react-redux';
+import storage from '@react-native-firebase/storage';
+import {Constants} from '../../../../core/constants/Constants.ts';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
@@ -48,6 +51,7 @@ const ChatScreen = ({navigation, route}: any) => {
             text: message.message,
             senderName: message.senderName,
             time: message.time,
+            fileUrl: message.fileUrl,
           },
         ]);
       }
@@ -55,12 +59,16 @@ const ChatScreen = ({navigation, route}: any) => {
     [user.name],
   );
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = (message: string, fileUrl: string) => {
     const newMessage = {
       id: messages.length + 1,
       text: message,
       senderName: user.name,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      fileUrl: fileUrl,
     };
     setMessages([...messages, newMessage]);
     switch (type) {
@@ -69,6 +77,7 @@ const ChatScreen = ({navigation, route}: any) => {
           senderName: user.name,
           message,
           status: Status.MESSAGE,
+          fileUrl: fileUrl,
         });
         break;
       }
@@ -78,6 +87,7 @@ const ChatScreen = ({navigation, route}: any) => {
           receiverName: name,
           message,
           status: Status.MESSAGE,
+          fileUrl: fileUrl,
         });
         break;
       }
@@ -96,7 +106,6 @@ const ChatScreen = ({navigation, route}: any) => {
 
   useEffect(() => {
     stompService.setOnMessageCallback(handleNewMessage);
-
   }, [stompService, handleNewMessage]);
 
   return (
@@ -104,7 +113,7 @@ const ChatScreen = ({navigation, route}: any) => {
       <HeaderChat navigation={navigation} name={name} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}>
+        style={styles.flex}>
         <View style={[styles.flex, {backgroundColor: AppColors.lightGrey}]}>
           <ScrollView
             ref={scrollViewRef}
@@ -141,35 +150,106 @@ const ChatScreen = ({navigation, route}: any) => {
 const SendMessage = ({
   onSendMessage,
 }: {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, fileUrl: string) => void;
 }) => {
   const [message, setMessage] = useState('');
-  const handleSend = () => {
+  const [imagePicked, setImagePicked] = useState<ImageOrVideo | undefined>(
+    undefined,
+  );
+  const handleSend = async () => {
     const trimmedMessage = message.trimStart();
     if (trimmedMessage) {
-      onSendMessage(trimmedMessage);
+      const fileUrl = imagePicked ? await handleUploadImage(imagePicked) : '';
+      onSendMessage(trimmedMessage, fileUrl);
       setMessage('');
+      setImagePicked(undefined);
     }
   };
 
+  const handleUploadImage = async (image: ImageOrVideo): Promise<string> => {
+    const fileName = `image-${Date.now()}.${image.path.split('.').pop()}`;
+    const path = `images/${fileName}`;
+
+    const reference = storage().ref(path);
+    await reference.putFile(image.path);
+    return await reference.getDownloadURL();
+  };
+
+  const handleOpenCamera = () => {
+    ImagePicker.openCamera({
+      width: Constants.WIDTH_IMAGE,
+      height: Constants.HEIGHT_IMAGE,
+      cropping: true,
+    })
+      .then(image => setImagePicked(image))
+      .catch(err => {
+        console.log(err);
+      });
+  };
+  const handleImagePicker = () => {
+    ImagePicker.openPicker({
+      width: Constants.WIDTH_IMAGE,
+      height: Constants.HEIGHT_IMAGE,
+      cropping: true,
+    })
+      .then(image => {
+        setImagePicked(image);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  const handleRemoveImage = () => {
+    setImagePicked(undefined);
+  };
+
   return (
-    <RowComponent style={[styles.row]}>
+    <RowComponent style={styles.rowChat}>
       <SpaceComponent width={10} />
-      <Ionicons name={'attach-sharp'} size={24} color={AppColors.secondary} />
+      <Ionicons
+        name={'attach-sharp'}
+        size={24}
+        color={AppColors.secondary}
+        style={styles.icon}
+      />
+      <SpaceComponent width={5} />
+      <TouchableOpacity onPress={handleOpenCamera}>
+        <Ionicons
+          name={'camera'}
+          size={24}
+          color={AppColors.secondary}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
       <SpaceComponent width={10} />
-      <Ionicons name={'image'} size={24} color={AppColors.secondary} />
+      <TouchableOpacity onPress={handleImagePicker}>
+        <Ionicons
+          name={'image'}
+          size={24}
+          color={AppColors.secondary}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
       <SpaceComponent width={10} />
       <TextFieldComponent
         placeholder={'Nhập tin nhắn...'}
         height={40}
-        width={AppInfos.sizes.width * 0.67}
+        width={AppInfos.sizes.width * 0.6}
         styleContainer={styles.input}
         value={message}
         onChangeText={text => setMessage(text)}
+        image={imagePicked?.path}
+        onRemoveImage={handleRemoveImage}
       />
       <SpaceComponent width={15} />
       <TouchableOpacity style={styles.flex} onPress={handleSend}>
-        <Ionicons name={'send'} size={24} color={AppColors.secondary} />
+        <Ionicons
+          name={'send'}
+          size={24}
+          color={AppColors.secondary}
+          style={styles.icon}
+        />
       </TouchableOpacity>
     </RowComponent>
   );
@@ -177,7 +257,7 @@ const SendMessage = ({
 
 const HeaderChat = ({navigation, name}: any) => {
   return (
-    <RowComponent style={[styles.row, styles.header]}>
+    <RowComponent style={styles.header}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <MaterialIcons
           name={'arrow-back-ios'}
@@ -203,14 +283,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
   header: {
+    alignItems: 'center',
     paddingHorizontal: 30,
   },
-  row: {
-    alignItems: 'center',
+  rowChat: {
+    alignItems: 'flex-end',
   },
   avatar: {
     height: 40,
@@ -237,6 +315,9 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  icon: {
+    marginVertical: 15,
   },
 });
 
