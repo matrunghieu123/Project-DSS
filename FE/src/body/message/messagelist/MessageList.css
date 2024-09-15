@@ -1,33 +1,39 @@
 .chat-messages {
-  height: 100%;
+  height: 500px; /* Đặt chiều cao cố định hoặc tính toán chiều cao động nếu cần */
   flex-grow: 1;
   border-top: 1px solid rgba(0, 177, 255);
-  overflow-y: auto;
+  overflow-y: auto; /* Kích hoạt thanh cuộn dọc */
   background-color: #ffffff;
   margin: 0;
+  position: relative;
 }
 
-/* Định dạng cho nội dung tin nhắn */
-.message-data {
-  padding: 5px;
-  text-align: center; /* Căn giữa văn bản trong tin nhắn */
-}
-
-/* Định dạng chung cho tin nhắn */
 .message {
-  padding: 10px; /* Padding lớn hơn */
   display: flex;
-  flex-direction: row;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Hiệu ứng bóng đổ tối */
-  margin: 10px 64px; /* Khoảng cách lớn hơn */
-  border-radius: 8px; /* Bo góc */
-  color: black; /* Màu chữ sáng */
-  align-items: center; /* Căn giữa các phần tử bên trong */
+  align-items: flex-start; /* Căn giữa avatar và phần text */
+  margin: 10px 20px; /* Khoảng cách xung quanh tin nhắn */
+  position: relative;
 }
 
 .message.self {
-  justify-content: flex-end; /* Đưa tin nhắn về phía bên phải */
-  background-color: #d5d7dc; /* Màu nền tối hơn cho tin nhắn tự thân */
+  flex-direction: row; /* Avatar bên trái, text bên phải */
+  justify-content: flex-end; /* Căn tin nhắn của bản thân sang bên phải */
+}
+
+.message-data {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  display: inline-block;
+  max-width: 70%; /* Giới hạn chiều rộng tối đa cho tin nhắn */
+  word-wrap: break-word; /* Đảm bảo văn bản dài sẽ xuống dòng */
+  position: relative;
+}
+
+.message.self .message-data {
+  background-color: #d5d7dc; /* Màu nền tối hơn cho tin nhắn của bản thân */
+  text-align: right; /* Căn phải nội dung tin nhắn */
+  margin-left: 10px; /* Khoảng cách giữa text và avatar bên trái */
 }
 
 .message-avatar,
@@ -36,9 +42,50 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 10px;
-  overflow: hidden;
-  justify-content: center;
-  display: flex;
-  align-items: center;
+  background-color: #000;
+}
+
+/* Avatar của người khác nằm bên trái */
+.message .message-avatar {
+  margin-right: 10px; /* Khoảng cách giữa avatar và nội dung tin nhắn bên phải */
+}
+
+/* Avatar của bản thân nằm bên phải */
+.message.self .avatar.self {
+  margin-left: 10px; /* Khoảng cách giữa text và avatar bên phải */
+}
+
+/* Phần tử giả để chiếm không gian của avatar khi không có avatar */
+/* của bản thân */
+.avatar-placeholder.self {
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+  background-color: transparent; /* Đảm bảo placeholder không có màu nền */
+}
+/* của người khác */
+.message-avatar-placeholder {
+  margin-left: 50px;
+}
+
+.message-file {
+  background-color: #e6f7ff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.message-image {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+/* Thêm CSS cho hình ảnh trong tin nhắn */
+.message-image img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
 }
