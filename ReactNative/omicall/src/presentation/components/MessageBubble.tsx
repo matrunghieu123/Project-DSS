@@ -1,10 +1,11 @@
-import React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../redux/AuthReducer';
 import {Constants} from '../../core/constants/Constants.ts';
+import ImageView from 'react-native-image-viewing';
 
 interface MessageBubbleProps {
   message?: string;
@@ -16,6 +17,7 @@ interface MessageBubbleProps {
 
 const MessageBubble = (props: MessageBubbleProps) => {
   const {message, senderName, showSenderName, time, image} = props;
+  const [visible, setIsVisible] = useState(false);
   const user = useSelector(authSelector);
   return (
     <View>
@@ -30,15 +32,25 @@ const MessageBubble = (props: MessageBubbleProps) => {
             : styles.receivedMessageContainer,
         ]}>
         {image && (
-          <Image
-            source={{uri: image}}
-            style={[
-              styles.image,
-              user.name === senderName
-                ? styles.sentImage
-                : styles.receivedImage,
-            ]}
-          />
+          <>
+            <ImageView
+              images={[{uri: image}]}
+              imageIndex={0}
+              visible={visible}
+              onRequestClose={() => setIsVisible(false)}
+            />
+          <TouchableOpacity onPress={() => setIsVisible(true)}>
+            <Image
+              source={{uri: image}}
+              style={[
+                styles.image,
+                user.name === senderName
+                  ? styles.sentImage
+                  : styles.receivedImage,
+              ]}
+            />
+          </TouchableOpacity>
+          </>
         )}
         {message && (
           <View>

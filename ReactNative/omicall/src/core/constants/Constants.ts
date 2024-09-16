@@ -4,4 +4,5 @@ export const Constants = {
   socketUrl: 'http://localhost:8080/ws',
   WIDTH_IMAGE: 300,
   HEIGHT_IMAGE: 300,
+  LIMIT_DOCUMENT_SIZE: 50, // MB
 };

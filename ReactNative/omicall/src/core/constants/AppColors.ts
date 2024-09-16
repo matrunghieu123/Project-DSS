@@ -3,6 +3,7 @@ export const AppColors = {
   secondary: '#1E3050',
   grey: '#9D9898',
   greyIcon: '#807A7A',
+  greyLine: '#D8D8D8',
   red: '#FF0000',
   lightGrey: '#f5f5f5',
   black: '#000000',

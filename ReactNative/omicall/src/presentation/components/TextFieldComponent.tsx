@@ -1,5 +1,5 @@
 import {
-  Image,
+  Image, KeyboardType, ReturnKeyType,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -13,13 +13,8 @@ import {AppColors} from '../../core/constants/AppColors';
 interface InputComponentProps {
   value?: string;
   placeholder?: string;
-  keyboardType?:
-    | 'default'
-    | 'email-address'
-    | 'numeric'
-    | 'phone-pad'
-    | 'number-pad';
-  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  keyboardType?: KeyboardType;
+  returnKeyType?: ReturnKeyType;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
