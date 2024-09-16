@@ -6,11 +6,16 @@ import org.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -36,6 +41,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
 
             log.info("Message received from chat ID {}: {}", chatId, messageText);
+
 
             // Echo the received message back to Telegram
 //            sendMessageToTelegram(chatId, "You said: " + messageText);
@@ -68,15 +74,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     // Broadcast message from Telegram to chat app using WebSocket
     public void broadcastMessageToChatApp(Long chatId, String messageText) {
-//        JSONObject messageJson = new JSONObject();
-//        messageJson.put("senderName", "Telegram");
-//        messageJson.put("message", messageText);
-//        messageJson.put("status", "MESSAGE");
-//
-//        // Send the message to the WebSocket topic
-//        messagingTemplate.convertAndSend("/chatroom/public", messageJson.toString());
-//
-//        log.info("Broadcasted message to chat app: {}", messageJson.toString());
         String timestamp = getCurrentTime();
 
         // Create a Message object
@@ -91,6 +88,46 @@ public class TelegramBot extends TelegramLongPollingBot {
         messagingTemplate.convertAndSend("/chatroom/public", message);
 
         log.info("Broadcast message to chat app: {}", message);
+    }
+
+    // Method to send file to Telegram without using `fileUrl`
+    public void sendFileToTelegram(Long chatId, MultipartFile file) {
+        try {
+            if (isImageFile(file)) {
+                sendPhotoToTelegram(chatId, file);
+            } else {
+                sendDocumentToTelegram(chatId, file);
+            }
+        } catch (Exception e) {
+            log.error("Error sending file to Telegram chat ID {}: {}", chatId, e.getMessage());
+        }
+    }
+
+    private void sendDocumentToTelegram(Long chatId, MultipartFile file) throws TelegramApiException, IOException {
+        SendDocument sendDocument = new SendDocument();
+        sendDocument.setChatId(chatId.toString());
+
+        // Directly send file as InputFile from MultipartFile
+        InputFile document = new InputFile(file.getInputStream(), file.getOriginalFilename());
+        sendDocument.setDocument(document);
+
+        execute(sendDocument);  // Send document via Telegram API
+    }
+
+    private void sendPhotoToTelegram(Long chatId, MultipartFile file) throws TelegramApiException, IOException {
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(chatId.toString());
+
+        // Directly send file as InputFile from MultipartFile
+        InputFile photo = new InputFile(file.getInputStream(), file.getOriginalFilename());
+        sendPhoto.setPhoto(photo);
+
+        execute(sendPhoto);  // Send photo via Telegram API
+    }
+
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image");
     }
 
     public String getCurrentTime(){
