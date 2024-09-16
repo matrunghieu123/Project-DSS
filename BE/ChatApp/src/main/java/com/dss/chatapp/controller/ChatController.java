@@ -15,52 +15,77 @@ import java.time.format.DateTimeFormatter;
 @Controller
 public class ChatController {
 
-    @Autowired TelegramBot telegramBot;
+    @Autowired
+    TelegramBot telegramBot;
 
-    private static String UPLOAD_DIR = "uploads/";
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/message")
     @SendTo("/chatroom/public")
-        public void receiveMessage(@Payload String message){
+    public void receiveMessage(@Payload Message message) {
+
+//        if (message.getFileUrl() != null && !message.getFileUrl().isEmpty()) {
+//            // Process file
+//            Long telegramChatId = getChatID();
+//            telegramBot.handleChatFile(telegramChatId, message);
+//        } else {
+//            // Process text message
+//            simpMessagingTemplate.convertAndSend("/chatroom/public", message);
+//            Long telegramChatId = getChatID();
+//            telegramBot.handleChatMessage(telegramChatId, message);
+//        }
+        String timestamp = getCurrentTime();
+        message.setTime(timestamp);
         simpMessagingTemplate.convertAndSend("/chatroom/public", message);
-        Long telegram_chatID = getChatID();
-        telegramBot.handleChatMessage(telegram_chatID, message);
+        Long telegramChatId = getChatID();
+        telegramBot.sendMessageToTelegram(telegramChatId, message.getMessage());
         System.out.println(message);
     }
 
-//    @MessageMapping("/file-upload")
-//    @SendTo("/chatroom/public")
-//    public CustomMessage uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("senderName") String senderName) throws IOException {
-//        // Save the file locally
-//        String fileName = saveFile(file);
-//
-//        // Create a new CustomMessage containing the file URL
-//        CustomMessage message = new CustomMessage();
-//        message.setSenderName(senderName);
-//        message.setFileUrl("/files/" + fileName);  // File URL
-//        message.setTime(getCurrentTime());
-//        message.setStatus(Status.FILE);
-//
-//        simpMessagingTemplate.convertAndSend("/chatroom/public", message);
-//
-//        return message;
-//    }
+    @MessageMapping("/message")
+    @SendTo("/chatroom/telegram")
+    public void receiveMessageTelegram(@Payload Message message) {
+//        if (message.getFileUrl() != null && !message.getFileUrl().isEmpty()) {
+//            // Process file
+//            Long telegramChatId = getChatID();
+//            telegramBot.handleChatFile(telegramChatId, message);
+//        } else {
+//            // Process text message
+//            simpMessagingTemplate.convertAndSend("/chatroom/public", message);
+//            Long telegramChatId = getChatID();
+//            telegramBot.handleChatMessage(telegramChatId, message);
+//        }
+        String timestamp = getCurrentTime();
+        message.setTime(timestamp);
+        simpMessagingTemplate.convertAndSend("/chatroom/telegram", message);
+        Long telegramChatId = getChatID();
+        telegramBot.sendMessageToTelegram(telegramChatId, message.getMessage());
+        System.out.println(message);
+    }
+
+    @MessageMapping("message")
+    @SendTo("/chatroom/public")
+    public void receiveMessagePublic(@Payload Message message){
+        String timestamps = getCurrentTime();
+        message.setTime(timestamps);
+        simpMessagingTemplate.convertAndSend("chatroom/public", message);
+    }
 
     private String getCurrentTime() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
         return LocalDateTime.now().format(dtf);
     }
 
     @MessageMapping("/private-message")
-    public Message recMessage(@Payload Message message){
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/private", message);
+    public Message recMessage(@Payload Message message) {
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
         System.out.println(message.toString());
         return message;
     }
 
-    private Long getChatID(){
+    private Long getChatID() {
         return 5739833199L;
     }
 }

@@ -60,13 +60,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     // Method to handle incoming messages from chat app and forward them to Telegram
-    public void handleChatMessage(Long chatId, String chatMessageJson) {
-        // Parse the incoming JSON message
-        JSONObject jsonObject = new JSONObject(chatMessageJson);
-        String message = jsonObject.getString("message");
-
+    public void handleChatMessage(Long chatId, Message message) {
         // Send the extracted message to Telegram
-        sendMessageToTelegram(chatId, message);
+        sendMessageToTelegram(chatId, message.getMessage());
+        log.info(message.getMessage());
     }
 
     // Broadcast message from Telegram to chat app using WebSocket
@@ -104,5 +101,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         return this.botName;
+    }
+
+    public void handleChatFile(Long telegramChatId, String message) {
     }
 }
