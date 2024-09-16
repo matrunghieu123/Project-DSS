@@ -2,44 +2,91 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  position: relative;
-  background-color: #fff;
-  border-top: 1px solid rgba(0, 177, 255, 0.5);
 }
 
 .message-input-area {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   width: 100%;
 }
 
-.selected-file {
+.selected-files {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 10px;
   padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px 5px 0 0;
   border-bottom: 1px solid #ddd;
-  background-color: #f9f9f9;
+}
+
+.selected-file {
+  flex: 0 0 auto;
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  background-color: #fff; /* Thêm màu nền trắng */
 }
 
 .selected-image {
-  max-width: 50px;
-  max-height: 50px;
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Thay đổi từ cover sang contain */
+  background-color: #f0f0f0; /* Thêm màu nền xám nhạt cho ảnh */
 }
 
 .selected-doc {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: #e0e0e0;
+  padding: 5px;
+  font-size: 0.8em;
+  text-align: center;
 }
 
 .remove-file {
-  background: none;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 255, 255, 0.7);
   border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  color: #ff4d4f;
-  font-size: 16px;
+  color: #ff0000;
+  font-size: 0.8em;
+}
+
+/* Styles cho thanh cuộn ngang */
+.selected-files::-webkit-scrollbar {
+  height: 6px;
+}
+
+.selected-files::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.selected-files::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.selected-files::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .send-message {

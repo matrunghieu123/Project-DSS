@@ -89,31 +89,46 @@ const ChatRoom = () => {
     };
 
     const onMessageReceived = (payload) => {
-        var payloadData = JSON.parse(payload.body);
-        console.log("Tin nhắn nhận được:", payloadData);  // Kiểm tra tin nhắn nhận được
-        switch(payloadData.status) {
-            case "JOIN":
-                if (!privateChats.get(payloadData.senderName)) {
-                    privateChats.set(payloadData.senderName, []);
-                    setPrivateChats(new Map(privateChats));
-                }
-                break;
-            case "MESSAGE":
-                publicChats.push(payloadData);
-                setPublicChats([...publicChats]);
-                break;
+        try {
+            var payloadData = JSON.parse(payload.body);
+            console.log("Tin nhắn nhận được:", payloadData);
+            switch(payloadData.status) {
+                case "JOIN":
+                    if (!privateChats.get(payloadData.senderName)) {
+                        privateChats.set(payloadData.senderName, []);
+                        setPrivateChats(new Map(privateChats));
+                    }
+                    break;
+                case "MESSAGE":
+                    if (payloadData.file) {
+                        // Xử lý file nếu có
+                        payloadData.file = new Blob([payloadData.file], { type: payloadData.file.type });
+                    }
+                    publicChats.push(payloadData);
+                    setPublicChats([...publicChats]);
+                    break;
                 default:
-            // Xử lý các trường hợp không được dự đoán
-            console.warn(`Nhận được tin nhắn với trạng thái không xác định: ${payloadData.status}`);
-            break;
+                    console.warn(`Nhận được tin nhắn với trạng thái không xác định: ${payloadData.status}`);
+                    break;
+            }
+        } catch (error) {
+            console.error("Lỗi khi xử lý tin nhắn nhận được:", error);
         }
     };
     
     const onPrivateMessage = (payload) => {
-        const payloadData = JSON.parse(payload.body);
-        // Chỉ xử lý tin nhắn đến, không xử lý tin nhắn gửi đi
-        if (payloadData.senderName !== userData.username) {
-            addMessageToPrivateChat(payloadData);
+        try {
+            const payloadData = JSON.parse(payload.body);
+            // Chỉ xử lý tin nhắn đến, không xử lý tin nhắn gửi đi
+            if (payloadData.senderName !== userData.username) {
+                if (payloadData.file) {
+                    // Xử lý file nếu có
+                    payloadData.file = new Blob([payloadData.file], { type: payloadData.file.type });
+                }
+                addMessageToPrivateChat(payloadData);
+            }
+        } catch (error) {
+            console.error("Lỗi khi xử lý tin nhắn riêng:", error);
         }
     };
 
@@ -139,44 +154,55 @@ const ChatRoom = () => {
     };
 
     // gửi ib trên chat tổng
-    const sendValue = () => {
-        if (stompClient && userData.message.trim() !== "") {
-            const chatMessage = {
-                senderName: userData.username,
-                message: userData.message,
-                status: "MESSAGE"
-            };
-            console.log("Đang gửi tin nhắn đến chat công khai:", chatMessage);
-            stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-            setUserData({ ...userData, message: "" });
+    const sendValue = (message, files) => {
+        if (stompClient) {
+            try {
+                const chatMessage = {
+                    senderName: userData.username,
+                    message: message,
+                    status: "MESSAGE",
+                    file: files && files.length > 0 ? files[0] : null
+                };
+                console.log("Đang gửi tin nhắn đến chat công khai:", chatMessage);
+                stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+                setUserData({ ...userData, message: "" });
+            } catch (error) {
+                console.error("Lỗi khi gửi tin nhắn:", error);
+                // Xử lý lỗi ở đây, ví dụ: hiển thị thông báo lỗi cho người dùng
+            }
         }
     };
     
     // gửi ib trên chat riêng
-    const sendPrivateValue = () => {
-        if (stompClient && userData.message.trim() !== "") {
-            const chatMessage = {
-                senderName: userData.username,
-                receiverName: tab,
-                message: userData.message,
-                status: "MESSAGE",
-                timestamp: new Date().getTime() // Thêm timestamp để tạo ID duy nhất
-            };
-            if (userData.username !== tab) {
-                if (privateChats.get(tab)) {
-                    privateChats.get(tab).push(chatMessage);
-                    setPrivateChats(new Map(privateChats));
-                } else {
-                    let list = [chatMessage];
-                    privateChats.set(tab, list);
-                    setPrivateChats(new Map(privateChats));
+    const sendPrivateValue = (message, files) => {
+        if (stompClient) {
+            try {
+                const chatMessage = {
+                    senderName: userData.username,
+                    receiverName: tab,
+                    message: message,
+                    status: "MESSAGE",
+                    timestamp: new Date().getTime(),
+                    file: files && files.length > 0 ? files[0] : null
+                };
+                if (userData.username !== tab) {
+                    if (privateChats.get(tab)) {
+                        privateChats.get(tab).push(chatMessage);
+                        setPrivateChats(new Map(privateChats));
+                    } else {
+                        let list = [chatMessage];
+                        privateChats.set(tab, list);
+                        setPrivateChats(new Map(privateChats));
+                    }
                 }
+                console.log("Đang gửi tin nhắn riêng:", chatMessage);
+                stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
+                addMessageToPrivateChat(chatMessage);
+                setUserData({ ...userData, message: "" });
+            } catch (error) {
+                console.error("Lỗi khi gửi tin nhắn riêng:", error);
+                // Xử lý lỗi ở đây
             }
-            console.log("Đang gửi tin nhắn riêng:", chatMessage);
-            stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
-            // Thêm tin nhắn vào state ngay lập tức để hiển thị
-            addMessageToPrivateChat(chatMessage);
-            setUserData({ ...userData, message: "" });
         }
     };
 

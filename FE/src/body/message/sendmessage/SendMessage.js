@@ -5,51 +5,62 @@ import { FaPaperPlane, FaPaperclip, FaTimes } from 'react-icons/fa'; // Import i
 const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendPrivateValue, tab }) => {
     const inputRef = useRef(null); // Tham chiếu đến trường nhập liệu
     const fileInputRef = useRef(null); // Tham chiếu đến trường input file
-    const [selectedFile, setSelectedFile] = useState(null); // Trạng thái để lưu trữ tệp đã chọn
+    const [selectedFiles, setSelectedFiles] = useState([]); // Trạng thái để lưu trữ tệp đã chọn
 
     const handleSend = () => {
-        if (tab === "CHATROOM") {
-            sendValue(selectedFile);
-        } else {
-            sendPrivateValue(selectedFile);
+        if (userData.message.trim() !== '' || selectedFiles.length > 0) {
+            const file = selectedFiles[0];
+            if (file && file.size > 5 * 1024 * 1024) { // Giới hạn 5MB
+                alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB.");
+                return;
+            }
+            if (tab === "CHATROOM") {
+                sendValue(userData.message, selectedFiles);
+            } else {
+                sendPrivateValue(userData.message, selectedFiles);
+            }
+            setSelectedFiles([]);
         }
-        
-        // Sau khi gửi tin nhắn, focus lại vào trường nhập liệu và xóa tệp đã chọn
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-        setSelectedFile(null);
     };
 
     const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        setSelectedFile(file); // Lưu trữ tệp đã chọn vào trạng thái
-        console.log('Tệp đã chọn:', file);
+        const files = Array.from(event.target.files);
+        const newFiles = files.map(file => ({
+            file: file,
+            preview: URL.createObjectURL(file)
+        }));
+        setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
     };
 
-    const removeSelectedFile = () => {
-        setSelectedFile(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+    const removeSelectedFile = (index) => {
+        setSelectedFiles(prevFiles => {
+            const newFiles = [...prevFiles];
+            URL.revokeObjectURL(newFiles[index].preview);
+            newFiles.splice(index, 1);
+            return newFiles;
+        });
     };
 
     return (
         <div className="send-message-container">
             <div className="message-input-area">
-                {selectedFile && (
-                    <div className="selected-file">
-                        {selectedFile.type.startsWith('image/') ? (
-                            <img src={URL.createObjectURL(selectedFile)} alt="selected" className="selected-image" />
-                        ) : (
-                            <div className="selected-doc">
-                                <span>{selectedFile.name}</span>
-                                <span>({(selectedFile.size / 1024).toFixed(2)} KB)</span>
+                {selectedFiles.length > 0 && (
+                    <div className="selected-files">
+                        {selectedFiles.map((file, index) => (
+                            <div key={index} className="selected-file">
+                                {file.file.type.startsWith('image/') ? (
+                                    <img src={file.preview} alt="selected" className="selected-image" />
+                                ) : (
+                                    <div className="selected-doc">
+                                        <span>{file.file.name}</span>
+                                        <span>({(file.file.size / 1024).toFixed(2)} KB)</span>
+                                    </div>
+                                )}
+                                <button onClick={() => removeSelectedFile(index)} className="remove-file">
+                                    <FaTimes />
+                                </button>
                             </div>
-                        )}
-                        <button onClick={removeSelectedFile} className="remove-file">
-                            <FaTimes />
-                        </button>
+                        ))}
                     </div>
                 )}
                 <div className="send-message">
@@ -76,6 +87,7 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
                         type="file"
                         style={{ display: 'none' }} // Ẩn input file
                         onChange={handleFileChange}
+                        multiple
                     />
 
                     {/* Nút gửi với icon */}

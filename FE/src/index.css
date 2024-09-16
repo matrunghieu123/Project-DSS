@@ -91,7 +91,7 @@ code {
 .search-button {
   width: 100%;
   max-width: 300px;
-  margin: 5px;
+  margin: 16px;
   padding: 13px;
   border-radius: 16px;
   background-color: rgba(30, 49, 80, 0.05);

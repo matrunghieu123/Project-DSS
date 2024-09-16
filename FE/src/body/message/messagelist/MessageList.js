@@ -1,5 +1,6 @@
 import React, { useLayoutEffect } from 'react';
 import './MessageList.css';
+import ImageMessage from './imghanlde/ImageMessage';
 
 const MessageList = ({ chats, userData, endOfMessagesRef }) => {
 
@@ -10,16 +11,12 @@ const MessageList = ({ chats, userData, endOfMessagesRef }) => {
     }, [chats, endOfMessagesRef]);
 
     const renderFileContent = (file) => {
-        if (file.type.startsWith('image/')) {
-            return <img src={URL.createObjectURL(file)} alt="uploaded" className="message-image" />;
-        } else {
-            return (
-                <div className="message-file">
-                    <span>{file.name}</span>
-                    <span>({(file.size / 1024).toFixed(2)} KB)</span>
-                </div>
-            );
+        if (file && file.type && file.type.startsWith('image/')) {
+            return <ImageMessage src={file.data} alt="Sent image" />;
+        } else if (file) {
+            return <a href={file.data} download={file.name}>{file.name}</a>;
         }
+        return null;
     };
 
     return (
