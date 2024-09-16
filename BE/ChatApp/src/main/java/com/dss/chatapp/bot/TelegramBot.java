@@ -2,7 +2,6 @@ package com.dss.chatapp.bot;
 
 import com.dss.chatapp.model.Message;
 import com.dss.chatapp.model.Status;
-import org.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -90,44 +89,48 @@ public class TelegramBot extends TelegramLongPollingBot {
         log.info("Broadcast message to chat app: {}", message);
     }
 
-    // Method to send file to Telegram without using `fileUrl`
-    public void sendFileToTelegram(Long chatId, MultipartFile file) {
+    // Method to handle both file and text messages
+    public void handleFileMessage(Message message) {
+        Long chatId = message.getChatId();
+        String fileUrl = message.getFileUrl();
+
         try {
-            if (isImageFile(file)) {
-                sendPhotoToTelegram(chatId, file);
+            if (message.getFileType().startsWith("image")) {
+                // Handle image file (SendPhoto)
+                sendPhotoToTelegram(chatId, fileUrl);
             } else {
-                sendDocumentToTelegram(chatId, file);
+                // Handle other types of files (SendDocument)
+                sendDocumentToTelegram(chatId, fileUrl);
             }
-        } catch (Exception e) {
+        } catch (TelegramApiException e) {
             log.error("Error sending file to Telegram chat ID {}: {}", chatId, e.getMessage());
         }
     }
 
-    private void sendDocumentToTelegram(Long chatId, MultipartFile file) throws TelegramApiException, IOException {
-        SendDocument sendDocument = new SendDocument();
-        sendDocument.setChatId(chatId.toString());
-
-        // Directly send file as InputFile from MultipartFile
-        InputFile document = new InputFile(file.getInputStream(), file.getOriginalFilename());
-        sendDocument.setDocument(document);
-
-        execute(sendDocument);  // Send document via Telegram API
-    }
-
-    private void sendPhotoToTelegram(Long chatId, MultipartFile file) throws TelegramApiException, IOException {
+    // Method to send photo to Telegram using URL
+    private void sendPhotoToTelegram(Long chatId, String fileUrl) throws TelegramApiException {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId.toString());
 
-        // Directly send file as InputFile from MultipartFile
-        InputFile photo = new InputFile(file.getInputStream(), file.getOriginalFilename());
+        // Use InputFile to send the photo from URL
+        InputFile photo = new InputFile(fileUrl);
         sendPhoto.setPhoto(photo);
 
         execute(sendPhoto);  // Send photo via Telegram API
+        log.info("Sent photo to Telegram chat ID {}: {}", chatId, fileUrl);
     }
 
-    private boolean isImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && contentType.startsWith("image");
+    // Method to send document to Telegram using URL
+    private void sendDocumentToTelegram(Long chatId, String fileUrl) throws TelegramApiException {
+        SendDocument sendDocument = new SendDocument();
+        sendDocument.setChatId(chatId.toString());
+
+        // Use InputFile to send the document from URL
+        InputFile document = new InputFile(fileUrl);
+        sendDocument.setDocument(document);
+
+        execute(sendDocument);  // Send document via Telegram API
+        log.info("Sent document to Telegram chat ID {}: {}", chatId, fileUrl);
     }
 
     public String getCurrentTime(){

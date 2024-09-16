@@ -2,7 +2,6 @@ package com.dss.chatapp.controller;
 
 import com.dss.chatapp.bot.TelegramBot;
 import com.dss.chatapp.model.Message;
-import com.dss.chatapp.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -17,30 +16,34 @@ import java.time.format.DateTimeFormatter;
 public class MessageController {
 
     @Autowired
-    MessageService messageService;
-    @Autowired
     TelegramBot telegramBot;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/telegram-message")
-    @SendTo("/chatroom/telegram")
+    @MessageMapping("/message")
+    @SendTo("/chatroom/public")
     public void receiveMessageTelegram(@Payload Message message) {
         String timestamp = getCurrentTime();
         message.setTime(timestamp);
-        simpMessagingTemplate.convertAndSend("/chatroom/telegram", message);
-        Long telegramChatId = getChatID();
-        telegramBot.sendMessageToTelegram(telegramChatId, message.getMessage());
-        System.out.println(message);
+        // Send message to chat app (websockets, etc.)
+        simpMessagingTemplate.convertAndSend("/chatroom/public", message);
+
+        // Handle if it's a file message
+        if (message.getFileUrl() != null) {
+            telegramBot.handleFileMessage(message); // Delegate to TelegramBot
+        } else {
+            // Handle a regular text message
+            telegramBot.sendMessageToTelegram(message.getChatId(), message.getMessage());
+        }
     }
 
-    @MessageMapping("public-message")
-    @SendTo("chatroom/public")
-    public void receiveMessagePublic(@Payload Message message){
-        String timestamp = getCurrentTime();
-        message.setTime(timestamp);
-        simpMessagingTemplate.convertAndSend("/chatroom/public");
-    }
+//    @MessageMapping("public-message")
+//    @SendTo("chatroom/public")
+//    public void receiveMessagePublic(@Payload Message message){
+//        String timestamp = getCurrentTime();
+//        message.setTime(timestamp);
+//        simpMessagingTemplate.convertAndSend("/chatroom/public");
+//    }
 
     private String getCurrentTime() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
