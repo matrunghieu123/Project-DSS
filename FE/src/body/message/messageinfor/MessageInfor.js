@@ -13,16 +13,18 @@ const MessageInfor = () => {
                 justify="space-between"
                 gutter={[16, 16]}
             >
-                {/* Ảnh đại diện và thông tin người dùng */}
-                <Col xs={6} sm={4} md={3} lg={2}>
-                    <Avatar size={40} style={{ fontSize: 14, backgroundColor: '#87d068' }}>HT</Avatar>
+                {/* Phần avatar và tên */}
+                <Col xs={18} sm={14} md={11} lg={8}>
+                    <div className="avatar-section">
+                        <Avatar size={40} style={{ fontSize: 14, backgroundColor: '#87d068' }}>HT</Avatar>
+                        <div style={{ marginLeft: '10px' }}>
+                            <Text strong>Trung Hiếu</Text><br />
+                            <Text type="secondary">0983003306</Text>
+                        </div>
+                    </div>
                 </Col>
-                <Col xs={12} sm={10} md={8} lg={6}>
-                    <Text strong>Trung Hiếu</Text><br />
-                    <Text type="secondary">0983003306</Text>
-                </Col>
-                {/* Nút liên kết và biểu tượng */}
-                <Col xs={24} sm={8} md={8} lg={6} style={{ textAlign: 'right' }}>
+                {/* Phần nút liên kết */}
+                <Col xs={6} sm={10} md={8} lg={6} className="link-section">
                     <Button icon={<LinkOutlined />} size="middle" type="primary">Liên kết</Button>
                 </Col>
             </Row>
