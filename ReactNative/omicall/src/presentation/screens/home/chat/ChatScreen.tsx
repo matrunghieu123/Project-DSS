@@ -1,5 +1,6 @@
 import {
   InteractionManager,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,27 +17,40 @@ import {
   MessageBubble,
   RowComponent,
   SpaceComponent,
-  TextFieldComponent,
 } from '../../../components';
 import {Fonts} from '../../../../core/constants/Fonts';
 import {AppColors} from '../../../../core/constants/AppColors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
-import {AppInfos} from '../../../../core/constants/AppInfos';
 import StompService from '../../../../services/StompService';
 import {Status} from '../../../../core/constants/Status';
 import {MessageModel} from '../../../../models/MessageModel';
 import {authSelector} from '../../../redux/AuthReducer';
 import {useSelector} from 'react-redux';
-import storage from '@react-native-firebase/storage';
-import {Constants} from '../../../../core/constants/Constants.ts';
+import SendMessage from './components/SendMessage';
+import BottomSheet from '@gorhom/bottom-sheet';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import BottomSheetComponent from './components/BottomSheetComponent.tsx';
+import {ImageOrVideo} from 'react-native-image-crop-picker';
+import * as DocumentPicker from 'react-native-document-picker';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [messages, setMessages] = useState<any[]>([]);
   const user = useSelector(authSelector);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [mediaPicked, setMediaPicked] = useState<ImageOrVideo | undefined>(
+    undefined,
+  );
+  const [filePicked, setFilePicked] = useState<
+    DocumentPicker.DocumentPickerResponse | undefined
+  >(undefined);
   const stompService = StompService.getInstance(user.name);
+
+  const handleDotsPress = () => {
+    Keyboard.dismiss();
+    bottomSheetRef.current?.expand();
+  };
 
   const handleNewMessage = useCallback(
     (message: MessageModel) => {
@@ -109,150 +123,56 @@ const ChatScreen = ({navigation, route}: any) => {
   }, [stompService, handleNewMessage]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <HeaderChat navigation={navigation} name={name} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}>
-        <View style={[styles.flex, {backgroundColor: AppColors.lightGrey}]}>
-          <ScrollView
-            ref={scrollViewRef}
-            contentContainerStyle={styles.scrollView}
-            keyboardShouldPersistTaps="handled"
-            onContentSizeChange={() =>
-              scrollViewRef.current?.scrollToEnd({animated: true})
-            }
-            onLayout={() =>
-              scrollViewRef.current?.scrollToEnd({animated: true})
-            }>
-            {messages.map((msg, index) => {
-              const showSenderName =
-                index === 0 ||
-                messages[index - 1].senderName !== msg.senderName;
-              return (
-                <MessageBubble
-                  key={msg.id}
-                  message={msg.text}
-                  senderName={msg.senderName}
-                  showSenderName={showSenderName && type === 'group'}
-                  time={msg.time}
-                  image={msg.fileUrl}
-                />
-              );
-            })}
-          </ScrollView>
-        </View>
-        <SendMessage onSendMessage={handleSendMessage} />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
-};
-
-const SendMessage = ({
-  onSendMessage,
-}: {
-  onSendMessage: (message: string, fileUrl: string) => void;
-}) => {
-  const [message, setMessage] = useState('');
-  const [imagePicked, setImagePicked] = useState<ImageOrVideo | undefined>(
-    undefined,
-  );
-  const handleSend = async () => {
-    const trimmedMessage = message.trimStart();
-    if (trimmedMessage || imagePicked) {
-      const fileUrl = imagePicked ? await handleUploadImage(imagePicked) : '';
-      onSendMessage(trimmedMessage, fileUrl);
-      setMessage('');
-      setImagePicked(undefined);
-    }
-  };
-
-  const handleUploadImage = async (image: ImageOrVideo): Promise<string> => {
-    const fileName = `image-${Date.now()}.${image.path.split('.').pop()}`;
-    const path = `images/${fileName}`;
-
-    const reference = storage().ref(path);
-    await reference.putFile(image.path);
-    return await reference.getDownloadURL();
-  };
-
-  const handleOpenCamera = () => {
-    ImagePicker.openCamera({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
-    })
-      .then(image => setImagePicked(image))
-      .catch(err => {
-        console.log(err);
-      });
-  };
-  const handleImagePicker = () => {
-    ImagePicker.openPicker({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
-    })
-      .then(image => {
-        setImagePicked(image);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
-  const handleRemoveImage = () => {
-    setImagePicked(undefined);
-  };
-
-  return (
-    <RowComponent style={styles.rowChat}>
-      <SpaceComponent width={10} />
-      <Ionicons
-        name={'attach-sharp'}
-        size={24}
-        color={AppColors.secondary}
-        style={styles.icon}
-      />
-      <SpaceComponent width={5} />
-      <TouchableOpacity onPress={handleOpenCamera}>
-        <Ionicons
-          name={'camera'}
-          size={24}
-          color={AppColors.secondary}
-          style={styles.icon}
+    <GestureHandlerRootView>
+      <SafeAreaView style={styles.safeArea}>
+        <HeaderChat navigation={navigation} name={name} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.flex}>
+          <View style={[styles.flex, {backgroundColor: AppColors.lightGrey}]}>
+            <ScrollView
+              ref={scrollViewRef}
+              contentContainerStyle={styles.scrollView}
+              keyboardShouldPersistTaps="handled"
+              onContentSizeChange={() =>
+                scrollViewRef.current?.scrollToEnd({animated: true})
+              }
+              onLayout={() =>
+                scrollViewRef.current?.scrollToEnd({animated: true})
+              }>
+              {messages.map((msg, index) => {
+                const showSenderName =
+                  index === 0 ||
+                  messages[index - 1].senderName !== msg.senderName;
+                return (
+                  <MessageBubble
+                    key={msg.id}
+                    message={msg.text}
+                    senderName={msg.senderName}
+                    showSenderName={showSenderName && type === 'group'}
+                    time={msg.time}
+                    image={msg.fileUrl}
+                  />
+                );
+              })}
+            </ScrollView>
+          </View>
+          <SendMessage
+            onSendMessage={handleSendMessage}
+            onDotsPress={handleDotsPress}
+            mediaPicked={mediaPicked}
+            filePicked={filePicked}
+            setMediaPicked={setMediaPicked}
+            setFilePicked={setFilePicked}
+          />
+        </KeyboardAvoidingView>
+        <BottomSheetComponent
+          bottomSheetRef={bottomSheetRef}
+          setMediaPicked={setMediaPicked}
+          setFilePicked={setFilePicked}
         />
-      </TouchableOpacity>
-      <SpaceComponent width={10} />
-      <TouchableOpacity onPress={handleImagePicker}>
-        <Ionicons
-          name={'image'}
-          size={24}
-          color={AppColors.secondary}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
-      <SpaceComponent width={10} />
-      <TextFieldComponent
-        placeholder={'Nhập tin nhắn...'}
-        width={AppInfos.sizes.width * 0.6}
-        styleContainer={styles.input}
-        value={message}
-        onChangeText={text => setMessage(text)}
-        image={imagePicked?.path}
-        onRemoveImage={handleRemoveImage}
-        multiline={true}
-      />
-      <SpaceComponent width={15} />
-      <TouchableOpacity style={styles.flex} onPress={handleSend}>
-        <Ionicons
-          name={'send'}
-          size={24}
-          color={AppColors.secondary}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
-    </RowComponent>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 };
 
@@ -288,9 +208,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 30,
   },
-  rowChat: {
-    alignItems: 'flex-end',
-  },
   avatar: {
     height: 40,
     width: 40,
@@ -306,19 +223,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: AppColors.greyIcon,
   },
-  input: {
-    borderWidth: 0,
-    backgroundColor: AppColors.lightGrey,
-  },
   scrollView: {
     padding: 10,
     flexGrow: 1,
   },
   flex: {
     flex: 1,
-  },
-  icon: {
-    marginVertical: 15,
   },
 });
 

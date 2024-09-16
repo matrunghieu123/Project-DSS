@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-native-firebase/app": "^20.5.0",
     "@react-native-firebase/storage": "^20.5.0",
@@ -20,7 +21,11 @@
     "@stomp/stompjs": "^7.0.0",
     "react": "18.3.1",
     "react-native": "^0.75.3",
+    "react-native-document-picker": "^9.3.1",
+    "react-native-gesture-handler": "^2.19.0",
     "react-native-image-crop-picker": "^0.41.2",
+    "react-native-image-viewing": "^0.2.2",
+    "react-native-reanimated": "^3.15.2",
     "react-native-safe-area-context": "^4.11.0",
     "react-native-screens": "^3.34.0",
     "react-native-svg": "^15.6.0",

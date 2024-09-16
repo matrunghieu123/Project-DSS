@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @Column(name = "message_id")
     private Long chatId;
 
     private String senderName;
@@ -23,6 +22,8 @@ public class Message {
     private String receiverName;
 
     private String fileUrl; // for file attachment
+
+    private String fileType;
 
     @Column(nullable = false)
     private String message;

@@ -1,5 +1,7 @@
 import {
   Image,
+  KeyboardType,
+  ReturnKeyType,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -8,18 +10,15 @@ import {
 } from 'react-native';
 import React, {forwardRef, ReactNode, Ref, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import * as DocumentPicker from 'react-native-document-picker';
 import {AppColors} from '../../core/constants/AppColors';
+import {FileComponent} from './index.ts';
 
 interface InputComponentProps {
   value?: string;
   placeholder?: string;
-  keyboardType?:
-    | 'default'
-    | 'email-address'
-    | 'numeric'
-    | 'phone-pad'
-    | 'number-pad';
-  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  keyboardType?: KeyboardType;
+  returnKeyType?: ReturnKeyType;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
@@ -34,7 +33,9 @@ interface InputComponentProps {
   onSubmitEditing?: () => void;
   multiline?: boolean;
   image?: string;
+  file?: DocumentPicker.DocumentPickerResponse;
   onRemoveImage?: () => void;
+  onRemoveFile?: () => void;
 }
 
 const TextFieldComponent = forwardRef(
@@ -58,6 +59,9 @@ const TextFieldComponent = forwardRef(
               <Icon name="close" size={14} color="white" />
             </TouchableOpacity>
           </View>
+        )}
+        {props.file && (
+          <FileComponent file={props.file} onRemoveFile={props.onRemoveFile} allowRemove={true} />
         )}
         <TouchableOpacity
           style={[
@@ -120,6 +124,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 10,
+    fontSize: 16,
   },
   prefix: {
     marginLeft: 15,
@@ -144,12 +149,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   closeButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
     backgroundColor: AppColors.grey,
     borderRadius: 10,
     padding: 2,
+    position: 'absolute',
+    top: 5,
+    right: 5,
   },
 });
 

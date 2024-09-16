@@ -8,6 +8,7 @@ export class MessageModel {
   public status: Status;
   public time: string;
   public fileUrl?: string;
+  public fileType?: string;
 
   constructor(
     chatID: string,
@@ -17,6 +18,7 @@ export class MessageModel {
     time: string,
     receiverName?: string,
     fileUrl?: string,
+    fileType?: string,
   ) {
     this.chatID = chatID;
     this.senderName = senderName;
@@ -25,5 +27,6 @@ export class MessageModel {
     this.time = time;
     this.receiverName = receiverName;
     this.fileUrl = fileUrl;
+    this.fileType = fileType;
   }
 }
