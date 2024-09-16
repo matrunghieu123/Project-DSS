@@ -1,35 +1,72 @@
-.send-message {
-  height: 100%;
+.send-message-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   width: 100%;
-  border-top: 1px solid rgba(0, 177, 255);
-  align-items: center; /* Canh giữa theo chiều dọc */
+  position: relative;
+  background-color: #fff;
+  border-top: 1px solid rgba(0, 177, 255, 0.5);
+}
+
+.message-input-area {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.selected-file {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.selected-image {
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 4px;
+}
+
+.selected-doc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff4d4f;
+  font-size: 16px;
+}
+
+.send-message {
+  display: flex;
+  align-items: center;
+  padding: 10px;
 }
 
 .input-message {
   flex-grow: 1;
   font-size: 1.2em;
-  padding-left: 20px; /* Lùi vào 2 space (2 x 10px = 20px) */
+  padding: 10px;
   border: none;
-  outline: none; /* Loại bỏ viền khi chọn */
+  outline: none;
 }
 
 .file-button, .send-button {
-  background-color: white;
+  background-color: transparent;
   border: none;
   cursor: pointer;
   font-size: 20px;
   padding: 10px;
-}
-
-.send-button {
-  width: 20%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .file-button:hover, .send-button:hover {
-  color: #00b1ff; /* Đổi màu khi hover */
+  color: #00b1ff;
 }

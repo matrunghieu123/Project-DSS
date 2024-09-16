@@ -75,5 +75,9 @@
 		<string>Roboto-Regular.ttf</string>
 		<string>Roboto-Thin.ttf</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to access your photo gallery</string>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to access your camera</string>
 </dict>
 </plist>

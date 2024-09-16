@@ -1,19 +1,21 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../redux/AuthReducer';
+import {Constants} from '../../core/constants/Constants.ts';
 
 interface MessageBubbleProps {
-  message: string;
+  message?: string;
   senderName: string;
   showSenderName: boolean;
   time: string;
+  image?: string;
 }
 
 const MessageBubble = (props: MessageBubbleProps) => {
-  const {message, senderName, showSenderName, time} = props;
+  const {message, senderName, showSenderName, time, image} = props;
   const user = useSelector(authSelector);
   return (
     <View>
@@ -27,22 +29,39 @@ const MessageBubble = (props: MessageBubbleProps) => {
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
-        <Text
-          style={[
-            styles.messageText,
-            user.name === senderName
-              ? styles.sentMessageText
-              : styles.receivedMessageText,
-          ]}>
-          {message}
-        </Text>
-        <Text
-          style={[
-            styles.time,
-            user.name === senderName ? styles.sentTime : styles.receivedTime,
-          ]}>
-          {time}
-        </Text>
+        {image && (
+          <Image
+            source={{uri: image}}
+            style={[
+              styles.image,
+              user.name === senderName
+                ? styles.sentImage
+                : styles.receivedImage,
+            ]}
+          />
+        )}
+        {message && (
+          <View>
+            <Text
+              style={[
+                styles.messageText,
+                user.name === senderName
+                  ? styles.sentMessageText
+                  : styles.receivedMessageText,
+              ]}>
+              {message}
+            </Text>
+            <Text
+              style={[
+                styles.time,
+                user.name === senderName
+                  ? styles.sentTime
+                  : styles.receivedTime,
+              ]}>
+              {time}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -56,8 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   messageContainer: {
-    maxWidth: '70%',
-    padding: 10,
+    maxWidth: '80%',
     borderRadius: 10,
     marginVertical: 5,
   },
@@ -74,6 +92,8 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 15,
     fontFamily: Fonts.regular,
+    marginHorizontal: 10,
+    marginVertical: 5,
   },
   sentMessageText: {
     color: 'white',
@@ -83,7 +103,8 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 11,
-    marginTop: 5,
+    marginHorizontal: 10,
+    marginBottom: 5,
   },
   sentTime: {
     color: AppColors.lightGrey,
@@ -91,6 +112,17 @@ const styles = StyleSheet.create({
   receivedTime: {
     color: AppColors.grey,
     alignSelf: 'flex-end',
+  },
+  image: {
+    width: Constants.WIDTH_IMAGE,
+    height: Constants.HEIGHT_IMAGE,
+    borderRadius: 10,
+  },
+  sentImage: {
+    borderTopRightRadius: 0,
+  },
+  receivedImage: {
+    borderTopLeftRadius: 0,
   },
 });
 

@@ -3,3 +3,18 @@
     background-color: white;
     height: 100%;
 }
+
+
+@media (max-width: 576px) {
+    .top-chat {
+        padding: 8px;
+    }
+    .ant-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    .ant-btn {
+        font-size: 12px;
+        padding: 0 10px;
+    }
+}

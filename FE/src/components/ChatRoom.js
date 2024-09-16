@@ -110,15 +110,23 @@ const ChatRoom = () => {
     };
     
     const onPrivateMessage = (payload) => {
-        var payloadData = JSON.parse(payload.body);
-        if (privateChats.get(payloadData.senderName)) {
-            privateChats.get(payloadData.senderName).push(payloadData);
-            setPrivateChats(new Map(privateChats));
-        } else {
-            let list = [payloadData];
-            privateChats.set(payloadData.senderName, list);
-            setPrivateChats(new Map(privateChats));
+        const payloadData = JSON.parse(payload.body);
+        // Chỉ xử lý tin nhắn đến, không xử lý tin nhắn gửi đi
+        if (payloadData.senderName !== userData.username) {
+            addMessageToPrivateChat(payloadData);
         }
+    };
+
+    const addMessageToPrivateChat = (message) => {
+        setPrivateChats(prevChats => {
+            const newChats = new Map(prevChats);
+            const chatList = newChats.get(message.receiverName) || [];
+            const messageId = `${message.senderName}-${message.timestamp}`;
+            if (!chatList.some(msg => `${msg.senderName}-${msg.timestamp}` === messageId)) {
+                newChats.set(message.receiverName, [...chatList, { ...message, id: messageId }]);
+            }
+            return newChats;
+        });
     };
 
     const onError = (err) => {
@@ -151,7 +159,8 @@ const ChatRoom = () => {
                 senderName: userData.username,
                 receiverName: tab,
                 message: userData.message,
-                status: "MESSAGE"
+                status: "MESSAGE",
+                timestamp: new Date().getTime() // Thêm timestamp để tạo ID duy nhất
             };
             if (userData.username !== tab) {
                 if (privateChats.get(tab)) {
@@ -165,6 +174,8 @@ const ChatRoom = () => {
             }
             console.log("Đang gửi tin nhắn riêng:", chatMessage);
             stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
+            // Thêm tin nhắn vào state ngay lập tức để hiển thị
+            addMessageToPrivateChat(chatMessage);
             setUserData({ ...userData, message: "" });
         }
     };
@@ -209,7 +220,7 @@ const ChatRoom = () => {
     return (
         <div className="container">
             {userData.connected ? (
-                <div id="root" className="container-1">
+                <div className="container-1">
                     <div className='header-nav'>
                         {/* <ChatRoomHeader /> */}
                     </div>
@@ -258,37 +269,36 @@ const ChatRoom = () => {
                                             // Hiển thị nội dung chat bình thường
                                     <div className='chat-border'>
                                         <div className='text-input'>
-                                            <div
-                                                style={{
-                                                    height: '20%',
-                                                }}
-                                            >
-                                                <MessageInfor />
+                                            <div>
+                                                <div 
+                                                    style={{
+                                                        overflow: 'hidden',
+                                                    }}
+                                                >
+                                                    <MessageInfor />
+                                                </div>
                                             </div>
-                                            <div
-                                                style={{
-                                                    height: '72%',
-                                                }}
-                                            >
-                                                <MessageList 
-                                                    chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
-                                                    tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
-                                                />
+                                            <div>
+                                                <div>
+                                                    <MessageList 
+                                                        chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
+                                                        tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
+                                                    />
+                                                </div>
                                             </div>
-                                            <div
-                                                style={{
-                                                    height: '8%',
-                                                    backgroundColor: 'white'
-                                                }}
-                                            >
-                                                <SendMessage 
-                                                    userData={userData} handleMessage={handleMessage} 
-                                                    handleKeyPress={handleKeyPress} sendValue={sendValue} 
-                                                    sendPrivateValue={sendPrivateValue} tab={tab} 
-                                                />
+                                            <div>
+                                                <div style={{
+                                                    backgroundColor: 'white',
+                                                }}>
+                                                    <SendMessage 
+                                                        userData={userData} handleMessage={handleMessage} 
+                                                        handleKeyPress={handleKeyPress} sendValue={sendValue} 
+                                                        sendPrivateValue={sendPrivateValue} tab={tab} 
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    
+
                                         <div className='chat-tool'>
                                             <ChatTool 
                                                 avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
