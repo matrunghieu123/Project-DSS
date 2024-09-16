@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
   },
   messageText: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: Fonts.regular,
     marginHorizontal: 10,
     marginVertical: 5,

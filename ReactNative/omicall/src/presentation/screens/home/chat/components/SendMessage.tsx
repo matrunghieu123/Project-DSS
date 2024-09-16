@@ -58,7 +58,7 @@ const SendMessage = (props: SendMessageProps) => {
     let filePath: string = '';
 
     if ('name' in file && file.name) {
-      fileName = `${type}-${Date.now()}.${file.name.split('.').pop()}`;
+      fileName = `${file.name.split('.').shift()}-${Date.now()}.${file.name.split('.').pop()}`;
       filePath = file.uri; // DocumentPicker uses 'uri'
     } else if ('path' in file) {
       fileName = `${type}-${Date.now()}.${file.path.split('.').pop()}`;
@@ -92,7 +92,9 @@ const SendMessage = (props: SendMessageProps) => {
         value={message}
         onChangeText={text => setMessage(text)}
         image={mediaPicked?.path}
+        file={filePicked}
         onRemoveImage={() => setMediaPicked(undefined)}
+        onRemoveFile={() => setFilePicked(undefined)}
         multiline={true}
         returnKeyType={'next'}
       />
