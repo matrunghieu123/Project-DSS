@@ -1,24 +1,62 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../redux/AuthReducer';
 import {Constants} from '../../core/constants/Constants.ts';
 import ImageView from 'react-native-image-viewing';
-
+import FileViewer from 'react-native-file-viewer';
+import {FileComponent} from './index.ts';
+import {getFileSize} from '../../services/AxiosService.ts';
+import RNFS from 'react-native-fs';
 interface MessageBubbleProps {
   message?: string;
   senderName: string;
   showSenderName: boolean;
   time: string;
-  image?: string;
+  fileUrl?: string;
+  fileType?: string;
 }
 
 const MessageBubble = (props: MessageBubbleProps) => {
-  const {message, senderName, showSenderName, time, image} = props;
+  const {message, senderName, showSenderName, time, fileUrl, fileType} = props;
   const [visible, setIsVisible] = useState(false);
+  const [fileSize, setFileSize] = useState<number | null>(null);
   const user = useSelector(authSelector);
+
+  const getFileNameFromUrl = (url: string): string => {
+    const decodedUrl = decodeURIComponent(url);
+    const parts = decodedUrl.split('/');
+    const lastPart = parts[parts.length - 1];
+    return lastPart.split('?')[0];
+  };
+
+  const handleOpenFile = () => {
+    if (fileUrl) {
+      const path = `${RNFS.DocumentDirectoryPath}/${getFileNameFromUrl(fileUrl)}`;
+      console.log('Path: ', path);
+      RNFS.downloadFile({
+        fromUrl: fileUrl,
+        toFile: path,
+      }).promise.then(() => {
+        FileViewer.open(path, {displayName: getFileNameFromUrl(fileUrl)})
+          .then(() => {
+            console.log('File opened');
+          })
+          .catch(error => {
+            console.log('Error opening file: ', error);
+          });
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (fileUrl && fileType === 'file') {
+      getFileSize(fileUrl).then(size => setFileSize(size));
+    }
+  }, [fileUrl, fileType]);
+
   return (
     <View>
       {showSenderName && user.name !== senderName && (
@@ -31,26 +69,41 @@ const MessageBubble = (props: MessageBubbleProps) => {
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
-        {image && (
+        {fileUrl && fileType === 'media' && (
           <>
             <ImageView
-              images={[{uri: image}]}
+              images={[{uri: fileUrl}]}
               imageIndex={0}
               visible={visible}
               onRequestClose={() => setIsVisible(false)}
             />
-          <TouchableOpacity onPress={() => setIsVisible(true)}>
-            <Image
-              source={{uri: image}}
-              style={[
-                styles.image,
-                user.name === senderName
-                  ? styles.sentImage
-                  : styles.receivedImage,
-              ]}
+            <TouchableOpacity onPress={() => setIsVisible(true)}>
+              <Image
+                source={{uri: fileUrl}}
+                style={[
+                  styles.image,
+                  user.name === senderName
+                    ? styles.sentImage
+                    : styles.receivedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          </>
+        )}
+        {fileUrl && fileType === 'file' && fileSize !== null && (
+          <TouchableOpacity onPress={handleOpenFile}>
+            <FileComponent
+              file={{
+                uri: fileUrl,
+                name: getFileNameFromUrl(fileUrl),
+                size: fileSize,
+                fileCopyUri: fileUrl,
+                type: 'file',
+              }}
+              allowRemove={false}
+              style={styles.file}
             />
           </TouchableOpacity>
-          </>
         )}
         {message && (
           <View>
@@ -135,6 +188,11 @@ const styles = StyleSheet.create({
   },
   receivedImage: {
     borderTopLeftRadius: 0,
+  },
+  file: {
+    marginTop: 0,
+    marginLeft: 0,
+    borderTopRightRadius: 0,
   },
 });
 

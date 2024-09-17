@@ -79,5 +79,11 @@
 	<string>$(PRODUCT_NAME) would like to access your photo gallery</string>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to access your camera</string>
+	<key>LSApplicationQueriesSchemes</key>
+  <array>
+    <string>file</string>
+    <string>http</string>
+    <string>https</string>
+  </array>
 </dict>
 </plist>

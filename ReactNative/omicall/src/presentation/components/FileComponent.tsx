@@ -1,4 +1,10 @@
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+} from 'react-native';
 import React from 'react';
 import * as DocumentPicker from 'react-native-document-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -11,6 +17,7 @@ interface FileComponentProps {
   file: DocumentPicker.DocumentPickerResponse;
   onRemoveFile?: () => void;
   allowRemove?: boolean;
+  style?: ViewStyle;
 }
 
 const formatFileSize = (size: number) => {
@@ -27,7 +34,7 @@ const formatFileSize = (size: number) => {
 const FileComponent = (props: FileComponentProps) => {
   const {file, onRemoveFile} = props;
   return (
-    <RowComponent style={styles.fileContainer}>
+    <RowComponent style={[styles.fileContainer, props.style]}>
       <DocumentIcon style={styles.icon} />
       <View style={styles.flex}>
         <Text style={styles.fileName} numberOfLines={1}>

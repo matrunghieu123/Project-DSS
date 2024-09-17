@@ -66,6 +66,7 @@ const ChatScreen = ({navigation, route}: any) => {
             senderName: message.senderName,
             time: message.time,
             fileUrl: message.fileUrl,
+            fileType: message.fileType,
           },
         ]);
       }
@@ -73,7 +74,7 @@ const ChatScreen = ({navigation, route}: any) => {
     [user.name],
   );
 
-  const handleSendMessage = (message: string, fileUrl: string) => {
+  const handleSendMessage = (message: string, fileUrl: string, fileType: string) => {
     const newMessage = {
       id: messages.length + 1,
       text: message,
@@ -83,6 +84,7 @@ const ChatScreen = ({navigation, route}: any) => {
         minute: '2-digit',
       }),
       fileUrl: fileUrl,
+      fileType: fileType,
     };
     setMessages([...messages, newMessage]);
     switch (type) {
@@ -92,6 +94,7 @@ const ChatScreen = ({navigation, route}: any) => {
           message,
           status: Status.MESSAGE,
           fileUrl: fileUrl,
+          fileType: fileType,
         });
         break;
       }
@@ -102,6 +105,7 @@ const ChatScreen = ({navigation, route}: any) => {
           message,
           status: Status.MESSAGE,
           fileUrl: fileUrl,
+          fileType: fileType,
         });
         break;
       }
@@ -151,7 +155,8 @@ const ChatScreen = ({navigation, route}: any) => {
                     senderName={msg.senderName}
                     showSenderName={showSenderName && type === 'group'}
                     time={msg.time}
-                    image={msg.fileUrl}
+                    fileUrl={msg.fileUrl}
+                    fileType={msg.fileType}
                   />
                 );
               })}
