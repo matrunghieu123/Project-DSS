@@ -35,7 +35,7 @@ import * as DocumentPicker from 'react-native-document-picker';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
-  const user = useSelector(authSelector);
+  const user = useSelector(authSelector).UserInfo;
   const scrollViewRef = useRef<ScrollView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -45,7 +45,7 @@ const ChatScreen = ({navigation, route}: any) => {
   const [filePicked, setFilePicked] = useState<
     DocumentPicker.DocumentPickerResponse | undefined
   >(undefined);
-  const stompService = StompService.getInstance(user.name);
+  const stompService = StompService.getInstance(user.userName);
 
   const handleDotsPress = () => {
     Keyboard.dismiss();
@@ -56,7 +56,7 @@ const ChatScreen = ({navigation, route}: any) => {
     (message: MessageModel) => {
       if (
         message.status === Status.MESSAGE &&
-        message.senderName !== user.name
+        message.senderName !== user.UserName
       ) {
         setMessages(prevMessages => [
           ...prevMessages,
@@ -71,14 +71,14 @@ const ChatScreen = ({navigation, route}: any) => {
         ]);
       }
     },
-    [user.name],
+    [user.UserName],
   );
 
   const handleSendMessage = (message: string, fileUrl: string, fileType: string) => {
     const newMessage = {
       id: messages.length + 1,
       text: message,
-      senderName: user.name,
+      senderName: user.UserName,
       time: new Date().toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -90,7 +90,7 @@ const ChatScreen = ({navigation, route}: any) => {
     switch (type) {
       case 'group': {
         stompService.sendMessagePublic({
-          senderName: user.name,
+          senderName: user.UserName,
           message,
           status: Status.MESSAGE,
           fileUrl: fileUrl,
@@ -100,7 +100,7 @@ const ChatScreen = ({navigation, route}: any) => {
       }
       case 'private': {
         stompService.sendMessagePrivate({
-          senderName: user.name,
+          senderName: user.UserName,
           receiverName: name,
           message,
           status: Status.MESSAGE,

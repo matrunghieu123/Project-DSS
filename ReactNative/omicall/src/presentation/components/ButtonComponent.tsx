@@ -1,7 +1,15 @@
-import {Text, TouchableOpacity, StyleSheet, ViewStyle, StyleProp, TextStyle} from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
 import React from 'react';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
+import {RowComponent} from './index.ts';
 
 interface ButtonComponentProps {
   title: string;
@@ -9,6 +17,7 @@ interface ButtonComponentProps {
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   styleText?: StyleProp<TextStyle>;
+  logo?: any;
 }
 
 const ButtonComponent = (props: ButtonComponentProps) => {
@@ -21,7 +30,10 @@ const ButtonComponent = (props: ButtonComponentProps) => {
       ]}
       onPress={props.onPress}
       disabled={props.disabled}>
-      <Text style={[styles.text,props.styleText]}>{props.title}</Text>
+      <RowComponent>
+        <Text style={[styles.text, props.styleText]}>{props.title}</Text>
+        {props.logo}
+      </RowComponent>
     </TouchableOpacity>
   );
 };

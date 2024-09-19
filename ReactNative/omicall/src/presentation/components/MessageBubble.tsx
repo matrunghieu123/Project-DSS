@@ -8,8 +8,9 @@ import {Constants} from '../../core/constants/Constants.ts';
 import ImageView from 'react-native-image-viewing';
 import FileViewer from 'react-native-file-viewer';
 import {FileComponent} from './index.ts';
-import {getFileSize} from '../../services/AxiosService.ts';
-import RNFS from 'react-native-fs';
+import RNFS, {TemporaryDirectoryPath} from 'react-native-fs';
+import axios from 'axios';
+
 interface MessageBubbleProps {
   message?: string;
   senderName: string;
@@ -23,7 +24,18 @@ const MessageBubble = (props: MessageBubbleProps) => {
   const {message, senderName, showSenderName, time, fileUrl, fileType} = props;
   const [visible, setIsVisible] = useState(false);
   const [fileSize, setFileSize] = useState<number | null>(null);
-  const user = useSelector(authSelector);
+  const user = useSelector(authSelector).UserInfo;
+
+  const getFileSize = async (url: string): Promise<number> => {
+    try {
+      const response = await axios.head(url);
+      const contentLength = response.headers['content-length'];
+      return parseInt(contentLength, 10);
+    } catch (error) {
+      console.error('Error fetching file size:', error);
+      return 0;
+    }
+  };
 
   const getFileNameFromUrl = (url: string): string => {
     const decodedUrl = decodeURIComponent(url);
@@ -34,7 +46,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
 
   const handleOpenFile = () => {
     if (fileUrl) {
-      const path = `${RNFS.DocumentDirectoryPath}/${getFileNameFromUrl(fileUrl)}`;
+      const path = `${TemporaryDirectoryPath}/${getFileNameFromUrl(fileUrl)}`;
       console.log('Path: ', path);
       RNFS.downloadFile({
         fromUrl: fileUrl,
@@ -59,13 +71,13 @@ const MessageBubble = (props: MessageBubbleProps) => {
 
   return (
     <View>
-      {showSenderName && user.name !== senderName && (
+      {showSenderName && user.UserName !== senderName && (
         <Text style={styles.senderName}>{senderName}</Text>
       )}
       <View
         style={[
           styles.messageContainer,
-          user.name === senderName
+          user.UserName === senderName
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
@@ -82,7 +94,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
                 source={{uri: fileUrl}}
                 style={[
                   styles.image,
-                  user.name === senderName
+                  user.UserName === senderName
                     ? styles.sentImage
                     : styles.receivedImage,
                 ]}
@@ -110,7 +122,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
             <Text
               style={[
                 styles.messageText,
-                user.name === senderName
+                user.UserName === senderName
                   ? styles.sentMessageText
                   : styles.receivedMessageText,
               ]}>
@@ -119,7 +131,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
             <Text
               style={[
                 styles.time,
-                user.name === senderName
+                user.UserName === senderName
                   ? styles.sentTime
                   : styles.receivedTime,
               ]}>

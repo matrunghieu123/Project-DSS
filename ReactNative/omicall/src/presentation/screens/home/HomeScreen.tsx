@@ -11,16 +11,15 @@ import {authSelector} from '../../redux/AuthReducer';
 import {Status} from '../../../core/constants/Status';
 import StompService from '../../../services/StompService';
 
-
 interface HomeScreenProps {
   navigation: any;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
-  const user = useSelector(authSelector);
+  const user = useSelector(authSelector).UserInfo;
   const [activeTab, setActiveTab] = useState('all');
   const [isConnected, setIsConnected] = useState(false);
-  const stompService = StompService.getInstance(user.name);
+  const stompService = StompService.getInstance(user.UserName);
   const tabNames: {[key: string]: string} = {
     all: 'Tất cả',
     internal: 'Nội bộ',
@@ -44,12 +43,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   useEffect(() => {
     if (isConnected) {
       stompService.joinChatRoom({
-        senderName: user.name,
+        senderName: user.UserName,
         status: Status.JOIN,
       });
     }
-  }, [isConnected, user.name, stompService]);
-
+  }, [isConnected, user.UserName, stompService]);
 
   return (
     <View style={styles.container}>
@@ -71,7 +69,7 @@ interface TopContainerProps {
 }
 
 const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
-  const user = useSelector(authSelector);
+  const user = useSelector(authSelector).UserInfo;
   return (
     <View style={styles.topContainer}>
       <SafeAreaView>
@@ -85,8 +83,8 @@ const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
             <AvatarCircle />
           </TouchableOpacity>
           <View style={styles.container}>
-            <Text style={styles.name}>{user.name}</Text>
-            <Text style={styles.email}>{user.email}</Text>
+            <Text style={styles.name}>{user.UserName}</Text>
+            <Text style={styles.email}>{user.Email}</Text>
           </View>
           <NotificationButton navigation={navigation} />
         </RowComponent>
