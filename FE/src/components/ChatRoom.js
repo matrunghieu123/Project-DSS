@@ -98,7 +98,7 @@ const ChatRoom = () => {
                         privateChats.set(payloadData.senderName, []);
                         setPrivateChats(new Map(privateChats));
                     }
-                    break;
+                    break;  
                 case "MESSAGE":
                     if (payloadData.file) {
                         // Xử lý file nếu có
