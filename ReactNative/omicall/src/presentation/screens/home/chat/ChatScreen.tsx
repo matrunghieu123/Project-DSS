@@ -35,7 +35,7 @@ import * as DocumentPicker from 'react-native-document-picker';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
-  const user = useSelector(authSelector);
+  const user = useSelector(authSelector).UserInfo;
   const scrollViewRef = useRef<ScrollView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -45,7 +45,7 @@ const ChatScreen = ({navigation, route}: any) => {
   const [filePicked, setFilePicked] = useState<
     DocumentPicker.DocumentPickerResponse | undefined
   >(undefined);
-  const stompService = StompService.getInstance(user.name);
+  const stompService = StompService.getInstance(user.userName);
 
   const handleDotsPress = () => {
     Keyboard.dismiss();
@@ -56,7 +56,7 @@ const ChatScreen = ({navigation, route}: any) => {
     (message: MessageModel) => {
       if (
         message.status === Status.MESSAGE &&
-        message.senderName !== user.name
+        message.senderName !== user.UserName
       ) {
         setMessages(prevMessages => [
           ...prevMessages,
@@ -66,42 +66,46 @@ const ChatScreen = ({navigation, route}: any) => {
             senderName: message.senderName,
             time: message.time,
             fileUrl: message.fileUrl,
+            fileType: message.fileType,
           },
         ]);
       }
     },
-    [user.name],
+    [user.UserName],
   );
 
-  const handleSendMessage = (message: string, fileUrl: string) => {
+  const handleSendMessage = (message: string, fileUrl: string, fileType: string) => {
     const newMessage = {
       id: messages.length + 1,
       text: message,
-      senderName: user.name,
+      senderName: user.UserName,
       time: new Date().toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
       }),
       fileUrl: fileUrl,
+      fileType: fileType,
     };
     setMessages([...messages, newMessage]);
     switch (type) {
       case 'group': {
         stompService.sendMessagePublic({
-          senderName: user.name,
+          senderName: user.UserName,
           message,
           status: Status.MESSAGE,
           fileUrl: fileUrl,
+          fileType: fileType,
         });
         break;
       }
       case 'private': {
         stompService.sendMessagePrivate({
-          senderName: user.name,
+          senderName: user.UserName,
           receiverName: name,
           message,
           status: Status.MESSAGE,
           fileUrl: fileUrl,
+          fileType: fileType,
         });
         break;
       }
@@ -151,7 +155,8 @@ const ChatScreen = ({navigation, route}: any) => {
                     senderName={msg.senderName}
                     showSenderName={showSenderName && type === 'group'}
                     time={msg.time}
-                    image={msg.fileUrl}
+                    fileUrl={msg.fileUrl}
+                    fileType={msg.fileType}
                   />
                 );
               })}

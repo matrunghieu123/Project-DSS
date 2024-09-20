@@ -25,12 +25,10 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-        <true/>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-	</dict>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+  </dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string/>
 	<key>UILaunchStoryboardName</key>
@@ -79,5 +77,11 @@
 	<string>$(PRODUCT_NAME) would like to access your photo gallery</string>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to access your camera</string>
+	<key>LSApplicationQueriesSchemes</key>
+  <array>
+    <string>file</string>
+    <string>http</string>
+    <string>https</string>
+  </array>
 </dict>
 </plist>

@@ -1,5 +1,6 @@
 package com.dss.chatapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,15 +22,18 @@ public class Message {
 
     private String receiverName;
 
+    @Column(nullable = true)
     private String fileUrl; // for file attachment
 
+    @Column(nullable = true)
     private String fileType;
 
+    private String file;
     @Column(nullable = false)
     private String message;
 
     @Column(nullable = false)
-    private String time = LocalDateTime.now().toString();
+    private String time;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

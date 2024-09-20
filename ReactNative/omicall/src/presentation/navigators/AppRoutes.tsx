@@ -32,7 +32,7 @@ const AppRoutes = () => {
     <NavigationContainer>
       {isShowSplash ? (
         <SplashScreen />
-      ) : auth.accessToken ? (
+      ) : auth.token ? (
         <MainNavigator />
       ) : (
         <AuthNavigator />

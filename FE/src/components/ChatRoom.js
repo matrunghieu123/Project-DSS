@@ -119,8 +119,12 @@ const ChatRoom = () => {
                         privateChats.set(payloadData.senderName, []);
                         setPrivateChats(new Map(privateChats));
                     }
+<<<<<<< HEAD
                     break;
 
+=======
+                    break;  
+>>>>>>> e468a92f29073980f53a6be313403cf92060052c
                 case "MESSAGE":
                     if (payloadData.receiverName === "chat tổng") {
                         setPublicChats(prevPublicChats => [...prevPublicChats, payloadData]);

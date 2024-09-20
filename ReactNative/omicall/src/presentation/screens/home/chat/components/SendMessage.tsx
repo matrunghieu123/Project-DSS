@@ -14,7 +14,7 @@ import {AppColors} from '../../../../../core/constants/AppColors.ts';
 import {AppInfos} from '../../../../../core/constants/AppInfos.ts';
 
 interface SendMessageProps {
-  onSendMessage: (message: string, fileUrl: string) => void;
+  onSendMessage: (message: string, fileUrl: string, fileType: string) => void;
   onDotsPress: () => void;
   mediaPicked: ImageOrVideo | undefined;
   filePicked: DocumentPicker.DocumentPickerResponse | undefined;
@@ -37,16 +37,17 @@ const SendMessage = (props: SendMessageProps) => {
 
   const handleSend = async () => {
     const trimmedMessage = message.trimStart();
+    setMessage('');
+    setMediaPicked(undefined);
+    setFilePicked(undefined);
     if (trimmedMessage || mediaPicked || filePicked) {
       const fileUrl = mediaPicked
         ? await handleUpload('media', mediaPicked)
         : filePicked
           ? await handleUpload('file', filePicked)
           : '';
-      onSendMessage(trimmedMessage, fileUrl);
-      setMessage('');
-      setMediaPicked(undefined);
-      setFilePicked(undefined);
+      const fileType = mediaPicked ? 'media' : filePicked ? 'file' : '';
+      onSendMessage(trimmedMessage, fileUrl, fileType);
     }
   };
 

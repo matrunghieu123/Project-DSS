@@ -1,33 +1,18 @@
 import {createSlice} from '@reduxjs/toolkit';
-
-interface AuthState {
-  id: string;
-  email: string;
-  name: string;
-  image: string;
-  accessToken: string;
-}
-
-const initialState: AuthState = {
-  id: '',
-  email: '',
-  name: '',
-  image: '',
-  accessToken: '',
-};
+import {LoginModel} from '../../models/LoginModel.ts';
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    authData: initialState,
+    authData: {} as LoginModel,
   },
   reducers: {
     addAuth: (state, action) => {
       state.authData = action.payload;
     },
 
-    removeAuth: (state) => {
-      state.authData = initialState;
+    removeAuth: state => {
+      state.authData = {} as LoginModel;
     },
   },
 });

@@ -38,14 +38,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         if(update.hasMessage() && update.getMessage().hasText()){
             Long chatId = update.getMessage().getChatId();
             String messageText = update.getMessage().getText();
-
             log.info("Message received from chat ID {}: {}", chatId, messageText);
 
-
-            // Echo the received message back to Telegram
-//            sendMessageToTelegram(chatId, "You said: " + messageText);
-
-            // Broadcast the message to chat app
             broadcastMessageToChatApp(chatId, messageText);
         }
     }
@@ -62,13 +56,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Error sending message to Telegram chat ID {}: {}", chatId, e.getMessage());
         }
-    }
-
-    // Method to handle incoming messages from chat app and forward them to Telegram
-    public void handleChatMessage(Long chatId, Message message) {
-        // Send the extracted message to Telegram
-        sendMessageToTelegram(chatId, message.getMessage());
-        log.info(message.getMessage());
     }
 
     // Broadcast message from Telegram to chat app using WebSocket
@@ -96,11 +83,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         try {
             if (message.getFileType().startsWith("image")) {
-                // Handle image file (SendPhoto)
                 sendPhotoToTelegram(chatId, fileUrl);
-            } else {
-                // Handle other types of files (SendDocument)
+            } else if (message.getFileType().startsWith("application")) {
                 sendDocumentToTelegram(chatId, fileUrl);
+            } else {
+                // Log unsupported file types and handle them appropriately
+                log.warn("Unsupported file type: {}", message.getFileType());
             }
         } catch (TelegramApiException e) {
             log.error("Error sending file to Telegram chat ID {}: {}", chatId, e.getMessage());
@@ -143,6 +131,4 @@ public class TelegramBot extends TelegramLongPollingBot {
         return this.botName;
     }
 
-    public void handleChatFile(Long telegramChatId, String message) {
-    }
 }
