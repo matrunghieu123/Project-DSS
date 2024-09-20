@@ -22,10 +22,13 @@ public class Message {
 
     private String receiverName;
 
+    @Column(nullable = true)
     private String fileUrl; // for file attachment
 
+    @Column(nullable = true)
     private String fileType;
 
+    private String file;
     @Column(nullable = false)
     private String message;
 

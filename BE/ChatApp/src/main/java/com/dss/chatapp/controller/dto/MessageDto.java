@@ -7,6 +7,16 @@ public class MessageDto {
 
     private String receiverName;
 
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    private String file;
+
     public Long getChatId() {
         return chatId;
     }
