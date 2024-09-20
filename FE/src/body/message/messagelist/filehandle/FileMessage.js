@@ -4,23 +4,25 @@ import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt } from 'react-icons/fa';
 const getFileIcon = (fileType) => {
     switch (fileType) {
         case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-            return <FaFileWord className="file-icon" />;
+            return <FaFileWord className="file-icon" style={{ color: '#2b579a' }} />; // Màu xanh cho file Word
         case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-            return <FaFileExcel className="file-icon" />;
+            return <FaFileExcel className="file-icon" style={{ color: '#217346' }} />; // Màu xanh lá cho file Excel
         case 'application/pdf':
-            return <FaFilePdf className="file-icon" />;
+            return <FaFilePdf className="file-icon" style={{ color: '#d04437' }} />; // Màu đỏ cho file PDF
         default:
-            return <FaFileAlt className="file-icon" />;
+            return <FaFileAlt className="file-icon" style={{ color: '#757575' }} />; // Màu xám cho các loại file khác
     }
 };
 
-const FileMessage = ({ fileUrl, fileType }) => {
+const FileMessage = ({ fileUrl, fileType, fileName }) => {
+    console.log('Tên file:', fileName);  // Thêm dòng này để kiểm tra
+
     return (
         <div style={styles.fileMessage}>
             {getFileIcon(fileType)}
             <div style={styles.fileInfo}>
-                <a href={fileUrl} download style={styles.fileName}>
-                    Tải xuống file
+                <a href={fileUrl} download={fileName} style={styles.fileName}>
+                    {fileName || 'Tải xuống file'}
                 </a>
             </div>
         </div>
@@ -41,7 +43,6 @@ const styles = {
     fileIcon: {
         fontSize: '24px',
         marginRight: '8px',
-        color: '#007bff',
     },
     fileInfo: {
         display: 'flex',
@@ -54,10 +55,6 @@ const styles = {
     },
     fileNameHover: {
         textDecoration: 'underline',
-    },
-    fileSize: {
-        fontSize: '12px',
-        color: '#666',
     },
 };
 

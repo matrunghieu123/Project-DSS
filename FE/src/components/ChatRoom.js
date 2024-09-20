@@ -17,7 +17,6 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'fire
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 
-var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const db = getFirestore(); // Khởi tạo Firestore
@@ -41,6 +40,8 @@ const ChatRoom = () => {
 
     const endOfMessagesRef = useRef(null);
 
+    const stompClientRef = useRef(null); // Sử dụng useRef để quản lý stompClient
+
     useEffect(() => {
         if (userData.connected) {
             loadMessagesFromFirestore(userData.username);
@@ -50,35 +51,39 @@ const ChatRoom = () => {
     // Hàm đăng nhập Firebase
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log("Đăng nhập thành công:", user);
-            setUserData({ ...userData, username: user.email, connected: true });
-            connect();  // Kết nối đến WebSocket sau khi đăng nhập
-        })
-        .catch((error) => {
-            console.error("Đăng nhập thất bại:", error.message);
-        });
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log("Đăng nhập thành công:", user);
+                // Sử dụng tên người dùng nhập thay vì email
+                const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
+                setUserData({ ...userData, username, connected: true });
+                connect();  // Kết nối đến WebSocket sau khi đăng nhập
+            })
+            .catch((error) => {
+                console.error("Đăng nhập thất bại:", error.message);
+            });
     };
 
     // Hàm đăng ký người dùng mới
     const register = () => {
         createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log("Đăng ký thành công:", user);
-            setUserData({ ...userData, username: user.email, connected: true });
-            connect();  // Kết nối sau khi đăng ký thành công
-        })
-        .catch((error) => {
-            console.error("Đăng ký thất bại:", error.message);
-        });
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log("Đăng ký thành công:", user);
+                // Sử dụng tên người dùng nhập thay vì email
+                const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
+                setUserData({ ...userData, username, connected: true });
+                connect();  // Kết nối sau khi đăng ký thành công
+            })
+            .catch((error) => {
+                console.error("Đăng ký thất bại:", error.message);
+            });
     };
 
     const connect = () => {
         let Sock = new SockJS('http://localhost:8080/ws');
-        stompClient = over(Sock);
-        stompClient.connect({}, onConnected, onError);
+        stompClientRef.current = over(Sock);
+        stompClientRef.current.connect({}, onConnected, onError);
         console.log("Đang cố gắng kết nối đến WebSocket");
     };
   
@@ -86,8 +91,8 @@ const ChatRoom = () => {
         console.log("Đã kết nối đến WebSocket");
         console.log("User Data:", userData);  // Kiểm tra trạng thái userData
         setUserData({ ...userData, connected: true });
-        stompClient.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
+        stompClientRef.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClientRef.current.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
         userJoin();
     };  
 
@@ -96,7 +101,7 @@ const ChatRoom = () => {
             senderName: userData.username,
             status: "JOIN"
         };
-        stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+        stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
     };
 
     const onMessageReceived = (payload) => {
@@ -119,12 +124,8 @@ const ChatRoom = () => {
                         privateChats.set(payloadData.senderName, []);
                         setPrivateChats(new Map(privateChats));
                     }
-<<<<<<< HEAD
                     break;
 
-=======
-                    break;  
->>>>>>> e468a92f29073980f53a6be313403cf92060052c
                 case "MESSAGE":
                     if (payloadData.receiverName === "chat tổng") {
                         setPublicChats(prevPublicChats => [...prevPublicChats, payloadData]);
@@ -147,28 +148,16 @@ const ChatRoom = () => {
     const onPrivateMessage = (payload) => {
         try {
             const payloadData = JSON.parse(payload.body);
-
-            // Gán giá trị mặc định cho các trường null
-            payloadData.chatId = payloadData.chatId || 'defaultChatId';
-            payloadData.fileType = payloadData.fileType || 'text';
-            payloadData.fileUrl = payloadData.fileUrl || '';
-            payloadData.message = payloadData.message || '';
-            payloadData.receiverName = payloadData.receiverName || 'unknown';
-            payloadData.senderName = payloadData.senderName || 'unknown';
-            payloadData.time = payloadData.time || new Date().toLocaleTimeString();
-
-            // Chỉ xử lý tin nhắn đến, không xử lý tin nhắn gửi đi
+            console.log("Tin nhắn riêng nhận được:", payloadData); // Thêm log để kiểm tra
+    
+            // Chỉ xử lý tin nhắn đến từ người khác, không xử lý tin nhắn tự gửi
             if (payloadData.senderName !== userData.username) {
-                if (payloadData.file) {
-                    // Xử lý file nếu có
-                    payloadData.file = new Blob([payloadData.file], { type: payloadData.file.type });
-                }
                 addMessageToPrivateChat(payloadData);
             }
         } catch (error) {
             console.error("Lỗi khi xử lý tin nhắn riêng:", error);
         }
-    };
+    };    
 
     const addMessageToPrivateChat = (message) => {
         setPrivateChats(prevChats => {
@@ -193,7 +182,7 @@ const ChatRoom = () => {
 
     // Hàm sendValue để gửi tin nhắn công khai
     const sendValue = (message, files = []) => {
-        if (stompClient && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
+        if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
             try {
                 const chatMessage = {
                     senderName: userData.username,
@@ -205,7 +194,7 @@ const ChatRoom = () => {
                     timestamp: new Date().getTime()
                 };
     
-                stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+                stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
     
                 // Cập nhật trực tiếp vào danh sách publicChats nếu cần
                 setPublicChats(prevPublicChats => [...prevPublicChats, chatMessage]);
@@ -221,22 +210,25 @@ const ChatRoom = () => {
     
     // Hàm sendPrivateValue để gửi tin nhắn riêng tư
     const sendPrivateValue = (message, files = []) => {
-        if (stompClient && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
+        if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
             try {
                 // Tạo đối tượng chatMessage chứa thông tin tin nhắn
                 const chatMessage = {
-                    senderName: userData.username, // Tên người gửi
-                    receiverName: tab, // Tên người nhận (tab hiện tại)
+                    senderName: userData.username, // Tên người gửi (username đã nhập khi đăng nhập)
+                    receiverName: tab, // Tên người nhận là tab hiện tại (người đang chat riêng tư)
                     message: message || "",  // Truyền message nếu có, nếu không thì truyền chuỗi rỗng
                     status: "MESSAGE", // Trạng thái tin nhắn
                     fileType: files.length > 0 ? files[0].type : null,  // Nếu có file thì truyền loại file, nếu không thì truyền null
                     fileUrl: files.length > 0 ? URL.createObjectURL(files[0]) : null,  // Nếu có file thì tạo URL cho file, nếu không thì truyền null
                     timestamp: new Date().getTime() // Thời gian gửi tin nhắn
                 };
+                
                 // Gửi tin nhắn đến endpoint "/app/private-message" qua stompClient
-                stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
+                stompClientRef.current.send("/app/private-message", {}, JSON.stringify(chatMessage));
+                
                 // Thêm tin nhắn vào danh sách tin nhắn riêng tư
                 addMessageToPrivateChat(chatMessage);
+                
                 // Cập nhật lại userData để xóa nội dung tin nhắn sau khi gửi
                 setUserData({ ...userData, message: "" });
             } catch (error) {
@@ -417,20 +409,7 @@ const ChatRoom = () => {
                     <CallDialog />
                 </div>
             ) : (
-                // <div className="register">
-                //     <input
-                //         className='name-input'
-                //         id="user-name"
-                //         placeholder="Nhập tên của bạn"
-                //         name="userName"
-                //         value={userData.username}
-                //         onChange={handleUsername}
-                //         margin="normal"
-                //     />
-                //     <button className='re-btn' type="button" onClick={registerUser}>
-                //         Tham gia
-                //     </button>
-                // </div>
+                
                 // Giao diện đăng nhập/đăng ký
                 <div className="register">
                     {loginType === "CHATROOM" ? (
@@ -441,7 +420,7 @@ const ChatRoom = () => {
                                 placeholder="Nhập tên của bạn"
                                 name="userName"
                                 value={userData.username}
-                                onChange={handleUsername}
+                                onChange={handleUsername} // Hàm này sẽ cập nhật state của username
                             />
                             <input
                                 className='name-input'
@@ -463,6 +442,7 @@ const ChatRoom = () => {
                         <p>Vui lòng đăng nhập từ ứng dụng {loginType}</p>
                     )}
                 </div>
+
             )}
         </div>
     );
