@@ -8,4 +8,5 @@ export const AppColors = {
   lightGrey: '#f5f5f5',
   black: '#000000',
   transparent: '#F2F2F2',
+  white: '#FFFFFF',
 };

@@ -2,27 +2,35 @@ import React, { useRef, useState } from 'react';
 import './SendMessage.css';
 import { FaPaperPlane, FaPaperclip, FaTimes } from 'react-icons/fa'; // Import icon từ react-icons
 
+// Component SendMessage nhận các props: userData, handleMessage, handleKeyPress, sendValue, sendPrivateValue, tab
 const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendPrivateValue, tab }) => {
     const inputRef = useRef(null); // Tham chiếu đến trường nhập liệu
     const fileInputRef = useRef(null); // Tham chiếu đến trường input file
     const [selectedFiles, setSelectedFiles] = useState([]); // Trạng thái để lưu trữ tệp đã chọn
 
+    // Hàm handleSend để xử lý việc gửi tin nhắn
     const handleSend = () => {
+        console.log("Sending message:", userData.message); // Kiểm tra xem tin nhắn có được gửi hay không
+        console.log("Selected files:", selectedFiles); // Kiểm tra danh sách file
+
+        // Kiểm tra nếu message hoặc file đã chọn có giá trị
         if (userData.message.trim() !== '' || selectedFiles.length > 0) {
-            const file = selectedFiles[0];
-            if (file && file.size > 5 * 1024 * 1024) { // Giới hạn 5MB
-                alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB.");
-                return;
-            }
+            const files = selectedFiles.map(fileObj => fileObj.file);
+            
+            // Kiểm tra xem đang ở chế độ public hay private và gửi tương ứng
             if (tab === "CHATROOM") {
-                sendValue(userData.message, selectedFiles);
+                sendValue(userData.message, files);  // Gửi tin nhắn cho public chat
             } else {
-                sendPrivateValue(userData.message, selectedFiles);
+                sendPrivateValue(userData.message, files);  // Gửi tin nhắn cho private chat
             }
-            setSelectedFiles([]);
+            
+            // Xóa nội dung tin nhắn và file đã chọn sau khi gửi
+            handleMessage({ target: { value: '' } });
+            setSelectedFiles([]);  // Reset selectedFiles sau khi gửi
         }
     };
 
+    // Hàm handleFileChange để xử lý khi người dùng chọn file
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
         const newFiles = files.map(file => ({
@@ -32,6 +40,7 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
         setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
     };
 
+    // Hàm removeSelectedFile để xóa file đã chọn
     const removeSelectedFile = (index) => {
         setSelectedFiles(prevFiles => {
             const newFiles = [...prevFiles];

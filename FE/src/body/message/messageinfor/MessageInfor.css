@@ -4,6 +4,14 @@
     height: 100%;
 }
 
+.avatar-section {
+    display: flex;
+    align-items: center;
+}
+
+.link-section {
+    text-align: right;
+}
 
 @media (max-width: 576px) {
     .top-chat {

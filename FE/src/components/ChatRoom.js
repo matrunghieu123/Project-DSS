@@ -12,8 +12,8 @@ import ChatTool from '../body/chattool/ChatTool';
 import CallDialog from './calldialog/CallDialog';
 import { SearchOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
-// import { auth } from '../firebase/FireBase';
-// import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase/FireBase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 
 var stompClient = null;
@@ -21,8 +21,9 @@ const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const ChatRoom = () => {
     // Thêm state để quản lý email và password
-    // const [email, setEmail] = useState('');
-    // const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
 
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
@@ -37,32 +38,32 @@ const ChatRoom = () => {
     const endOfMessagesRef = useRef(null);
 
     // Hàm đăng nhập Firebase
-    // const login = () => {
-    //     signInWithEmailAndPassword(auth, email, password)
-    //     .then((userCredential) => {
-    //         const user = userCredential.user;
-    //         console.log("Đăng nhập thành công:", user);
-    //         setUserData({ ...userData, username: user.email, connected: true });
-    //         connect();  // Kết nối đến WebSocket sau khi đăng nhập
-    //     })
-    //     .catch((error) => {
-    //         console.error("Đăng nhập thất bại:", error.message);
-    //     });
-    // };
+    const login = () => {
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Đăng nhập thành công:", user);
+            setUserData({ ...userData, username: user.email, connected: true });
+            connect();  // Kết nối đến WebSocket sau khi đăng nhập
+        })
+        .catch((error) => {
+            console.error("Đăng nhập thất bại:", error.message);
+        });
+    };
 
     // Hàm đăng ký người dùng mới
-    // const register = () => {
-    //     createUserWithEmailAndPassword(auth, email, password)
-    //     .then((userCredential) => {
-    //         const user = userCredential.user;
-    //         console.log("Đăng ký thành công:", user);
-    //         setUserData({ ...userData, username: user.email, connected: true });
-    //         connect();  // Kết nối sau khi đăng ký thành công
-    //     })
-    //     .catch((error) => {
-    //         console.error("Đăng ký thất bại:", error.message);
-    //     });
-    // };
+    const register = () => {
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Đăng ký thành công:", user);
+            setUserData({ ...userData, username: user.email, connected: true });
+            connect();  // Kết nối sau khi đăng ký thành công
+        })
+        .catch((error) => {
+            console.error("Đăng ký thất bại:", error.message);
+        });
+    };
 
     const connect = () => {
         let Sock = new SockJS('http://localhost:8080/ws');
@@ -101,7 +102,6 @@ const ChatRoom = () => {
                     break;  
                 case "MESSAGE":
                     if (payloadData.file) {
-                        // Xử lý file nếu có
                         payloadData.file = new Blob([payloadData.file], { type: payloadData.file.type });
                     }
                     publicChats.push(payloadData);
@@ -114,7 +114,7 @@ const ChatRoom = () => {
         } catch (error) {
             console.error("Lỗi khi xử lý tin nhắn nhận được:", error);
         }
-    };
+    };    
     
     const onPrivateMessage = (payload) => {
         try {
@@ -153,82 +153,71 @@ const ChatRoom = () => {
         setUserData({ ...userData, message: value });
     };
 
-    // gửi ib trên chat tổng
-    const sendValue = (message, files) => {
-        if (stompClient) {
+    // Hàm sendValue để gửi tin nhắn công khai
+    const sendValue = (message, files = []) => {
+        if (stompClient) { // Kiểm tra xem stompClient có tồn tại không
             try {
+                // Tạo đối tượng chatMessage chứa thông tin tin nhắn
                 const chatMessage = {
-                    senderName: userData.username,
-                    message: message,
-                    status: "MESSAGE",
-                    file: files && files.length > 0 ? files[0] : null
+                    senderName: userData.username, // Tên người gửi
+                    message: message || "",  // Truyền message nếu có, nếu không thì truyền chuỗi rỗng
+                    status: "MESSAGE", // Trạng thái tin nhắn
+                    file: files.length > 0 ? files[0] : null  // Nếu có file thì truyền file đầu tiên, nếu không thì truyền null
                 };
-                console.log("Đang gửi tin nhắn đến chat công khai:", chatMessage);
+                // Gửi tin nhắn đến endpoint "/app/message" qua stompClient
                 stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+                // Cập nhật lại userData để xóa nội dung tin nhắn sau khi gửi
                 setUserData({ ...userData, message: "" });
             } catch (error) {
+                // Bắt lỗi và in ra console nếu có lỗi xảy ra khi gửi tin nhắn
                 console.error("Lỗi khi gửi tin nhắn:", error);
-                // Xử lý lỗi ở đây, ví dụ: hiển thị thông báo lỗi cho người dùng
             }
         }
     };
     
-    // gửi ib trên chat riêng
-    const sendPrivateValue = (message, files) => {
-        if (stompClient) {
+    // Hàm sendPrivateValue để gửi tin nhắn riêng tư
+    const sendPrivateValue = (message, files = []) => {
+        if (stompClient) { // Kiểm tra xem stompClient có tồn tại không
             try {
+                // Tạo đối tượng chatMessage chứa thông tin tin nhắn
                 const chatMessage = {
-                    senderName: userData.username,
-                    receiverName: tab,
-                    message: message,
-                    status: "MESSAGE",
-                    timestamp: new Date().getTime(),
-                    file: files && files.length > 0 ? files[0] : null
+                    senderName: userData.username, // Tên người gửi
+                    receiverName: tab, // Tên người nhận (tab hiện tại)
+                    message: message || "",  // Truyền message nếu có, nếu không thì truyền chuỗi rỗng
+                    status: "MESSAGE", // Trạng thái tin nhắn
+                    timestamp: new Date().getTime(), // Thời gian gửi tin nhắn
+                    file: files.length > 0 ? files[0] : null  // Nếu có file thì truyền file đầu tiên, nếu không thì truyền null
                 };
-                if (userData.username !== tab) {
-                    if (privateChats.get(tab)) {
-                        privateChats.get(tab).push(chatMessage);
-                        setPrivateChats(new Map(privateChats));
-                    } else {
-                        let list = [chatMessage];
-                        privateChats.set(tab, list);
-                        setPrivateChats(new Map(privateChats));
-                    }
-                }
-                console.log("Đang gửi tin nhắn riêng:", chatMessage);
+                // Gửi tin nhắn đến endpoint "/app/private-message" qua stompClient
                 stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
+                // Thêm tin nhắn vào danh sách tin nhắn riêng tư
                 addMessageToPrivateChat(chatMessage);
+                // Cập nhật lại userData để xóa nội dung tin nhắn sau khi gửi
                 setUserData({ ...userData, message: "" });
             } catch (error) {
+                // Bắt lỗi và in ra console nếu có lỗi xảy ra khi gửi tin nhắn riêng
                 console.error("Lỗi khi gửi tin nhắn riêng:", error);
-                // Xử lý lỗi ở đây
             }
         }
     };
 
-    // phần đăng nhập cũ
+    // phần tên người dùng
     const handleUsername = (event) => {
         const { value } = event.target;
         setUserData({ ...userData, username: value });
-    };
-    const registerUser = () => {
-        if (userData.username.trim() === "") {
-            alert("Tên người dùng trống");
-            return;
-        }
-        connect();
     };
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault(); // Ngăn ngừa gửi form hoặc thêm dòng mới
             if (tab === "CHATROOM") {
-                sendValue();
+                sendValue(userData.message);  // Truyền message từ userData
             } else {
-                sendPrivateValue();
+                sendPrivateValue(userData.message);  // Truyền message từ userData
             }
         }
     };
+    
 
     // Thêm trạng thái mới
     const [isFilterCleared, setIsFilterCleared] = useState(false);
@@ -340,6 +329,21 @@ const ChatRoom = () => {
                     <CallDialog />
                 </div>
             ) : (
+                // <div className="register">
+                //     <input
+                //         className='name-input'
+                //         id="user-name"
+                //         placeholder="Nhập tên của bạn"
+                //         name="userName"
+                //         value={userData.username}
+                //         onChange={handleUsername}
+                //         margin="normal"
+                //     />
+                //     <button className='re-btn' type="button" onClick={registerUser}>
+                //         Tham gia
+                //     </button>
+                // </div>
+                // Giao diện đăng nhập/đăng ký
                 <div className="register">
                     <input
                         className='name-input'
@@ -348,30 +352,23 @@ const ChatRoom = () => {
                         name="userName"
                         value={userData.username}
                         onChange={handleUsername}
-                        margin="normal"
                     />
-                    <button className='re-btn' type="button" onClick={registerUser}>
-                        Tham gia
-                    </button>
+                    <input
+                        className='name-input'
+                        placeholder="Nhập email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        className='name-input'
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button onClick={login}>Đăng nhập</button>
+                    <button onClick={register}>Đăng ký</button>
                 </div>
-                // Giao diện đăng nhập/đăng ký
-                // <div className="register">
-                //     <input
-                //         className='name-input'
-                //         placeholder="Nhập email"
-                //         value={email}
-                //         onChange={(e) => setEmail(e.target.value)}
-                //     />
-                //     <input
-                //         className='name-input'
-                //         type="password"
-                //         placeholder="Nhập mật khẩu"
-                //         value={password}
-                //         onChange={(e) => setPassword(e.target.value)}
-                //     />
-                //     <button onClick={login}>Đăng nhập</button>
-                //     <button onClick={register}>Đăng ký</button>
-                // </div>
             )}
         </div>
     );

@@ -1,5 +1,6 @@
 .send-message-container {
   display: flex;
+  border-top: 1px solid rgba(0, 177, 255);
   flex-direction: column;
   width: 100%;
 }

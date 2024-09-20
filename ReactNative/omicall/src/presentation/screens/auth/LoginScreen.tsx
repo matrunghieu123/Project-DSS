@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Keyboard,
   StyleSheet,
@@ -18,6 +19,9 @@ import {Validate} from '../../../core/utils/Validate.ts';
 import {useDispatch} from 'react-redux';
 import {addAuth} from '../../redux/AuthReducer.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import authenticationAPI from '../../../services/AuthApi.ts';
+import LoadingModal from '../../modal/LoadingModal.tsx';
+import {LoginModel} from '../../../models/LoginModel.ts';
 
 const initValues = {
   email: '',
@@ -33,24 +37,42 @@ const LoginScreen = ({navigation}: any) => {
     email: false,
     password: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (name: string, value: string) => {
     setValues({...values, [name]: value});
   };
 
   const handleLogin = async () => {
-    const response = {
-      id: '1',
-      email: values.email,
-      name: values.email,
-      image: '',
-      accessToken: 'abcxyz',
-    };
-    dispatch(addAuth(response));
-    // Save to local storage
-    await AsyncStorage.setItem('auth', JSON.stringify(response));
-  };
+    setLoading(true);
+    try {
+      const response = await authenticationAPI.HandleAuthentication(
+        '/token',
+        {
+          userName: 'CRM',
+          password: '1',
+          parameters: {
+            languageName: 'Việt Nam',
+            languageCode: 'vi_VN',
+          },
+        },
+        'post',
+      );
 
+      const loginResponse = response as LoginModel;
+      const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
+
+      dispatch(addAuth(loginResponsePlain));
+      await AsyncStorage.setItem('auth', JSON.stringify(loginResponsePlain));
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      Alert.alert(
+        'Đăng nhập thất bại',
+        'Vui lòng kiểm tra lại thông tin đăng nhập',
+      );
+    }
+  };
   useEffect(() => {
     const emailValidation = Validate.email(values.email);
     const passwordValidation = Validate.password(values.password);
@@ -61,48 +83,52 @@ const LoginScreen = ({navigation}: any) => {
   }, [values]);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={Styles.container}>
-        <Image source={{uri: Constants.logoUrl}} style={styles.image} />
-        <Text style={styles.title}>Đăng nhập</Text>
-        <TextFieldComponent
-          height={56}
-          prefix={<Icon name={'mail-outline'} style={styles.icon} />}
-          placeholder="Nhập email"
-          keyboardType={'email-address'}
-          returnKeyType={'next'}
-          ref={emailRef}
-          onSubmitEditing={() => passwordRef.current?.focus()}
-          value={values.email}
-          onChangeText={(text: string) => handleChange('email', text)}
-        />
-        {!validValues.email && values.email !== '' ? (
-          <Text style={styles.errorText}>Email không hợp lệ</Text>
-        ) : null}
-        <TextFieldComponent
-          height={56}
-          prefix={<Icon name={'lock-outline'} style={styles.icon} />}
-          placeholder="Nhập mật khẩu"
-          keyboardType={'default'}
-          returnKeyType={'done'}
-          secureTextEntry={true}
-          ref={passwordRef}
-          value={values.password}
-          onChangeText={(text: string) => handleChange('password', text)}
-        />
-        {!validValues.password && values.password !== '' ? (
-          <Text style={styles.errorText}>
-            Mật khẩu tối thiểu phải có 6 kí tự
-          </Text>
-        ) : null}
-        <ForgotPassword navigation={navigation} />
-        <ButtonComponent
-          title="Đăng nhập"
-          onPress={handleLogin}
-          disabled={!(validValues.email && validValues.password)}
-        />
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+    <>
+      <LoadingModal visible={loading} text={'Loading...'} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={Styles.container}>
+          <Image source={{uri: Constants.logoUrl}} style={styles.image} />
+          <Text style={styles.title}>Đăng nhập</Text>
+          <TextFieldComponent
+            height={56}
+            prefix={<Icon name={'mail-outline'} style={styles.icon} />}
+            placeholder="Nhập email"
+            keyboardType={'email-address'}
+            returnKeyType={'next'}
+            ref={emailRef}
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            value={values.email}
+            onChangeText={(text: string) => handleChange('email', text)}
+          />
+          {!validValues.email && values.email !== '' ? (
+            <Text style={styles.errorText}>Email không hợp lệ</Text>
+          ) : null}
+          <TextFieldComponent
+            height={56}
+            prefix={<Icon name={'lock-outline'} style={styles.icon} />}
+            placeholder="Nhập mật khẩu"
+            keyboardType={'default'}
+            returnKeyType={'done'}
+            onSubmitEditing={handleLogin}
+            secureTextEntry={true}
+            ref={passwordRef}
+            value={values.password}
+            onChangeText={(text: string) => handleChange('password', text)}
+          />
+          {!validValues.password && values.password !== '' ? (
+            <Text style={styles.errorText}>
+              Mật khẩu tối thiểu phải có 6 kí tự
+            </Text>
+          ) : null}
+          <ForgotPassword navigation={navigation} />
+          <ButtonComponent
+            title="Đăng nhập"
+            onPress={handleLogin}
+            disabled={!(validValues.email && validValues.password)}
+          />
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </>
   );
 };
 
@@ -118,7 +144,7 @@ const ForgotPassword = ({navigation}: any) => {
 
 const styles = StyleSheet.create({
   image: {
-    width: '70%',
+    width: '72%',
     height: '10%',
   },
   title: {

@@ -1,63 +1,128 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../redux/AuthReducer';
 import {Constants} from '../../core/constants/Constants.ts';
 import ImageView from 'react-native-image-viewing';
+import FileViewer from 'react-native-file-viewer';
+import {FileComponent} from './index.ts';
+import RNFS, {TemporaryDirectoryPath} from 'react-native-fs';
+import axios from 'axios';
 
 interface MessageBubbleProps {
   message?: string;
   senderName: string;
   showSenderName: boolean;
   time: string;
-  image?: string;
+  fileUrl?: string;
+  fileType?: string;
 }
 
 const MessageBubble = (props: MessageBubbleProps) => {
-  const {message, senderName, showSenderName, time, image} = props;
+  const {message, senderName, showSenderName, time, fileUrl, fileType} = props;
   const [visible, setIsVisible] = useState(false);
-  const user = useSelector(authSelector);
+  const [fileSize, setFileSize] = useState<number | null>(null);
+  const user = useSelector(authSelector).UserInfo;
+
+  const getFileSize = async (url: string): Promise<number> => {
+    try {
+      const response = await axios.head(url);
+      const contentLength = response.headers['content-length'];
+      return parseInt(contentLength, 10);
+    } catch (error) {
+      console.error('Error fetching file size:', error);
+      return 0;
+    }
+  };
+
+  const getFileNameFromUrl = (url: string): string => {
+    const decodedUrl = decodeURIComponent(url);
+    const parts = decodedUrl.split('/');
+    const lastPart = parts[parts.length - 1];
+    return lastPart.split('?')[0];
+  };
+
+  const handleOpenFile = () => {
+    if (fileUrl) {
+      const path = `${TemporaryDirectoryPath}/${getFileNameFromUrl(fileUrl)}`;
+      console.log('Path: ', path);
+      RNFS.downloadFile({
+        fromUrl: fileUrl,
+        toFile: path,
+      }).promise.then(() => {
+        FileViewer.open(path, {displayName: getFileNameFromUrl(fileUrl)})
+          .then(() => {
+            console.log('File opened');
+          })
+          .catch(error => {
+            console.log('Error opening file: ', error);
+          });
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (fileUrl && fileType === 'file') {
+      getFileSize(fileUrl).then(size => setFileSize(size));
+    }
+  }, [fileUrl, fileType]);
+
   return (
     <View>
-      {showSenderName && user.name !== senderName && (
+      {showSenderName && user.UserName !== senderName && (
         <Text style={styles.senderName}>{senderName}</Text>
       )}
       <View
         style={[
           styles.messageContainer,
-          user.name === senderName
+          user.UserName === senderName
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
-        {image && (
+        {fileUrl && fileType === 'media' && (
           <>
             <ImageView
-              images={[{uri: image}]}
+              images={[{uri: fileUrl}]}
               imageIndex={0}
               visible={visible}
               onRequestClose={() => setIsVisible(false)}
             />
-          <TouchableOpacity onPress={() => setIsVisible(true)}>
-            <Image
-              source={{uri: image}}
-              style={[
-                styles.image,
-                user.name === senderName
-                  ? styles.sentImage
-                  : styles.receivedImage,
-              ]}
+            <TouchableOpacity onPress={() => setIsVisible(true)}>
+              <Image
+                source={{uri: fileUrl}}
+                style={[
+                  styles.image,
+                  user.UserName === senderName
+                    ? styles.sentImage
+                    : styles.receivedImage,
+                ]}
+              />
+            </TouchableOpacity>
+          </>
+        )}
+        {fileUrl && fileType === 'file' && fileSize !== null && (
+          <TouchableOpacity onPress={handleOpenFile}>
+            <FileComponent
+              file={{
+                uri: fileUrl,
+                name: getFileNameFromUrl(fileUrl),
+                size: fileSize,
+                fileCopyUri: fileUrl,
+                type: 'file',
+              }}
+              allowRemove={false}
+              style={styles.file}
             />
           </TouchableOpacity>
-          </>
         )}
         {message && (
           <View>
             <Text
               style={[
                 styles.messageText,
-                user.name === senderName
+                user.UserName === senderName
                   ? styles.sentMessageText
                   : styles.receivedMessageText,
               ]}>
@@ -66,7 +131,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
             <Text
               style={[
                 styles.time,
-                user.name === senderName
+                user.UserName === senderName
                   ? styles.sentTime
                   : styles.receivedTime,
               ]}>
@@ -135,6 +200,11 @@ const styles = StyleSheet.create({
   },
   receivedImage: {
     borderTopLeftRadius: 0,
+  },
+  file: {
+    marginTop: 0,
+    marginLeft: 0,
+    borderTopRightRadius: 0,
   },
 });
 
