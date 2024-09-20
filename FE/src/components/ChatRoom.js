@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
 // import ChatRoomHeader from '../header/ChatRoomHeader';
@@ -14,10 +14,13 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Input } from 'antd';
 import { auth } from '../firebase/FireBase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 
 var stompClient = null;
 const onSearch = (value, _e, info) => console.log(info?.source, value);
+
+const db = getFirestore(); // Khởi tạo Firestore
 
 const ChatRoom = () => {
     // Thêm state để quản lý email và password
@@ -28,6 +31,7 @@ const ChatRoom = () => {
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab, setTab] = useState("CHATROOM");
+    const [loginType, setLoginType] = useState("CHATROOM"); // Thêm state để quản lý loại đăng nhập
     const [userData, setUserData] = useState({
         username: '',
         receivername: '',
@@ -36,6 +40,12 @@ const ChatRoom = () => {
     });
 
     const endOfMessagesRef = useRef(null);
+
+    useEffect(() => {
+        if (userData.connected) {
+            loadMessagesFromFirestore(userData.username);
+        }
+    }, [userData.connected, userData.username]); // Thêm userData.username vào mảng phụ thuộc
 
     // Hàm đăng nhập Firebase
     const login = () => {
@@ -93,6 +103,16 @@ const ChatRoom = () => {
         try {
             var payloadData = JSON.parse(payload.body);
             console.log("Tin nhắn nhận được:", payloadData);
+
+            // Gán giá trị mặc định cho các trường null
+            payloadData.chatId = payloadData.chatId || 'defaultChatId';
+            payloadData.fileType = payloadData.fileType || 'text';
+            payloadData.fileUrl = payloadData.fileUrl || '';
+            payloadData.message = payloadData.message || '';
+            payloadData.receiverName = payloadData.receiverName || 'chat tổng';
+            payloadData.senderName = payloadData.senderName || 'unknown';
+            payloadData.time = payloadData.time || new Date().toLocaleTimeString();
+
             switch(payloadData.status) {
                 case "JOIN":
                     if (!privateChats.get(payloadData.senderName)) {
@@ -100,13 +120,16 @@ const ChatRoom = () => {
                         setPrivateChats(new Map(privateChats));
                     }
                     break;
+
                 case "MESSAGE":
-                    if (payloadData.file) {
-                        payloadData.file = new Blob([payloadData.file], { type: payloadData.file.type });
+                    if (payloadData.receiverName === "chat tổng") {
+                        setPublicChats(prevPublicChats => [...prevPublicChats, payloadData]);
+                    } else {
+                        // Xử lý tin nhắn riêng tư
+                        addMessageToPrivateChat(payloadData);
                     }
-                    publicChats.push(payloadData);
-                    setPublicChats([...publicChats]);
                     break;
+
                 default:
                     console.warn(`Nhận được tin nhắn với trạng thái không xác định: ${payloadData.status}`);
                     break;
@@ -114,11 +137,22 @@ const ChatRoom = () => {
         } catch (error) {
             console.error("Lỗi khi xử lý tin nhắn nhận được:", error);
         }
-    };    
+    };
+       
     
     const onPrivateMessage = (payload) => {
         try {
             const payloadData = JSON.parse(payload.body);
+
+            // Gán giá trị mặc định cho các trường null
+            payloadData.chatId = payloadData.chatId || 'defaultChatId';
+            payloadData.fileType = payloadData.fileType || 'text';
+            payloadData.fileUrl = payloadData.fileUrl || '';
+            payloadData.message = payloadData.message || '';
+            payloadData.receiverName = payloadData.receiverName || 'unknown';
+            payloadData.senderName = payloadData.senderName || 'unknown';
+            payloadData.time = payloadData.time || new Date().toLocaleTimeString();
+
             // Chỉ xử lý tin nhắn đến, không xử lý tin nhắn gửi đi
             if (payloadData.senderName !== userData.username) {
                 if (payloadData.file) {
@@ -155,29 +189,35 @@ const ChatRoom = () => {
 
     // Hàm sendValue để gửi tin nhắn công khai
     const sendValue = (message, files = []) => {
-        if (stompClient) { // Kiểm tra xem stompClient có tồn tại không
+        if (stompClient && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
             try {
-                // Tạo đối tượng chatMessage chứa thông tin tin nhắn
                 const chatMessage = {
-                    senderName: userData.username, // Tên người gửi
-                    message: message || "",  // Truyền message nếu có, nếu không thì truyền chuỗi rỗng
-                    status: "MESSAGE", // Trạng thái tin nhắn
-                    file: files.length > 0 ? files[0] : null  // Nếu có file thì truyền file đầu tiên, nếu không thì truyền null
+                    senderName: userData.username,
+                    receiverName: "chat tổng", // Thêm receiverName là "chat tổng"
+                    message: message || "",
+                    status: "MESSAGE",
+                    fileType: files.length > 0 ? files[0].type : null,  // Nếu có file thì truyền loại file, nếu không thì truyền null
+                    fileUrl: files.length > 0 ? URL.createObjectURL(files[0]) : null,  // Nếu có file thì tạo URL cho file, nếu không thì truyền null
+                    timestamp: new Date().getTime()
                 };
-                // Gửi tin nhắn đến endpoint "/app/message" qua stompClient
+    
                 stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-                // Cập nhật lại userData để xóa nội dung tin nhắn sau khi gửi
+    
+                // Cập nhật trực tiếp vào danh sách publicChats nếu cần
+                setPublicChats(prevPublicChats => [...prevPublicChats, chatMessage]);
+    
+                // Xóa nội dung sau khi gửi
                 setUserData({ ...userData, message: "" });
             } catch (error) {
-                // Bắt lỗi và in ra console nếu có lỗi xảy ra khi gửi tin nhắn
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
         }
     };
     
+    
     // Hàm sendPrivateValue để gửi tin nhắn riêng tư
     const sendPrivateValue = (message, files = []) => {
-        if (stompClient) { // Kiểm tra xem stompClient có tồn tại không
+        if (stompClient && (message.trim() !== '' || files.length > 0)) { // Kiểm tra tin nhắn không rỗng hoặc có file
             try {
                 // Tạo đối tượng chatMessage chứa thông tin tin nhắn
                 const chatMessage = {
@@ -185,8 +225,9 @@ const ChatRoom = () => {
                     receiverName: tab, // Tên người nhận (tab hiện tại)
                     message: message || "",  // Truyền message nếu có, nếu không thì truyền chuỗi rỗng
                     status: "MESSAGE", // Trạng thái tin nhắn
-                    timestamp: new Date().getTime(), // Thời gian gửi tin nhắn
-                    file: files.length > 0 ? files[0] : null  // Nếu có file thì truyền file đầu tiên, nếu không thì truyền null
+                    fileType: files.length > 0 ? files[0].type : null,  // Nếu có file thì truyền loại file, nếu không thì truyền null
+                    fileUrl: files.length > 0 ? URL.createObjectURL(files[0]) : null,  // Nếu có file thì tạo URL cho file, nếu không thì truyền null
+                    timestamp: new Date().getTime() // Thời gian gửi tin nhắn
                 };
                 // Gửi tin nhắn đến endpoint "/app/private-message" qua stompClient
                 stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
@@ -232,6 +273,36 @@ const ChatRoom = () => {
         setIsFilterCleared(false);
     };
 
+    const loadMessagesFromFirestore = async (username) => {
+        try {
+            const publicQuery = query(collection(db, "messages"), where("receiverName", "==", "chat tổng"));
+            const privateQuery = query(collection(db, "messages"), where("receiverName", "==", username));
+
+            const publicQuerySnapshot = await getDocs(publicQuery);
+            const privateQuerySnapshot = await getDocs(privateQuery);
+
+            const loadedPublicMessages = [];
+            const loadedPrivateMessages = new Map();
+
+            publicQuerySnapshot.forEach((doc) => {
+                loadedPublicMessages.push(doc.data());
+            });
+
+            privateQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (!loadedPrivateMessages.has(data.senderName)) {
+                    loadedPrivateMessages.set(data.senderName, []);
+                }
+                loadedPrivateMessages.get(data.senderName).push(data);
+            });
+
+            setPublicChats(loadedPublicMessages);
+            setPrivateChats(loadedPrivateMessages);
+        } catch (error) {
+            console.error("Lỗi khi tải tin nhắn từ Firestore: ", error);
+        }
+    };
+
     return (
         <div className="container">
             {userData.connected ? (
@@ -242,7 +313,7 @@ const ChatRoom = () => {
                     <div className="body-nav">
                         <div className="body-col-nav">
                             <div className="col-nav">
-                                <ColNavbar setTab={setTab} handleResetFilter={handleResetFilter} />
+                                <ColNavbar setTab={setTab} handleResetFilter={handleResetFilter} setLoginType={setLoginType} />
                             </div>
                         </div>
                         
@@ -261,7 +332,9 @@ const ChatRoom = () => {
                                     </div>
 
                                     <div className='member-box'>
-                                        <MemberList privateChats={privateChats} setTab={setTab} tab={tab} />
+                                        <div className='member-list'>
+                                            <MemberList privateChats={privateChats} setTab={setTab} tab={tab} />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="chat-content">
@@ -283,42 +356,53 @@ const ChatRoom = () => {
                                         ) : (
                                             // Hiển thị nội dung chat bình thường
                                     <div className='chat-border'>
-                                        <div className='text-input'>
-                                            <div>
-                                                <div 
-                                                    style={{
-                                                        overflow: 'hidden',
-                                                    }}
-                                                >
-                                                    <MessageInfor />
-                                                </div>
-                                            </div>
-                                            <div>
+                                        <div className='chat-input'>
+                                            <div className='text-input'>
                                                 <div>
-                                                    <MessageList 
-                                                        chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab)} 
-                                                        tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
-                                                    />
+                                                    <div 
+                                                        style={{
+                                                            overflow: 'hidden',
+                                                        }}
+                                                    >
+                                                        <MessageInfor />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <div style={{
-                                                    backgroundColor: 'white',
-                                                }}>
-                                                    <SendMessage 
-                                                        userData={userData} handleMessage={handleMessage} 
-                                                        handleKeyPress={handleKeyPress} sendValue={sendValue} 
-                                                        sendPrivateValue={sendPrivateValue} tab={tab} 
-                                                    />
+                                                <div className='chat-input-box'>
+                                                    <div className='chat-input-box-1'>
+                                                        <div style={{
+                                                            flex: 1,
+                                                            display: 'flex',
+                                                            overflow: 'hidden',
+                                                            position: 'relative',
+                                                            flexDirection: 'column',
+                                                        }}>
+                                                            <MessageList 
+                                                                chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab) || []} 
+                                                                tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
+                                                            />
+                                                        </div>
+                                                        <div style={{
+                                                            backgroundColor: 'white',
+                                                        }}>
+                                                            <SendMessage 
+                                                                userData={userData} handleMessage={handleMessage} 
+                                                                handleKeyPress={handleKeyPress} sendValue={sendValue} 
+                                                                sendPrivateValue={sendPrivateValue} tab={tab} 
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                
                                             </div>
                                         </div>
 
-                                        <div className='chat-tool'>
-                                            <ChatTool 
-                                                avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
-                                                username={userData.username}  // Truyền username 
-                                            />
+                                        <div className='chat-tool-wrapper'>
+                                            <div className='chat-tool'>
+                                                <ChatTool 
+                                                    avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
+                                                    username={userData.username}  // Truyền username 
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                         )}
@@ -345,29 +429,35 @@ const ChatRoom = () => {
                 // </div>
                 // Giao diện đăng nhập/đăng ký
                 <div className="register">
-                    <input
-                        className='name-input'
-                        id="user-name"
-                        placeholder="Nhập tên của bạn"
-                        name="userName"
-                        value={userData.username}
-                        onChange={handleUsername}
-                    />
-                    <input
-                        className='name-input'
-                        placeholder="Nhập email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <input
-                        className='name-input'
-                        type="password"
-                        placeholder="Nhập mật khẩu"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button onClick={login}>Đăng nhập</button>
-                    <button onClick={register}>Đăng ký</button>
+                    {loginType === "CHATROOM" ? (
+                        <>
+                            <input
+                                className='name-input'
+                                id="user-name"
+                                placeholder="Nhập tên của bạn"
+                                name="userName"
+                                value={userData.username}
+                                onChange={handleUsername}
+                            />
+                            <input
+                                className='name-input'
+                                placeholder="Nhập email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <input
+                                className='name-input'
+                                type="password"
+                                placeholder="Nhập mật khẩu"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button onClick={login}>Đăng nhập</button>
+                            <button onClick={register}>Đăng ký</button>
+                        </>
+                    ) : (
+                        <p>Vui lòng đăng nhập từ ứng dụng {loginType}</p>
+                    )}
                 </div>
             )}
         </div>

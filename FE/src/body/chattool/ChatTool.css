@@ -24,3 +24,12 @@
 .infor-text {
     font-weight: 500;
 }
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tag-container .ant-tag {
+    margin-bottom: 8px;
+}

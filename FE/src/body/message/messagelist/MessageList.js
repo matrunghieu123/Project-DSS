@@ -1,25 +1,20 @@
 import React, { useLayoutEffect } from 'react';
 import './MessageList.css';
 import ImageMessage from './imghanlde/ImageMessage';
+import FileMessage from './filehandle/FileMessage';
 
-// Component MessageList nhận các props: chats (danh sách tin nhắn), userData (dữ liệu người dùng), endOfMessagesRef (tham chiếu đến phần tử cuối cùng của danh sách tin nhắn)
-const MessageList = ({ chats, userData, endOfMessagesRef }) => {
-
-    // useLayoutEffect để cuộn tới cuối danh sách tin nhắn mỗi khi danh sách tin nhắn hoặc endOfMessagesRef thay đổi
+const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
     useLayoutEffect(() => {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [chats, endOfMessagesRef]);
+    }, [chats, endOfMessagesRef, tab]);
 
-    // Hàm renderFileContent để hiển thị nội dung file (hình ảnh hoặc file khác)
-    const renderFileContent = (file) => {
-        if (file && file.type && file.type.startsWith('image/')) {
-            // Nếu file là hình ảnh, sử dụng component ImageMessage để hiển thị
-            return <ImageMessage src={file.data || URL.createObjectURL(file)} alt="Sent image" />;
-        } else if (file) {
-            // Nếu file không phải là hình ảnh, hiển thị link để tải về
-            return <a href={file.data || URL.createObjectURL(file)} download={file.name}>{file.name}</a>;
+    const renderFileContent = (fileUrl, fileType) => {
+        if (fileType && fileType.startsWith('image/')) {
+            return <ImageMessage src={fileUrl} alt="Sent image" />;
+        } else if (fileUrl) {
+            return <FileMessage fileUrl={fileUrl} fileType={fileType} />;
         }
         return null;
     };
@@ -34,8 +29,8 @@ const MessageList = ({ chats, userData, endOfMessagesRef }) => {
                     <li
                         className={`message ${chat.senderName === userData.username ? "self" : ""}`}
                         key={index}
+                        title={chat.time ? `Gửi lúc: ${chat.time}` : ''}
                     >
-                        {/* Hiển thị avatar nếu tin nhắn không phải của cùng một người gửi liên tiếp và không phải của người dùng hiện tại */}
                         {!isSameSender && chat.senderName !== userData.username && (
                             <img
                                 className="message-avatar"
@@ -44,19 +39,23 @@ const MessageList = ({ chats, userData, endOfMessagesRef }) => {
                                 style={{ backgroundColor: 'black', color: 'white' }}
                             />
                         )}
-                        {/* Hiển thị placeholder nếu tin nhắn là của cùng một người gửi liên tiếp và không phải của người dùng hiện tại */}
                         {isSameSender && chat.senderName !== userData.username && (
                             <div className="message-avatar-placeholder"></div>
                         )}
-                        <div className="message-data">
-                            {/* Hiển thị nội dung tin nhắn */}
-                            <span className="message-content">{chat.message}</span>
-                            {/* Hiển thị nội dung file nếu có */}
-                            {chat.file && renderFileContent(chat.file)}
-                            {/* Hiển thị thời gian gửi tin nhắn */}
-                            <span className="message-time">{chat.time}</span>
+                        <div className="message-content-wrapper">
+                            {!isSameSender && (
+                                <div className="message-sender-time-wrapper">
+                                    <span className="message-sender-time">
+                                        {chat.senderName}, {chat.time ? chat.time : 'Không rõ thời gian'}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="message-data">
+                                <span className="message-content">{chat.message}</span>
+                                {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType)}
+                                <span className="message-time">{chat.time}</span>
+                            </div>
                         </div>
-                        {/* Hiển thị avatar nếu tin nhắn không phải của cùng một người gửi liên tiếp và là của người dùng hiện tại */}
                         {!isSameSender && chat.senderName === userData.username && (
                             <img
                                 className="avatar self"
@@ -65,14 +64,12 @@ const MessageList = ({ chats, userData, endOfMessagesRef }) => {
                                 style={{ backgroundColor: 'black', color: 'white' }}
                             />
                         )}
-                        {/* Hiển thị placeholder nếu tin nhắn là của cùng một người gửi liên tiếp và là của người dùng hiện tại */}
                         {isSameSender && chat.senderName === userData.username && (
                             <div className="avatar-placeholder self"></div>
                         )}
                     </li>
                 );
             })}
-            {/* Phần tử để cuộn tới cuối */}
             <div ref={endOfMessagesRef} />
         </ul>
     );

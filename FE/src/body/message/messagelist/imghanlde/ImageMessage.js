@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './ImageMessage.css';
 
 const ImageMessage = ({ src, alt }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -52,16 +51,55 @@ const ImageMessage = ({ src, alt }) => {
       role="button" 
       aria-label="Expand image" 
       tabIndex={0}
-      style={{ cursor: 'pointer' }} // Thêm con trỏ chỉ tay khi hover vào ảnh
+      style={styles.imageMessage}
     >
       <img 
         src={src} 
         alt={alt || 'Image message'} // Đảm bảo alt không bị rỗng
         className="message-image" 
-        style={isExpanded ? { width: '100%', height: 'auto', transition: 'all 0.3s ease' } : getImageStyle()}
+        style={isExpanded ? { ...styles.expandedImage, ...styles.transition } : { ...getImageStyle(), ...styles.transition }}
       />
     </div>
   );
+};
+
+const styles = {
+  imageMessage: {
+    display: 'inline-block',
+    maxWidth: '300px',
+    maxHeight: '200px',
+    overflow: 'hidden',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+  },
+  expanded: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    maxWidth: '100%',
+    maxHeight: '100%',
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  messageImage: {
+    display: 'block',
+    objectFit: 'contain',
+    transition: 'all 0.3s ease',
+  },
+  expandedImage: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    objectFit: 'contain',
+  },
+  transition: {
+    transition: 'all 0.3s ease',
+  },
 };
 
 export default ImageMessage;

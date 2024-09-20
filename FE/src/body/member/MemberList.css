@@ -1,6 +1,5 @@
 .member-list {
-  width: 300px; /* Đặt chiều rộng cố định */
-  max-width: 300px; /* Đặt chiều rộng tối đa là cố định */
+  max-width: 333px; /* Đặt chiều rộng tối đa là cố định */
   overflow-y: auto;
 }
 

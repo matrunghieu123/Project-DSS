@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Card, Switch, Input, Button, Avatar, Form, Collapse, Tooltip, Tag } from "antd";
-import { PhoneOutlined, MailOutlined, QuestionCircleOutlined, CalendarOutlined, HomeOutlined, SendOutlined } from '@ant-design/icons';
+import { PhoneOutlined, MailOutlined, QuestionCircleOutlined, CalendarOutlined, HomeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import './ChatTool.css';
 
 const { Panel } = Collapse;
@@ -9,7 +9,7 @@ const ChatTool = ({ avatar, username }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
 
-  const [tags, setTags] = useState([]); 
+  const [tags, setTags] = useState(["tuvan", "hotro", "phananhdichvu"]); // Dữ liệu tag mẫu
   const [inputValue, setInputValue] = useState(""); 
 
   const handleInputChange = (e) => {
@@ -48,21 +48,14 @@ const ChatTool = ({ avatar, username }) => {
                 <Switch defaultChecked style={{ flex: '0' }} />
                 <span className="infor-text" style={{ padding: '10px' }}>Trạng thái ChatBot</span>
               </div>
-              <Tooltip 
-                title="Trạng thái hiện tại của ChatBot" 
-                getPopupContainer={trigger => trigger.parentElement} 
-              >
+              <Tooltip title="Trạng thái hiện tại của ChatBot" getPopupContainer={trigger => trigger.parentElement}>
                 <QuestionCircleOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
               </Tooltip>
             </div>
           </Form>
         </Card>
 
-        <Collapse 
-          bordered={false} 
-          accordion 
-          style={{ background: 'white' }}
-        >
+        <Collapse bordered={false} accordion style={{ background: 'white' }}>
           <Panel className="infor-text" header="Tag" key="1">
             <Form layout="vertical">
               <Input
@@ -72,22 +65,27 @@ const ChatTool = ({ avatar, username }) => {
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Thêm tag..."
+                placeholder="Tìm kiếm | Thêm Tag"
                 suffix={
                   <Button
                     type="text"
-                    icon={<SendOutlined />}
+                    icon={<PlusOutlined />}
                     onClick={handleAddTag}
                     disabled={!inputValue.trim()}
                   />
                 }
+                prefix={<SearchOutlined />}
               />
-              <div>
+              <div style={{ marginTop: 8 }}>
                 {tags.map((tag, index) => (
                   <Tag key={index} closable>
-                    {tag}
+                    #{tag}
                   </Tag>
                 ))}
+              </div>
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+                <Button type="primary">Lưu lại</Button>
+                <Button>Hủy</Button>
               </div>
             </Form>
           </Panel>

@@ -8,11 +8,11 @@ import LogoVB from './logo-img/Logo-Viber.png';
 
 const { Sider } = Layout;
 
-const ColNavbar = ({ setTab, handleResetFilter }) => {
-  // Hàm thay đổi tab và reset bộ lọc
+const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
   const handleTabChange = (newTab) => {
     setTab(newTab);
-    handleResetFilter(); // Gọi hàm reset filter mỗi khi tab thay đổi
+    handleResetFilter();
+    setLoginType(newTab); // Cập nhật loại đăng nhập dựa trên tab
   };
 
   return (
@@ -20,7 +20,7 @@ const ColNavbar = ({ setTab, handleResetFilter }) => {
       <Menu
         theme="light"
         mode="vertical"
-        style={{ textAlign: "center", marginTop: "20px", padding: 0 }}
+        style={{ textAlign: "center", marginTop: "20px", padding: 0, backgroundColor: '#f5f6fa', border: 'none',}}
       >
         <Menu.Item
           key="0"

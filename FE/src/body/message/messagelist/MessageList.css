@@ -1,11 +1,11 @@
 .chat-messages {
-  height: 500px; /* Đặt chiều cao cố định hoặc tính toán chiều cao động nếu cần */
-  flex-grow: 1;
+  flex: 1;
+  display: flex;
   border-top: 1px solid rgba(0, 177, 255);
-  overflow-y: auto; /* Kích hoạt thanh cuộn dọc */
-  background-color: #ffffff;
-  margin: 0;
-  position: relative;
+  overflow-x: hidden;
+  overflow-y: overlay;
+  flex-direction: column;
+  padding: 8px 0;
 }
 
 .message {
@@ -20,20 +20,32 @@
   justify-content: flex-end; /* Căn tin nhắn của bản thân sang bên phải */
 }
 
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  align-items: flex-start; /* Đảm bảo nội dung tin nhắn không ảnh hưởng bởi tên */
+}
+
 .message-data {
   padding: 10px;
   border-radius: 8px;
   background-color: #f0f0f0;
   display: inline-block;
-  max-width: 70%; /* Giới hạn chiều rộng tối đa cho tin nhắn */
+  max-width: 100%; /* Giới hạn chiều rộng tối đa cho tin nhắn */
   word-wrap: break-word; /* Đảm bảo văn bản dài sẽ xuống dòng */
   position: relative;
+  flex: 0; /* Chỉnh flex thành 0 để không kéo dãn chiều rộng */
+  align-self: flex-start; /* Đảm bảo phần text tự điều chỉnh theo nội dung */
 }
 
 .message.self .message-data {
   background-color: #d5d7dc; /* Màu nền tối hơn cho tin nhắn của bản thân */
   text-align: right; /* Căn phải nội dung tin nhắn */
   margin-left: 10px; /* Khoảng cách giữa text và avatar bên trái */
+  flex: 0; /* Chỉnh flex thành 0 để không kéo dãn chiều rộng */
+  align-self: flex-end; /* Đảm bảo phần text tự điều chỉnh theo nội dung */ 
 }
 
 .message-avatar,
@@ -88,4 +100,23 @@
   max-width: 100%;
   border-radius: 8px;
   margin-top: 10px;
+}
+
+/* Thêm CSS cho message-sender-time */
+.message-sender-time {
+  font-size: 0.8em;
+  color: #888;
+  margin-left: 10px;
+  margin-bottom: 5px; /* Khoảng cách giữa thời gian gửi và nội dung tin nhắn */
+}
+
+.message-sender-time-wrapper {
+  width: auto; /* Đảm bảo chiều rộng của phần tên và thời gian không ảnh hưởng tới nội dung tin nhắn */
+  margin-bottom: 5px; /* Khoảng cách giữa thời gian và nội dung tin nhắn */
+}
+
+.message-sender-time.self {
+  margin-right: 10px;
+  margin-left: 0;
+  margin-bottom: 5px; /* Khoảng cách giữa thời gian gửi và nội dung tin nhắn */
 }
