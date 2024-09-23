@@ -3,11 +3,17 @@ import { Typography } from 'antd';
 import './MemberList.css';
 
 // Hàm formatDate để định dạng thời gian
-const formatDate = (timestamp) => {
-    if (!timestamp) return "Không có thời gian";
+const formatDate = (time) => {
+    if (!time) return "Không có thời gian";
     
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return "Thời gian không hợp lệ";
+    // Kiểm tra nếu time là một chuỗi thời gian đầy đủ
+    const date = new Date(time);
+    if (isNaN(date.getTime())) {
+        // Nếu time chỉ là giờ và phút, thêm ngày mặc định
+        const dateWithDefaultDay = new Date(`1970-01-01T${time}Z`);
+        if (isNaN(dateWithDefaultDay.getTime())) return "Thời gian không hợp lệ";
+        return dateWithDefaultDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
     
     // Định dạng thời gian theo giờ và phút
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -24,10 +30,10 @@ const MemberList = ({ privateChats, setTab, tab }) => {
         const chat = privateChats.get(name);
         if (chat && chat.length > 0) {
             const lastMessage = chat[chat.length - 1];
-            const timestamp = lastMessage.timestamp;
+            const time = lastMessage.time; // Sử dụng thuộc tính time
 
             // Sử dụng hàm formatDate để định dạng thời gian
-            return formatDate(timestamp);
+            return formatDate(time);
         }
         return "Không có tin nhắn";
     };

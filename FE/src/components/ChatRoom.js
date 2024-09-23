@@ -57,7 +57,8 @@ const ChatRoom = () => {
                 // Sử dụng tên người dùng nhập thay vì email
                 const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
                 setUserData({ ...userData, username, connected: true });
-                connect();  // Kết nối đến WebSocket sau khi đăng nhập
+                setTab(username); // Đặt tab thành tên người dùng vừa đăng nhập
+                connect();
             })
             .catch((error) => {
                 console.error("Đăng nhập thất bại:", error.message);
@@ -73,7 +74,8 @@ const ChatRoom = () => {
                 // Sử dụng tên người dùng nhập thay vì email
                 const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
                 setUserData({ ...userData, username, connected: true });
-                connect();  // Kết nối sau khi đăng ký thành công
+                setTab(username); // Đặt tab thành tên người dùng vừa đăng ký
+                connect();
             })
             .catch((error) => {
                 console.error("Đăng ký thất bại:", error.message);
@@ -163,8 +165,8 @@ const ChatRoom = () => {
         setPrivateChats(prevChats => {
             const newChats = new Map(prevChats);
             const chatList = newChats.get(message.receiverName) || [];
-            const messageId = `${message.senderName}-${message.timestamp}`;
-            if (!chatList.some(msg => `${msg.senderName}-${msg.timestamp}` === messageId)) {
+            const messageId = `${message.senderName}-${message.time}`; // Đổi timestamp thành time
+            if (!chatList.some(msg => `${msg.senderName}-${msg.time}` === messageId)) { // Đổi timestamp thành time
                 newChats.set(message.receiverName, [...chatList, { ...message, id: messageId }]);
             }
             return newChats;
@@ -191,7 +193,7 @@ const ChatRoom = () => {
                     status: "MESSAGE",
                     fileType: files.length > 0 ? files[0].type : null,  // Nếu có file thì truyền loại file, nếu không thì truyền null
                     fileUrl: files.length > 0 ? URL.createObjectURL(files[0]) : null,  // Nếu có file thì tạo URL cho file, nếu không thì truyền null
-                    timestamp: new Date().getTime()
+                    time: new Date().toLocaleTimeString() // Đổi timestamp thành time
                 };
     
                 stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
@@ -220,7 +222,7 @@ const ChatRoom = () => {
                     status: "MESSAGE", // Trạng thái tin nhắn
                     fileType: files.length > 0 ? files[0].type : null,  // Nếu có file thì truyền loại file, nếu không thì truyền null
                     fileUrl: files.length > 0 ? URL.createObjectURL(files[0]) : null,  // Nếu có file thì tạo URL cho file, nếu không thì truyền null
-                    timestamp: new Date().getTime() // Thời gian gửi tin nhắn
+                    time: new Date().toLocaleTimeString() // Đổi timestamp thành time
                 };
                 
                 // Gửi tin nhắn đến endpoint "/app/private-message" qua stompClient

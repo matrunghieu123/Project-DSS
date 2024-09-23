@@ -53,17 +53,17 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
                                 <div className="message-avatar-placeholder"></div>
                             )}
                             <div className="message-content-wrapper">
-                                {!isSameSender && (
+                                <div className="message-content-inner">
                                     <div className="message-sender-time-wrapper">
                                         <span className="message-sender-time">
                                             {chat.senderName}, {chat.time ? chat.time : 'Không rõ thời gian'}
                                         </span>
                                     </div>
-                                )}
-                                <div className="message-data">
-                                    <span className="message-content">{chat.message}</span>
-                                    {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType)}
-                                    <span className="message-time-hover">{chat.time}</span> {/* Thêm dòng này */}
+                                    <div className="message-data">
+                                        <span className="message-content">{chat.message}</span>
+                                        {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType)}
+                                        <span className="message-time-hover">{chat.time}</span> {/* Thêm dòng này */}
+                                    </div>
                                 </div>
                             </div>
                             {!isSameSender && chat.senderName === userData.username && (
