@@ -21,55 +21,65 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
 
     return (
         <ul className="chat-messages">
-            {chats && chats.map((chat, index) => {
-                const previousChat = chats[index - 1];
-                const isSameSender = previousChat && previousChat.senderName === chat.senderName;
+            {chats && chats
+                // Điều kiện lọc tin nhắn cho private chat
+                .filter(chat => {
+                    if (tab === 'private') {
+                        // Hiển thị tin nhắn trong private chat nếu người dùng hiện tại là người gửi hoặc người nhận
+                        return (chat.senderName === userData.username || chat.receiverName === userData.username);
+                    }
+                    // Hiển thị tất cả tin nhắn cho public chat
+                    return true;
+                })
+                .map((chat, index) => {
+                    const previousChat = chats[index - 1];
+                    const isSameSender = previousChat && previousChat.senderName === chat.senderName;
 
-                return (
-                    <li
-                        className={`message ${chat.senderName === userData.username ? "self" : ""}`}
-                        key={index}
-                        title={chat.time ? `Gửi lúc: ${chat.time}` : ''}
-                    >
-                        {!isSameSender && chat.senderName !== userData.username && (
-                            <img
-                                className="message-avatar"
-                                src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'}
-                                alt="avatar"
-                                style={{ backgroundColor: 'black', color: 'white' }}
-                            />
-                        )}
-                        {isSameSender && chat.senderName !== userData.username && (
-                            <div className="message-avatar-placeholder"></div>
-                        )}
-                        <div className="message-content-wrapper">
-                            {!isSameSender && (
-                                <div className="message-sender-time-wrapper">
-                                    <span className="message-sender-time">
-                                        {chat.senderName}, {chat.time ? chat.time : 'Không rõ thời gian'}
-                                    </span>
-                                </div>
+                    return (
+                        <li
+                            className={`message ${chat.senderName === userData.username ? "self" : ""}`}
+                            key={index}
+                            title={chat.time ? `Gửi lúc: ${chat.time}` : ''}
+                        >
+                            {!isSameSender && chat.senderName !== userData.username && (
+                                <img
+                                    className="message-avatar"
+                                    src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'}
+                                    alt="avatar"
+                                    style={{ backgroundColor: 'black', color: 'white' }}
+                                />
                             )}
-                            <div className="message-data">
-                                <span className="message-content">{chat.message}</span>
-                                {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType)}
-                                <span className="message-time">{chat.time}</span>
+                            {isSameSender && chat.senderName !== userData.username && (
+                                <div className="message-avatar-placeholder"></div>
+                            )}
+                            <div className="message-content-wrapper">
+                                {!isSameSender && (
+                                    <div className="message-sender-time-wrapper">
+                                        <span className="message-sender-time">
+                                            {chat.senderName}, {chat.time ? chat.time : 'Không rõ thời gian'}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className="message-data">
+                                    <span className="message-content">{chat.message}</span>
+                                    {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType)}
+                                    <span className="message-time-hover">{chat.time}</span> {/* Thêm dòng này */}
+                                </div>
                             </div>
-                        </div>
-                        {!isSameSender && chat.senderName === userData.username && (
-                            <img
-                                className="avatar self"
-                                src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'}
-                                alt="avatar"
-                                style={{ backgroundColor: 'black', color: 'white' }}
-                            />
-                        )}
-                        {isSameSender && chat.senderName === userData.username && (
-                            <div className="avatar-placeholder self"></div>
-                        )}
-                    </li>
-                );
-            })}
+                            {!isSameSender && chat.senderName === userData.username && (
+                                <img
+                                    className="avatar self"
+                                    src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'}
+                                    alt="avatar"
+                                    style={{ backgroundColor: 'black', color: 'white' }}
+                                />
+                            )}
+                            {isSameSender && chat.senderName === userData.username && (
+                                <div className="avatar-placeholder self"></div>
+                            )}
+                        </li>
+                    );
+                })}
             <div ref={endOfMessagesRef} />
         </ul>
     );
