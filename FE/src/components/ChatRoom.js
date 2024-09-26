@@ -213,20 +213,47 @@ const ChatRoom = () => {
         setUserData({ ...userData, username: event.target.value });
     };
 
+    // Hàm sendMessageToServer để gửi tin nhắn đến server BE
+    const sendMessageToServer = async (senderName, receiverName, messageText, file) => {
+        const formData = new FormData();
+        formData.append('senderName', senderName); // Thêm tham số senderName vào formData
+        formData.append('receiverName', receiverName); // Thêm tham số receiverName vào formData
+        formData.append('message', messageText); // Thêm tham số messageText vào formData
+        if (file) {
+            formData.append('file', file); // Thêm tham số file vào formData nếu có
+        }
+
+        try {
+            const response = await fetch('http://192.168.1.13:81/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            console.log('Message sent successfully:', data);
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    };
+
     // Hàm sendValue để gửi tin nhắn công khai
     const sendValue = async (message, files = []) => {
         if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) {
             try {
                 let fileUrl = null;
-                let fileName = null;
+                let fileName = null;  // Biến cục bộ để lưu tên file
                 let fileType = null;
-    
+
                 if (files.length > 0) {
                     fileUrl = await uploadFileToFirebase(files[0]); // Tải file lên Firebase Storage
-                    fileName = files[0].name;
+                    fileName = files[0].name;  // Lưu tên file vào biến cục bộ
                     fileType = files[0].type;
                 }
-    
+
                 const chatMessage = {
                     senderName: userData.username,
                     receiverName: "chat tổng",
@@ -234,34 +261,36 @@ const ChatRoom = () => {
                     status: "MESSAGE",
                     fileType: fileType,
                     fileUrl: fileUrl,
-                    fileName: fileName,
                     time: new Date().toLocaleTimeString()
                 };
-    
+
                 stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
-                setPublicChats(prevPublicChats => [...prevPublicChats, chatMessage]);
-    
+                setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);  // Thêm fileName vào tin nhắn hiển thị
+
+                // Gửi tin nhắn đến server BE
+                await sendMessageToServer(userData.username, "chat tổng", message, files[0]);
+
                 setUserData({ ...userData, message: "" });
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
         }
-    };  
+    };
 
     // Hàm sendPrivateValue để gửi tin nhắn riêng tư
     const sendPrivateValue = async (message, files = []) => {
         if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) {
             try {
                 let fileUrl = null;
-                let fileName = null;
+                let fileName = null;  // Biến cục bộ để lưu tên file
                 let fileType = null;
-    
+
                 if (files.length > 0) {
                     fileUrl = await uploadFileToFirebase(files[0]); // Tải file lên Firebase Storage
-                    fileName = files[0].name;
+                    fileName = files[0].name;  // Lưu tên file vào biến cục bộ
                     fileType = files[0].type;
                 }
-    
+
                 const chatMessage = {
                     senderName: userData.username,
                     receiverName: tab,
@@ -269,18 +298,17 @@ const ChatRoom = () => {
                     status: "MESSAGE",
                     fileType: fileType,
                     fileUrl: fileUrl,
-                    fileName: fileName,
                     time: new Date().toLocaleTimeString()
                 };
-    
+
                 stompClientRef.current.send("/app/private-message", {}, JSON.stringify(chatMessage));
-                addMessageToPrivateChat(chatMessage);
+                addMessageToPrivateChat({ ...chatMessage, fileName });  // Thêm fileName vào tin nhắn hiển thị
                 setUserData({ ...userData, message: "" });
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
         }
-    };    
+    };
 
     // Thêm trạng thái mới
     const [isFilterCleared, setIsFilterCleared] = useState(false);
@@ -475,3 +503,4 @@ const ChatRoom = () => {
 };
 
 export default ChatRoom;
+
