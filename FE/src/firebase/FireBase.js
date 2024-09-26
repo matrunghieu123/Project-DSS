@@ -26,5 +26,8 @@ const analytics = getAnalytics(app);
 // Export initialized services
 export { auth, db, storage, analytics };
 
+// Initialize Firebase services
+export const imageDb = getStorage(app)
+
 // Export default app
 export default app;

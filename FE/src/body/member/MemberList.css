@@ -15,8 +15,6 @@ ul {
 
 .avatar-member-list {
   border-radius: 50%; /* Bo tròn cho avatar */
-  width: 45px;
-  height: 40px;
   overflow: hidden; /* Ẩn phần ảnh vượt quá khung bo tròn */
   display: flex;
   justify-content: center;
@@ -66,4 +64,18 @@ ul {
   background: rgba(169, 169, 169, 0.784);
   color: #fff;
   transform: scale(1.03); /* Phóng to khi hover */
+}
+
+.ant-list-item.member {
+  padding: 20px;
+}
+
+.member .ant-list-item-meta-avatar .ant-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.member .ant-list-item-meta-title {
+  font-size: 1.2em;
+  font-weight: 500;
 }

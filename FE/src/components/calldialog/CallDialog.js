@@ -26,8 +26,9 @@ const CallDialog = () => {
             position: 'fixed',
             right: 30,
             bottom: 30,
-            height: 50,
-            width: 50,
+            height: 55,
+            width: 55,
+            borderRadius: '10px',
           }}
         />
       </Tooltip>

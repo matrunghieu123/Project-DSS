@@ -2,34 +2,69 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 100%;
-}
-
-.ant-card .ant-card-body {
-    padding: 16px !important;
-}
-
-.ant-collapse {
-    border: none;
-}
-
-.ant-collapse>.ant-collapse-item:last-child>.ant-collapse-header {
-    border-top: none;
-}
-
-.ant-collapse > .ant-collapse-item {
-    border-bottom: none !important;
-}
-
-.infor-text {
-    font-weight: 500;
-}
-
-.tag-container {
+    overflow: hidden;
+  }
+  
+  .tool-wrapper {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-}
-
-.tag-container .ant-tag {
-    margin-bottom: 8px;
-}
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .status-card {
+    margin-bottom: 16px;
+  }
+  
+  .status-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .collapse-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    background-color: white;
+    border: none;
+  }
+  
+  .collapse-container .ant-collapse-item {
+    transition: all 0.3s;
+  }
+  
+  .collapse-container .ant-collapse-item-active {
+    flex-grow: 1; /* Thanh mở sẽ chiếm toàn bộ không gian còn lại */
+  }
+  
+  .collapse-container .ant-collapse-content {
+    height: 100%;
+    overflow: hidden;
+    flex-grow: 1; /* Đảm bảo phần tử này chiếm toàn bộ không gian còn lại */
+  }
+  
+  .tag-container {
+    margin-top: 8px;
+  }
+  
+  .action-buttons {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .avatar-container {
+    text-align: center;
+  }
+  
+  .info-container {
+    max-height: 500px; /* Đặt chiều cao tối đa cho container thông tin */
+    overflow-y: auto; /* Cho phép cuộn dọc */
+  }
+  
+  .infor-text-header {
+    font-weight: bold;
+    overflow: hidden;
+  }

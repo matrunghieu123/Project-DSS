@@ -27,6 +27,7 @@
   border-radius: 50%;
   object-fit: cover;
   background-color: #000;
+  border: none; /* Thêm dòng này để loại bỏ viền */
 }
 
 /* Avatar của người khác nằm bên trái */
@@ -88,36 +89,13 @@
   display: inline-block; /* Hiển thị thời gian khi hover */
 }
 
-.message-avatar,
-.avatar.self {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: #000;
+/* Thêm khoảng cách cho các tin nhắn không phải là tin nhắn đầu tiên */
+.message:not(:first-child) .message-content-wrapper {
+  margin-left: 50px; /* Khoảng cách giữa avatar và nội dung tin nhắn bên phải */
 }
 
-/* Avatar của người khác nằm bên trái */
-.message .message-avatar {
-  margin-right: 10px; /* Khoảng cách giữa avatar và nội dung tin nhắn bên phải */
-}
-
-/* Avatar của bản thân nằm bên phải */
-.message.self .avatar.self {
-  margin-left: 10px; /* Khoảng cách giữa text và avatar bên phải */
-}
-
-/* Phần tử giả để chiếm không gian của avatar khi không có avatar */
-/* của bản thân */
-.avatar-placeholder.self {
-  width: 40px;
-  height: 40px;
-  margin-left: 10px;
-  background-color: transparent; /* Đảm bảo placeholder không có màu nền */
-}
-/* của người khác */
-.message-avatar-placeholder {
-  margin-left: 50px;
+.message.self:not(:first-child) .message-content-wrapper {
+  margin-right: 50px; /* Khoảng cách giữa text và avatar bên phải */
 }
 
 .message-file {
@@ -151,13 +129,14 @@
 }
 
 .message-sender-time-wrapper {
-  width: auto; /* Đảm bảo chiều rộng của phần tên và thời gian không ảnh hưởng tới nội dung tin nhắn */
+  width: 100%; /* Đảm bảo chiều rộng của phần tên và thời gian không ảnh hưởng tới nội dung tin nhắn */
   margin-bottom: 5px; /* Khoảng cách giữa thời gian và nội dung tin nhắn */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Điều chỉnh cho tin nhắn của bản thân */
 .message.self .message-sender-time-wrapper {
-  display: flex;
   justify-content: flex-end; /* Đẩy phần tên và giờ sang bên phải */
 }
 
@@ -179,6 +158,6 @@
 }
 
 /* Điều chỉnh margin cho tin nhắn đầu tiên */
-.message:first-child .message-data {
+.message:first-child.self .message-data {
   margin-left: 70px; /* Điều chỉnh khoảng cách trên để tránh phần tên và giờ */
 }

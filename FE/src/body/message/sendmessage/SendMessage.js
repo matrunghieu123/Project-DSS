@@ -9,7 +9,7 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
     const [selectedFiles, setSelectedFiles] = useState([]); // Trạng thái để lưu trữ tệp đã chọn
 
     // Hàm handleSend để xử lý việc gửi tin nhắn
-    const handleSend = () => {
+    const handleSend = async () => {
         console.log("Sending message:", userData.message); // Kiểm tra xem tin nhắn có được gửi hay không
         console.log("Selected files:", selectedFiles); // Kiểm tra danh sách file
 
@@ -19,9 +19,9 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
             
             // Kiểm tra xem đang ở chế độ public hay private và gửi tương ứng
             if (tab === "CHATROOM") {
-                sendValue(userData.message, files);  // Gửi tin nhắn cho public chat
+                await sendValue(userData.message, files);  // Gửi tin nhắn cho public chat
             } else {
-                sendPrivateValue(userData.message, files);  // Gửi tin nhắn cho private chat
+                await sendPrivateValue(userData.message, files);  // Gửi tin nhắn cho private chat
             }
             
             // Xóa nội dung tin nhắn và file đã chọn sau khi gửi

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, Avatar, List } from 'antd';
 import './MemberList.css';
 
 // Hàm formatDate để định dạng thời gian
@@ -40,36 +40,21 @@ const MemberList = ({ privateChats, setTab, tab }) => {
 
     return (
         <div className="member-list">
-            <ul>
-                {[...privateChats.keys()].map((name, index) => (
-                    <li
+            <List
+                dataSource={[...privateChats.keys()]}
+                renderItem={(name) => (
+                    <List.Item
                         onClick={() => setTab(name)}
                         className={`member ${tab === name ? "active" : ""}`}
-                        key={index}
                     >
-                        <div className="member-item">
-                            {/* Avatar */}
-                            <div className="avatar-member-list">
-                                <img
-                                    src={getAvatar(name)}  // Thay chữ bằng ảnh avatar
-                                    alt={`${name}'s avatar`}
-                                    className="avatar-image"
-                                />
-                            </div>
-
-                            {/* Thông tin thành viên */}
-                            <div className="member-info">
-                                <Typography.Text className="member-name">
-                                    {name}
-                                </Typography.Text>
-                                <Typography.Text className="member-time">
-                                    {getLastMessageTime(name)}
-                                </Typography.Text>
-                            </div>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+                        <List.Item.Meta
+                            avatar={<Avatar src={getAvatar(name)} />}
+                            title={<Typography.Text className="member-name">{name}</Typography.Text>}
+                            description={<Typography.Text className="member-time">{getLastMessageTime(name)}</Typography.Text>}
+                        />
+                    </List.Item>
+                )}
+            />
         </div>
     );
 };
