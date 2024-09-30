@@ -4,7 +4,10 @@ import {ContactsScreen, HistoryScreen, RecordScreen} from '../screens';
 import {HomeNavigator} from './HomeNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {AppColors} from '../../core/constants/AppColors.ts';
-import {CallNavigator} from './CallNavigator.tsx';
+import {EmptyComponent} from '../components';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {Fonts} from '../../core/constants/Fonts.ts';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,9 +31,6 @@ const screenOptions = ({route}: {route: any}) => ({
       case 'Phiếu ghi':
         iconName = focused ? 'document-text' : 'document-text-outline';
         break;
-      case 'Cuộc gọi':
-        iconName = focused ? 'call' : 'call-outline';
-        break;
       case 'Danh bạ':
         iconName = focused ? 'people' : 'people-outline';
         break;
@@ -40,11 +40,36 @@ const screenOptions = ({route}: {route: any}) => ({
     }
     return <Ionicons name={iconName} size={size} color={color} />;
   },
-  tabBarLabel: ({focused}: {focused: boolean}) =>
-    focused ? (
-      <Ionicons name="ellipse" size={6} color={AppColors.secondary} />
-    ) : null,
+  tabBarLabel: ({focused}: {focused: boolean}) => (
+    <Text
+      style={{
+        color: focused ? AppColors.secondary : 'gray',
+        fontFamily: focused ? Fonts.bold : Fonts.regular,
+        fontSize: 13,
+      }}>
+      {route.name}
+    </Text>
+  ),
+  tabBarStyle: {
+    height: 90,
+    paddingVertical: 5,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
 });
+
+const CallButton = () => {
+  const navigation = useNavigation<any>();
+  return (
+    <TouchableOpacity
+      style={styles.callButton}
+      onPress={() => navigation.navigate('Call')}>
+      <View style={styles.callButtonInner}>
+        <Ionicons name="call" size={30} color="#fff" />
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const BottomTabNavigator = () => {
   return (
@@ -53,13 +78,34 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="Phiếu ghi" component={RecordScreen} />
       <Tab.Screen
         name="Cuộc gọi"
-        component={CallNavigator}
-        options={{tabBarStyle: {display: 'none'}}}
+        component={EmptyComponent}
+        options={{
+          tabBarButton: () => <CallButton />,
+        }}
       />
       <Tab.Screen name="Danh bạ" component={ContactsScreen} />
       <Tab.Screen name="Lịch sử" component={HistoryScreen} />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  callButton: {
+    top: -35,
+    shadowColor: AppColors.black,
+    shadowOpacity: 0.3,
+    shadowOffset: {width: 0, height: 10},
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+  callButtonInner: {
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+    backgroundColor: AppColors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default BottomTabNavigator;
