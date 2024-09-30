@@ -44,11 +44,6 @@ code {
   overflow: hidden; /* Ẩn thanh cuộn khi không cần thiết */
 }
 
-.header-nav {
-  flex: 0 0 auto; /* Đảm bảo header không chiếm toàn bộ không gian */
-  height: auto; /* Chiều cao tự động dựa trên nội dung */
-}
-
 .body-nav {
   flex: 1 1 auto; /* Cho phép body chiếm toàn bộ không gian còn lại */
   display: flex;
@@ -85,16 +80,13 @@ code {
 }
 
 .search-box {
-  margin-right: 10px;
+  display: flex;
+  justify-content: center;
 }
 .search-button {
   width: 100%;
   max-width: 300px;
-  margin: 16px;
-  padding: 13px;
-  border-radius: 16px;
-  background-color: rgba(30, 49, 80, 0.05);
-  border: none;
+  margin: 16px 8px;
 }
 /* chữ 'tìm kiếm' */
 .ant-input-affix-wrapper >input.ant-input {
@@ -109,7 +101,7 @@ code {
 /* phần chat */
 .chat-content {
   width: 100%;
-  height: calc(100vh - 100px);
+  max-height: 100%;
   flex-grow: 0; /* Cho phép phần này mở rộng */
   display: flex;
   flex-direction: column;
@@ -119,7 +111,7 @@ code {
 }
 
 .chat-border {
-  height: 100%;
+  height: 91vh;
   display: flex;
   flex-direction: row;
 }
@@ -144,25 +136,25 @@ code {
 .chat-input {
   flex: 1;
   color: #1e3150;
-  margin: 16px;
+  margin: 16px 0 16px 12px;
   display: flex;
   overflow: hidden;
   position: relative;
   font-size: 15px;
   background: #ffffff;
   font-family: Roboto;
-  margin-left: 12px;
-  margin-right: 0;
   border-radius: 12px;
   flex-direction: column;
+  flex: 0 0 60%; /* Chiếm 60% chiều rộng */
 }
 
 .text-input {
   flex: 1;
-  width: 100%;
+  width: -webkit-fill-available;
   display: flex;
   overflow: hidden;
   flex-direction: column;
+  margin: 10px;
 }
 
 .chat-input-box {
@@ -171,7 +163,7 @@ code {
   overflow: hidden;
   position: relative;
   flex-direction: column;
-  max-height: 72vh;
+  max-height: 100vh;
 }
 
 .chat-input-box-1 {
@@ -185,8 +177,14 @@ code {
   flex-direction: column;
 } 
 
-.chat-tool {
-  width: 333px;
+.chat-tool-wrapper {
+  flex: 0 0 37%; /* Chiếm 40% chiều rộng */
+  display: flex;
+  margin: 16px 0 16px 16px;
+}
+
+.chat-tool-body {
+  width: 100%;
 }
 
 /* phần đăng kí */
@@ -233,77 +231,6 @@ code {
 }
 
 /* Responsive adjustments */
-/* Điều chỉnh cho màn hình nhỏ hơn 1077px */
-@media (max-width: 1077px) {
-  .container-1 {
-    margin: 4px;
-    border-radius: 8px;
-  }
-
-  .chat-box {
-    padding: 5px;
-    flex-direction: row;
-  }
-
-  .member-search {
-    flex-direction: column;
-    max-height: none; /* Đảm bảo phần này có thể mở rộng hơn */
-  }
-
-  .search-box {
-    display: flex;
-    padding: 0 16px;
-    flex-direction: column;
-  }
-
-  .search-button {
-    width: 100%;
-    max-width: none;
-    margin: 5px 0;
-  }
-
-  .member-box {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-    margin-top: 16px;
-    flex-direction: column;
-    overflow-x: auto; /* Thêm cuộn ngang nếu cần */
-  }
-
-  .member-list {
-    height: 100%;
-    display: flex;
-    overflow: hidden;
-    flex-direction: column;
-  }
-
-  .chat-content {
-    margin-left: 0;
-  }
-
-  .chat-border {
-    flex-direction: column;
-  }
-
-  .text-input {
-    margin: 8px 0;
-  }
-
-  .message-info, .message-list, .send-message {
-    flex: none;
-    height: auto;
-  }
-
-  .send-message {
-    margin-top: 10px;
-  }
-
-  .chat-tool {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
 
 /* Điều chỉnh cho màn hình nhỏ hơn 480px */
 @media (max-width: 480px) {
@@ -324,9 +251,4 @@ code {
   .search-button {
     padding: 10px;
   }
-}
-
-.chat-tool-wrapper {
-  display: flex;
-  height: 100%;
 }

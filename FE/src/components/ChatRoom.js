@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
-// import ChatRoomHeader from '../header/ChatRoomHeader';
 import ColNavbar from '../colnavbar/ColNavbar';
 import MessageList from '../body/message/messagelist/MessageList';
 import SendMessage from '../body/message/sendmessage/SendMessage';
@@ -10,17 +9,13 @@ import MemberList from '../body/member/MemberList';
 import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
 import CallDialog from './calldialog/CallDialog';
-import { SearchOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
+import { Input, Button } from 'antd';
 import { auth } from '../firebase/FireBase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-
-const db = getFirestore(); // Khởi tạo Firestore
 
 const ChatRoom = () => {
     // Thêm state để quản lý email và password
@@ -44,6 +39,30 @@ const ChatRoom = () => {
 
     const storage = getStorage(); // Khởi tạo Storage
 
+    const [isUpdatedAsc, setIsUpdatedAsc] = useState(true); // State để theo dõi trạng thái mũi tên
+    const [isCuuNhatActive, setIsCuuNhatActive] = useState(false); // State để theo dõi trạng thái "Cũ nhất"
+
+    const [isJoined, setIsJoined] = useState(false); // Thêm trạng thái tham gia
+
+    const [avatar, setAvatar] = useState(null); // Thêm state để quản lý ảnh đại diện
+
+    const [currentCustomer, setCurrentCustomer] = useState({ name: '', avatar: '', color: '' });
+    const [avatarColors, setAvatarColors] = useState({});
+
+    // Hàm để lấy avatar
+    const getAvatar = (name) => {
+        // Lấy URL từ database hoặc API
+        return null; // Trả về null để sử dụng avatar mặc định của Ant Design
+    };
+
+    const toggleUpdateOrder = () => {
+        setIsUpdatedAsc(!isUpdatedAsc); // Đảo ngược trạng thái
+    };
+
+    const toggleCuuNhat = () => {
+        setIsCuuNhatActive(!isCuuNhatActive); // Đảo ngược trạng thái "Cũ nhất"
+    };
+
     const uploadFileToFirebase = async (file) => {
         try {
             const storageRef = ref(storage, `uploads/${file.name}`);
@@ -56,11 +75,40 @@ const ChatRoom = () => {
         }
     };
 
+    const loadMessagesFromServer = async (username) => {
+        try {
+            const response = await fetch(`http://192.168.1.12:81/messages?username=${username}`);
+            const data = await response.json();
+            // Xử lý dữ liệu nhận được từ server
+            setPublicChats(data.publicMessages);
+            setPrivateChats(data.privateMessages);
+        } catch (error) {
+            console.error("Lỗi khi tải tin nhắn từ server: ", error);
+        }
+    };
+
+    // Thay thế loadMessagesFromFirestore bằng loadMessagesFromServer
     useEffect(() => {
         if (userData.connected) {
-            loadMessagesFromFirestore(userData.username);
+            loadMessagesFromServer(userData.username);
         }
     }, [userData.connected, userData.username]); // Thêm userData.username vào mảng phụ thuộc
+
+    useEffect(() => {
+        // Thêm các tab chat riêng tư clone
+        const initialPrivateChats = new Map();
+        initialPrivateChats.set('user1', []);
+        initialPrivateChats.set('user2', []);
+        setPrivateChats(initialPrivateChats);
+    }, []);
+
+    const handleAvatarChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const avatarUrl = await uploadFileToFirebase(file);
+            setAvatar(avatarUrl);
+        }
+    };
 
     // Hàm đăng nhập Firebase
     const login = () => {
@@ -70,9 +118,9 @@ const ChatRoom = () => {
                 console.log("Đăng nhập thành công:", user);
                 // Sử dụng tên người dùng nhập thay vì email
                 const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
-                setUserData({ ...userData, username, connected: true });
+                setUserData({ ...userData, username, avatar, connected: true });
                 setTab(username); // Đặt tab thành tên người dùng vừa đăng nhập
-                loadMessagesFromFirestore(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng nhập
+                loadMessagesFromServer(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng nhập
                 connect();
             })
             .catch((error) => {
@@ -88,9 +136,9 @@ const ChatRoom = () => {
                 console.log("Đăng ký thành công:", user);
                 // Sử dụng tên người dùng nhập thay vì email
                 const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
-                setUserData({ ...userData, username, connected: true });
+                setUserData({ ...userData, username, avatar, connected: true });
                 setTab(username); // Đặt tab thành tên người dùng vừa đăng ký
-                loadMessagesFromFirestore(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng ký
+                loadMessagesFromServer(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng ký
                 connect();
             })
             .catch((error) => {
@@ -112,7 +160,7 @@ const ChatRoom = () => {
         stompClientRef.current.subscribe('/topic/public', onMessageReceived); // Đăng ký vào kênh công khai
         stompClientRef.current.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
         userJoin();
-        loadMessagesFromFirestore(userData.username); // Thêm dòng này để tải tin nhắn ngay sau khi kết nối
+        loadMessagesFromServer(userData.username); // Thêm dòng này để tải tin nhắn ngay sau khi kết nối
     };
 
     const userJoin = () => {
@@ -191,7 +239,7 @@ const ChatRoom = () => {
     };
 
     const onError = (err) => {
-        console.log(err);
+        console.log("Lỗi kết nối WebSocket:", err); // Thêm log để kiểm tra lỗi kết nối
     };
 
     const handleMessage = (event) => {
@@ -216,15 +264,15 @@ const ChatRoom = () => {
     // Hàm sendMessageToServer để gửi tin nhắn đến server BE
     const sendMessageToServer = async (senderName, receiverName, messageText, file) => {
         const formData = new FormData();
-        formData.append('senderName', senderName); // Thêm tham số senderName vào formData
-        formData.append('receiverName', receiverName); // Thêm tham số receiverName vào formData
-        formData.append('message', messageText); // Thêm tham số messageText vào formData
+        formData.append('senderName', senderName);
+        formData.append('receiverName', receiverName);
+        formData.append('message', messageText);
         if (file) {
-            formData.append('file', file); // Thêm tham số file vào formData nếu có
+            formData.append('file', file);
         }
 
         try {
-            const response = await fetch('http://192.168.1.13:81/', {
+            const response = await fetch('http://192.168.1.12:81/send-message', {
                 method: 'POST',
                 body: formData,
             });
@@ -264,11 +312,12 @@ const ChatRoom = () => {
                     time: new Date().toLocaleTimeString()
                 };
 
+                // Gửi tin nhắn ngay lập tức mà không chờ phản hồi từ server
                 stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
                 setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);  // Thêm fileName vào tin nhắn hiển thị
 
                 // Gửi tin nhắn đến server BE
-                await sendMessageToServer(userData.username, "chat tổng", message, files[0]);
+                sendMessageToServer(userData.username, "chat tổng", message, files[0]); // Xóa await để không chờ phản hồi
 
                 setUserData({ ...userData, message: "" });
             } catch (error) {
@@ -304,6 +353,9 @@ const ChatRoom = () => {
                 stompClientRef.current.send("/app/private-message", {}, JSON.stringify(chatMessage));
                 addMessageToPrivateChat({ ...chatMessage, fileName });  // Thêm fileName vào tin nhắn hiển thị
                 setUserData({ ...userData, message: "" });
+
+                // Gửi tin nhắn đến server BE
+                sendMessageToServer(userData.username, tab, message, files[0]); // Xóa await để không chờ phản hồi
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
@@ -323,47 +375,28 @@ const ChatRoom = () => {
         setIsFilterCleared(false);
     };
 
-    const loadMessagesFromFirestore = async (username) => {
-        try {
-            const publicQuery = query(collection(db, "messages"), where("receiverName", "==", "chat tổng"));
-            const privateQuery = query(collection(db, "messages"), where("receiverName", "==", username));
+    const handleJoin = () => {
+        setIsJoined(true); // Cập nhật trạng thái tham gia
+    };
 
-            const publicQuerySnapshot = await getDocs(publicQuery);
-            const privateQuerySnapshot = await getDocs(privateQuery);
+    const handleSetTab = (name, color) => {
+        setTab(name);
+        const avatar = getAvatar(name); // Lấy avatar từ hàm getAvatar
+        setCurrentCustomer({ name, avatar, color });
+    };
 
-            const loadedPublicMessages = [];
-            const loadedPrivateMessages = new Map();
-
-            publicQuerySnapshot.forEach((doc) => {
-                loadedPublicMessages.push(doc.data());
-            });
-
-            privateQuerySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (!loadedPrivateMessages.has(data.senderName)) {
-                    loadedPrivateMessages.set(data.senderName, []);
-                }
-                loadedPrivateMessages.get(data.senderName).push(data);
-            });
-
-            setPublicChats(loadedPublicMessages);
-            setPrivateChats(loadedPrivateMessages);
-        } catch (error) {
-            console.error("Lỗi khi tải tin nhắn từ Firestore: ", error);
-        }
+    const handleSetAvatarColors = (colors) => {
+        setAvatarColors(colors);
     };
 
     return (
         <div className="container">
             {userData.connected ? (
                 <div className="container-1">
-                    <div className='header-nav'>
-                        {/* <ChatRoomHeader /> */}
-                    </div>
                     <div className="body-nav">
                         <div className="body-col-nav">
                             <div className="col-nav">
-                                <ColNavbar setTab={setTab} handleResetFilter={handleResetFilter} setLoginType={setLoginType} />
+                                <ColNavbar setTab={handleSetTab} handleResetFilter={handleResetFilter} setLoginType={setLoginType} />
                             </div>
                         </div>
 
@@ -371,19 +404,70 @@ const ChatRoom = () => {
                             <div className="chat-box">
                                 <div className='member-search'>
                                     <div className='search-box'>
-                                    <Input
-                                        className='search-button'
-                                        placeholder="Tìm kiếm"
-                                        allowClear
-                                        onSearch={onSearch}
-                                        size='large'
-                                        prefix={<SearchOutlined />}
-                                    />
+                                        <Input.Search
+                                            className='search-button'
+                                            placeholder="Tìm kiếm"
+                                            allowClear
+                                            onSearch={onSearch}
+                                            size='large'
+                                            style={{ borderRadius: '4px', borderColor: '#d9d9d9' }} // Thay đổi kiểu dáng
+                                        />
+                                    </div>
+
+                                    {/* Thêm thanh tìm kiếm mới ở trên member list */}
+                                    <div className='search-box'>
+                                        <Input.Search
+                                            className='search-button'
+                                            placeholder="Tìm kiếm từ ngày đến ngày ..."
+                                            allowClear
+                                            size='large'
+                                            style={{ borderRadius: '4px', borderColor: '#d9d9d9' }} // Thay đổi kiểu dáng
+                                        />
+                                    </div>
+
+                                    {/* Thêm phần thời gian cập nhật và cũ nhất */}
+                                    <div 
+                                        style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'center', 
+                                            marginBottom: '8px', 
+                                            margin: '16px',
+                                        }}
+                                    >
+                                        <span onClick={toggleUpdateOrder} style={{ cursor: 'pointer' }}>
+                                            Thời gian cập nhật 
+                                            <span style={{ marginLeft: '5px', fontSize: '12px' }}>
+                                                {isUpdatedAsc ? '▼' : '▲'} 
+                                            </span>
+                                        </span>
+                                        <span 
+                                            onClick={toggleCuuNhat} 
+                                            style={{ 
+                                                cursor: 'pointer', 
+                                                display: 'flex', 
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            {isCuuNhatActive ? 'Mới nhất' : 'Cũ nhất'} {/* Thay đổi chữ hiển thị */}
+                                            <span 
+                                                style={{ 
+                                                    marginLeft: '5px', 
+                                                    display: 'flex', 
+                                                    flexDirection: 'column', 
+                                                    alignItems: 'center', 
+                                                    color: isCuuNhatActive ? 'lightgray' : 'black' // Thay đổi màu sắc
+                                                }}
+                                            >
+                                                <span style={{ fontSize: '12px', transform: 'scale(1, 0.6)', color: isCuuNhatActive ? 'lightgray' : 'black' }}>&#9650;</span> {/* Mũi tên lên */}
+                                                <span style={{ fontSize: '12px', transform: 'scale(1, 0.6)', marginTop: '-8px', color: isCuuNhatActive ? 'black' : 'lightgray' }}>&#9660;</span> {/* Mũi tên xuống */}
+                                            </span>
+                                        </span>
                                     </div>
 
                                     <div className='member-box'>
                                         <div className='member-list'>
-                                            <MemberList privateChats={privateChats} setTab={setTab} tab={tab} />
+                                            <MemberList privateChats={privateChats} setTab={handleSetTab} tab={tab} userData={userData} setAvatarColors={handleSetAvatarColors} />
                                         </div>
                                     </div>
                                 </div>
@@ -414,7 +498,7 @@ const ChatRoom = () => {
                                                             overflow: 'hidden',
                                                         }}
                                                     >
-                                                        <MessageInfor />
+                                                        <MessageInfor currentCustomer={currentCustomer} />
                                                     </div>
                                                 </div>
                                                 <div className='chat-input-box'>
@@ -428,29 +512,39 @@ const ChatRoom = () => {
                                                         }}>
                                                             <MessageList 
                                                                 chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab) || []} 
-                                                                tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} 
+                                                                tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} avatarColors={avatarColors}
                                                             />
+                                                            {!isJoined && ( // Hiển thị nút "Tham gia" nếu chưa tham gia
+                                                                <Button type="primary" onClick={handleJoin} style={{ marginTop: '10px' }}>
+                                                                    Tham gia
+                                                                </Button>
+                                                            )}
                                                         </div>
-                                                        <div style={{
-                                                            backgroundColor: 'white',
-                                                        }}>
-                                                            <SendMessage 
-                                                                userData={userData} handleMessage={handleMessage} 
-                                                                handleKeyPress={handleKeyPress} sendValue={sendValue} 
-                                                                sendPrivateValue={sendPrivateValue} tab={tab} 
-                                                            />
-                                                        </div>
+                                                        {isJoined && ( // Chỉ hiển thị SendMessage nếu đã tham gia
+                                                            <div style={{
+                                                                backgroundColor: 'white',
+                                                            }}>
+                                                                <SendMessage 
+                                                                    userData={userData} 
+                                                                    handleMessage={handleMessage} 
+                                                                    handleKeyPress={handleKeyPress} 
+                                                                    sendValue={sendValue} 
+                                                                    sendPrivateValue={sendPrivateValue} 
+                                                                    tab={tab} 
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
 
                                         <div className='chat-tool-wrapper'>
-                                            <div className='chat-tool'>
+                                            <div className='chat-tool-body'>
                                                 <ChatTool 
                                                     avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
                                                     username={userData.username}  // Truyền username 
+                                                    isJoined={isJoined}
                                                 />
                                             </div>
                                         </div>
@@ -489,6 +583,11 @@ const ChatRoom = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarChange}
+                            />
                             <button onClick={login}>Đăng nhập</button>
                             <button onClick={register}>Đăng ký</button>
                         </>
@@ -503,4 +602,3 @@ const ChatRoom = () => {
 };
 
 export default ChatRoom;
-

@@ -1,7 +1,7 @@
 .chat-messages {
   flex: 1;
   display: flex;
-  border-top: 1px solid rgba(0, 177, 255);
+  border-top: 2px solid rgb(173, 176, 179);
   overflow-x: hidden;
   overflow-y: overlay;
   flex-direction: column;

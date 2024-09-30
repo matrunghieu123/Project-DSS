@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Avatar, List } from 'antd';
 import './MemberList.css';
 
@@ -19,11 +19,23 @@ const formatDate = (time) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-const MemberList = ({ privateChats, setTab, tab }) => {
-    // Hàm để lấy avatar
+const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) => {
+    const avatarColors = useRef({});
+
+    useEffect(() => {
+        const newAvatarColors = { ...avatarColors.current };
+        privateChats.forEach((_, name) => {
+            if (!newAvatarColors[name]) {
+                newAvatarColors[name] = getRandomColor();
+            }
+        });
+        avatarColors.current = newAvatarColors;
+        setAvatarColors(newAvatarColors); // Cập nhật state màu avatar trong ChatRoom
+    }, [privateChats, setAvatarColors]);
+
     const getAvatar = (name) => {
         // Lấy URL từ database hoặc API
-        return `https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg`;
+        return null; // Trả về null để sử dụng avatar mặc định của Ant Design
     };
 
     const getLastMessageTime = (name) => {
@@ -35,7 +47,18 @@ const MemberList = ({ privateChats, setTab, tab }) => {
             // Sử dụng hàm formatDate để định dạng thời gian
             return formatDate(time);
         }
-        return "Không có tin nhắn";
+        return "Không có tin nhắn"; // Trả về thông báo nếu không có tin nhắn
+    };
+
+    const getInitials = (name) => {
+        const nameParts = name.split(' ');
+        const initials = nameParts.map(part => part[0]).join('');
+        return initials.toUpperCase();
+    };
+
+    const getRandomColor = () => {
+        const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#ff4d4f', '#52c41a', '#1890ff'];
+        return colors[Math.floor(Math.random() * colors.length)];
     };
 
     return (
@@ -44,11 +67,15 @@ const MemberList = ({ privateChats, setTab, tab }) => {
                 dataSource={[...privateChats.keys()]}
                 renderItem={(name) => (
                     <List.Item
-                        onClick={() => setTab(name)}
+                        onClick={() => setTab(name, avatarColors.current[name])}
                         className={`member ${tab === name ? "active" : ""}`}
                     >
                         <List.Item.Meta
-                            avatar={<Avatar src={getAvatar(name)} />}
+                            avatar={
+                                <Avatar style={{ backgroundColor: avatarColors.current[name] }} src={getAvatar(name)}>
+                                    {getAvatar(name) ? null : getInitials(name)}
+                                </Avatar>
+                            }
                             title={<Typography.Text className="member-name">{name}</Typography.Text>}
                             description={<Typography.Text className="member-time">{getLastMessageTime(name)}</Typography.Text>}
                         />

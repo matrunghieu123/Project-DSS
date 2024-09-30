@@ -4,7 +4,7 @@ import './MessageList.css';
 import ImageMessage from './imghanlde/ImageMessage';
 import FileMessage from './filehandle/FileMessage';
 
-const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
+const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) => {
     useLayoutEffect(() => {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -14,6 +14,13 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
     const renderFileContent = (fileUrl, fileType, fileName) => {
         if (fileType && fileType.startsWith('image/')) {
             return <ImageMessage src={fileUrl} alt="Sent image" />;
+        } else if (fileType && fileType.startsWith('video/')) {
+            return (
+                <video controls width="250">
+                    <source src={fileUrl} type={fileType} />
+                    Trình duyệt của bạn không hỗ trợ video.
+                </video>
+            );
         } else if (fileUrl) {
             return <FileMessage fileUrl={fileUrl} fileType={fileType} fileName={fileName} />;
         }
@@ -25,6 +32,12 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
         const currentTime = new Date(currentChat.time).getTime();
         const previousTime = new Date(previousChat.time).getTime();
         return (currentTime - previousTime) >= 30 * 60 * 1000; // 30 phút
+    };
+
+    const getInitials = (name) => {
+        const nameParts = name.split(' ');
+        const initials = nameParts.map(part => part[0]).join('');
+        return initials.toUpperCase();
     };
 
     return (
@@ -50,7 +63,11 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
                     >
                         {!isSameSender && chat.senderName !== userData.username && (
                             <List.Item.Meta
-                                avatar={<Avatar src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'} />}
+                                avatar={
+                                    <Avatar style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}>
+                                        {getInitials(chat.senderName)}
+                                    </Avatar>
+                                }
                                 title={chat.senderName}
                                 description={chat.time ? chat.time : 'Không rõ thời gian'}
                             />
@@ -72,8 +89,10 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab }) => {
                         {!isSameSender && chat.senderName === userData.username && (
                             <Avatar
                                 className="avatar self"
-                                src={chat.avatar || 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg'}
-                            />
+                                style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}
+                            >
+                                {getInitials(chat.senderName)}
+                            </Avatar>
                         )}
                     </List.Item>
                 );

@@ -1,6 +1,6 @@
 .send-message-container {
   display: flex;
-  border-top: 1px solid rgba(0, 177, 255);
+  border-top: 2px solid rgb(173, 176, 179);
   flex-direction: column;
   width: 100%;
 }
@@ -93,12 +93,22 @@
 .send-message {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 5px;
+}
+
+.send-avatar {
+  margin-right: 10px; /* Khoảng cách giữa avatar và đường gạch ngăn cách */
+}
+
+.send-divider {
+  width: 1px;
+  height: 20px;
+  background-color: #e0e0e0;
 }
 
 .input-message {
   flex-grow: 1;
-  font-size: 1.2em;
+  font-size: 1.1em;
   padding: 10px;
   border: none;
   outline: none;
@@ -117,4 +127,44 @@
 
 .file-button:hover, .send-button:hover {
   color: #00b1ff;
+}
+
+.emoji-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px; /* Kích thước giống các icon khác */
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.emoji-button:hover {
+  color: #00b1ff; /* Hiệu ứng hover giống các icon khác */
+}
+
+.emoji-picker {
+  position: absolute;
+  bottom: 50px; /* Căn chỉnh vị trí */
+  right: 10px; /* Căn chỉnh vị trí so với nút emoji */
+  z-index: 1000; /* Đảm bảo khung hiển thị trên các thành phần khác */
+  background-color: white; /* Màu nền của emoji picker */
+  border-radius: 10px; /* Bo góc cho khung */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Tạo đổ bóng */
+}
+
+.emoji-picker .emoji-scroll-wrapper {
+  max-height: 200px; /* Giới hạn chiều cao của khung emoji */
+  overflow-y: auto;
+}
+
+/* Nếu cần cuộn thanh emoji */
+.emoji-picker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.emoji-picker::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 3px;
 }
