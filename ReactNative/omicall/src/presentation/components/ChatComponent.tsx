@@ -1,6 +1,6 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {AvatarCircle, RowComponent} from './index.ts';
+import {AvatarCircle, RowComponent, SpaceComponent} from './index.ts';
 import {Fonts} from '../../core/constants/Fonts.ts';
 import {AppColors} from '../../core/constants/AppColors.ts';
 import {Styles} from '../../core/constants/Styles.ts';
@@ -27,7 +27,8 @@ const ChatComponent = (props: ChatComponentProps) => {
       onPress={handlePress}>
       <RowComponent>
         <AvatarCircle />
-        <View style={styles.textContainer}>
+        <SpaceComponent width={10} />
+        <View style={Styles.flex}>
           <RowComponent style={styles.row}>
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.time}>Bây giờ</Text>
@@ -42,15 +43,13 @@ const ChatComponent = (props: ChatComponentProps) => {
 const styles = StyleSheet.create({
   container: {
     width: '95%',
-    height: 'auto',
     backgroundColor: 'white',
     alignSelf: 'center',
     marginTop: 15,
     borderRadius: 15,
-    paddingTop: 12,
-  },
-  textContainer: {
-    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+
   },
   name: {
     fontSize: 16,
@@ -69,7 +68,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: Fonts.regular,
     marginVertical: 4,
-    marginRight: 10,
     color: AppColors.grey,
   },
 });

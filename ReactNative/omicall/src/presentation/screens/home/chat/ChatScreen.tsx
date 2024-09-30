@@ -21,7 +21,7 @@ import {
 import {Fonts} from '../../../../core/constants/Fonts';
 import {AppColors} from '../../../../core/constants/AppColors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import StompService from '../../../../services/StompService';
+import StompService from '../../../../services/stomp_service.ts';
 import {Status} from '../../../../core/constants/Status';
 import {MessageModel} from '../../../../models/MessageModel';
 import {authSelector} from '../../../redux/AuthReducer';
@@ -31,7 +31,9 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import BottomSheetComponent from './components/BottomSheetComponent.tsx';
 import {ImageOrVideo} from 'react-native-image-crop-picker';
-import * as DocumentPicker from 'react-native-document-picker';
+import {DocumentPickerResponse} from 'react-native-document-picker';
+import uploadAPI from '../../../../services/upload_api.ts';
+import {Styles} from '../../../../core/constants/Styles.ts';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
@@ -43,9 +45,9 @@ const ChatScreen = ({navigation, route}: any) => {
     undefined,
   );
   const [filePicked, setFilePicked] = useState<
-    DocumentPicker.DocumentPickerResponse | undefined
+    DocumentPickerResponse | undefined
   >(undefined);
-  const stompService = StompService.getInstance(user.userName);
+  const stompService = StompService.getInstance(user.UserName);
 
   const handleDotsPress = () => {
     Keyboard.dismiss();
@@ -55,8 +57,7 @@ const ChatScreen = ({navigation, route}: any) => {
   const handleNewMessage = useCallback(
     (message: MessageModel) => {
       if (
-        message.status === Status.MESSAGE &&
-        message.senderName !== user.UserName
+        message.status === Status.SENT
       ) {
         setMessages(prevMessages => [
           ...prevMessages,
@@ -71,10 +72,10 @@ const ChatScreen = ({navigation, route}: any) => {
         ]);
       }
     },
-    [user.UserName],
+    [],
   );
 
-  const handleSendMessage = (message: string, fileUrl: string, fileType: string) => {
+  const handleSendMessage = (message: string) => {
     const newMessage = {
       id: messages.length + 1,
       text: message,
@@ -83,19 +84,33 @@ const ChatScreen = ({navigation, route}: any) => {
         hour: '2-digit',
         minute: '2-digit',
       }),
-      fileUrl: fileUrl,
-      fileType: fileType,
     };
     setMessages([...messages, newMessage]);
     switch (type) {
       case 'group': {
-        stompService.sendMessagePublic({
-          senderName: user.UserName,
-          message,
-          status: Status.MESSAGE,
-          fileUrl: fileUrl,
-          fileType: fileType,
-        });
+        let file = null;
+        if (mediaPicked) {
+          file = {
+            uri: mediaPicked.path,
+            type: mediaPicked.mime,
+            name: mediaPicked.filename,
+          };
+        } else if (filePicked) {
+          file = {
+            uri: filePicked.uri,
+            type: filePicked.type,
+            name: filePicked.name,
+          };
+        }
+        file
+          ? uploadAPI
+              .HandleUpload(user.UserName, name, message, file)
+          : stompService.sendMessagePublic({
+              senderName: user.UserName,
+              receiverName: name,
+              message,
+              status: Status.MESSAGE,
+            });
         break;
       }
       case 'private': {
@@ -104,8 +119,6 @@ const ChatScreen = ({navigation, route}: any) => {
           receiverName: name,
           message,
           status: Status.MESSAGE,
-          fileUrl: fileUrl,
-          fileType: fileType,
         });
         break;
       }
@@ -132,8 +145,8 @@ const ChatScreen = ({navigation, route}: any) => {
         <HeaderChat navigation={navigation} name={name} />
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.flex}>
-          <View style={[styles.flex, {backgroundColor: AppColors.lightGrey}]}>
+          style={Styles.flex}>
+          <View style={[Styles.flex, {backgroundColor: AppColors.lightGrey}]}>
             <ScrollView
               ref={scrollViewRef}
               contentContainerStyle={styles.scrollView}
@@ -196,7 +209,7 @@ const HeaderChat = ({navigation, name}: any) => {
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.online}>Đang hoạt động</Text>
       </View>
-      <View style={styles.flex} />
+      <View style={Styles.flex} />
       <Ionicons name={'call'} size={24} color={AppColors.secondary} />
       <SpaceComponent width={15} />
       <Ionicons name={'videocam'} size={24} color={AppColors.secondary} />
@@ -231,9 +244,6 @@ const styles = StyleSheet.create({
   scrollView: {
     padding: 10,
     flexGrow: 1,
-  },
-  flex: {
-    flex: 1,
   },
 });
 

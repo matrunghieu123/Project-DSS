@@ -5,7 +5,7 @@ import {MessageModel} from '../../../../models/MessageModel';
 import {Status} from '../../../../core/constants/Status';
 import {authSelector} from '../../../redux/AuthReducer';
 import {useSelector} from 'react-redux';
-import StompService from '../../../../services/StompService.ts';
+import StompService from '../../../../services/stomp_service.ts';
 import {useFocusEffect} from '@react-navigation/native';
 
 const AllChatScreen = ({navigation}: any) => {

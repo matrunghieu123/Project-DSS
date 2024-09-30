@@ -1,15 +1,12 @@
 import axios from 'axios';
 import queryString from 'query-string';
-import {Constants} from '../core/constants/Constants.ts';
 
 const axiosService = axios.create({
-  baseURL: Constants.baseURL,
   paramsSerializer: params => queryString.stringify(params),
 });
 
 axiosService.interceptors.request.use(async (config: any) => {
   config.headers = {
-    Accept: 'application/json',
     ...config.headers,
   };
   config.data;

@@ -1,6 +1,5 @@
 import {useState} from 'react';
 import {ImageOrVideo} from 'react-native-image-crop-picker';
-import storage from '@react-native-firebase/storage';
 import * as DocumentPicker from 'react-native-document-picker';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {
@@ -12,9 +11,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {AppColors} from '../../../../../core/constants/AppColors.ts';
 import {AppInfos} from '../../../../../core/constants/AppInfos.ts';
+import {Styles} from '../../../../../core/constants/Styles.ts';
 
 interface SendMessageProps {
-  onSendMessage: (message: string, fileUrl: string, fileType: string) => void;
+  onSendMessage: (
+    message: string,
+    mediaPicked: ImageOrVideo | undefined,
+    filePicked: DocumentPicker.DocumentPickerResponse | undefined,
+  ) => void;
   onDotsPress: () => void;
   mediaPicked: ImageOrVideo | undefined;
   filePicked: DocumentPicker.DocumentPickerResponse | undefined;
@@ -36,42 +40,13 @@ const SendMessage = (props: SendMessageProps) => {
   const [message, setMessage] = useState('');
 
   const handleSend = async () => {
-    const trimmedMessage = message.trimStart();
+    const trimmedMessage = message.trim();
     setMessage('');
     setMediaPicked(undefined);
     setFilePicked(undefined);
     if (trimmedMessage || mediaPicked || filePicked) {
-      const fileUrl = mediaPicked
-        ? await handleUpload('media', mediaPicked)
-        : filePicked
-          ? await handleUpload('file', filePicked)
-          : '';
-      const fileType = mediaPicked ? 'media' : filePicked ? 'file' : '';
-      onSendMessage(trimmedMessage, fileUrl, fileType);
+      onSendMessage(trimmedMessage, mediaPicked, filePicked);
     }
-  };
-
-  const handleUpload = async (
-    type: 'media' | 'file',
-    file: ImageOrVideo | DocumentPicker.DocumentPickerResponse,
-  ): Promise<string> => {
-    let fileName: string = '';
-    let filePath: string = '';
-
-    if ('name' in file && file.name) {
-      fileName = `${file.name.split('.').shift()}-${Date.now()}.${file.name.split('.').pop()}`;
-      filePath = file.uri; // DocumentPicker uses 'uri'
-    } else if ('path' in file) {
-      fileName = `${type}-${Date.now()}.${file.path.split('.').pop()}`;
-      filePath = file.path; // ImagePicker uses 'path'
-    } else {
-      throw new Error('File format is not supported');
-    }
-
-    const path = `${type}s/${fileName}`;
-    const reference = storage().ref(path);
-    await reference.putFile(filePath);
-    return await reference.getDownloadURL();
   };
 
   return (
@@ -100,7 +75,7 @@ const SendMessage = (props: SendMessageProps) => {
         returnKeyType={'next'}
       />
       <SpaceComponent width={15} />
-      <TouchableOpacity style={styles.flex} onPress={handleSend}>
+      <TouchableOpacity style={Styles.flex} onPress={handleSend}>
         <Ionicons
           name={'send'}
           size={24}
@@ -122,9 +97,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginVertical: 15,
-  },
-  flex: {
-    flex: 1,
   },
 });
 

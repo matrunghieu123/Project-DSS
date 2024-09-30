@@ -4,6 +4,7 @@ import {RowComponent} from '../../../../components';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {AppColors} from '../../../../../core/constants/AppColors.ts';
 import {Fonts} from '../../../../../core/constants/Fonts.ts';
+import {Styles} from '../../../../../core/constants/Styles.ts';
 
 interface ItemComponentProps {
   icon: string;
@@ -21,7 +22,7 @@ const ItemComponent = (props: ItemComponentProps) => {
           <View style={styles.background} />
           <Ionicons name={icon} size={24} />
         </View>
-        <View style={styles.flex}>
+        <View style={Styles.flex}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{description}</Text>
           <View style={styles.line} />
@@ -60,9 +61,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: AppColors.greyLine,
     marginVertical: 10,
-  },
-  flex: {
-    flex: 1,
   },
 });
 

@@ -81,17 +81,17 @@ const MessageBubble = (props: MessageBubbleProps) => {
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
-        {fileUrl && fileType === 'media' && (
+        {fileUrl && fileType === 'image/jpeg' && (
           <>
             <ImageView
-              images={[{uri: fileUrl}]}
+              images={[{uri: Constants.socketUrl + fileUrl}]}
               imageIndex={0}
               visible={visible}
               onRequestClose={() => setIsVisible(false)}
             />
             <TouchableOpacity onPress={() => setIsVisible(true)}>
               <Image
-                source={{uri: fileUrl}}
+                source={{uri: Constants.socketUrl + fileUrl}}
                 style={[
                   styles.image,
                   user.UserName === senderName
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   messageContainer: {
-    maxWidth: '80%',
+    maxWidth: '90%',
     borderRadius: 10,
     marginVertical: 5,
   },

@@ -13,8 +13,9 @@ class StompService {
 
   private constructor(name: string) {
     this.client = new Client({
-      webSocketFactory: () => new SockJS(Constants.socketUrl),
+      webSocketFactory: () => new SockJS(Constants.socketUrl + '/ws'),
       debug: (str: string) => console.log('STOMP Debug:', str),
+
       onConnect: () => {
         console.log('STOMP Connected');
         this.connected = true;

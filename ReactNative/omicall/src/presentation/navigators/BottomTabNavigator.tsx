@@ -1,14 +1,10 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  CallScreen,
-  ContactsScreen,
-  HistoryScreen,
-  RecordScreen,
-} from '../screens';
+import {ContactsScreen, HistoryScreen, RecordScreen} from '../screens';
 import {HomeNavigator} from './HomeNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {AppColors} from '../../core/constants/AppColors.ts';
+import {CallNavigator} from './CallNavigator.tsx';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,7 +51,11 @@ const BottomTabNavigator = () => {
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen name="Đa kênh" component={HomeNavigator} />
       <Tab.Screen name="Phiếu ghi" component={RecordScreen} />
-      <Tab.Screen name="Cuộc gọi" component={CallScreen} />
+      <Tab.Screen
+        name="Cuộc gọi"
+        component={CallNavigator}
+        options={{tabBarStyle: {display: 'none'}}}
+      />
       <Tab.Screen name="Danh bạ" component={ContactsScreen} />
       <Tab.Screen name="Lịch sử" component={HistoryScreen} />
     </Tab.Navigator>

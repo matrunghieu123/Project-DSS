@@ -1,21 +1,23 @@
-import React, {useEffect, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppColors} from '../../../core/constants/AppColors';
-import {AvatarCircle, RowComponent, TopTabComponent} from '../../components';
+import {
+  AvatarCircle,
+  RowComponent,
+  SpaceComponent,
+  TopTabComponent,
+} from '../../components';
 import {Fonts} from '../../../core/constants/Fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ContentScreen from './ContentScreen';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../../redux/AuthReducer';
 import {Status} from '../../../core/constants/Status';
-import StompService from '../../../services/StompService';
+import StompService from '../../../services/stomp_service.ts';
+import {Styles} from '../../../core/constants/Styles.ts';
 
-interface HomeScreenProps {
-  navigation: any;
-}
-
-const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
+const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
   const user = useSelector(authSelector).UserInfo;
   const [activeTab, setActiveTab] = useState('all');
   const [isConnected, setIsConnected] = useState(false);
@@ -50,8 +52,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   }, [isConnected, user.UserName, stompService]);
 
   return (
-    <View style={styles.container}>
+    <View style={Styles.flex}>
       <TopContainer navigation={navigation} />
+      <SpaceComponent height={10} />
       <View style={styles.topTabContainer}>
         <Text style={styles.title}>Cuộc trò chuyện</Text>
         <Text style={styles.description}>{tabNames[activeTab]}</Text>
@@ -64,32 +67,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   );
 };
 
-interface TopContainerProps {
-  navigation: any;
-}
-
-const TopContainer: React.FC<TopContainerProps> = ({navigation}) => {
+const TopContainer: FC<{navigation: any}> = ({navigation}) => {
   const user = useSelector(authSelector).UserInfo;
   return (
-    <View style={styles.topContainer}>
-      <SafeAreaView>
-        <RowComponent>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Setting', {
-                screen: 'SettingScreen',
-              })
-            }>
-            <AvatarCircle />
-          </TouchableOpacity>
-          <View style={styles.container}>
-            <Text style={styles.name}>{user.UserName}</Text>
-            <Text style={styles.email}>{user.Email}</Text>
-          </View>
-          <NotificationButton navigation={navigation} />
-        </RowComponent>
-      </SafeAreaView>
-    </View>
+    <SafeAreaView style={styles.topContainer}>
+      <RowComponent>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Setting', {
+              screen: 'SettingScreen',
+            })
+          }>
+          <AvatarCircle />
+        </TouchableOpacity>
+        <SpaceComponent width={10} />
+        <View style={Styles.flex}>
+          <Text style={styles.name}>{user.UserName}</Text>
+          <Text style={styles.email}>{user.Email}</Text>
+        </View>
+        <NotificationButton navigation={navigation} />
+      </RowComponent>
+    </SafeAreaView>
   );
 };
 
@@ -125,15 +123,10 @@ const FilterButton = ({navigation}: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topContainer: {
     backgroundColor: AppColors.secondary,
-    height: '18%',
-    width: '100%',
-    paddingTop: 10,
-    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingBottom: -20, //TODO: fix for android
   },
   name: {
     fontSize: 19,
@@ -148,7 +141,6 @@ const styles = StyleSheet.create({
   notificationContainer: {
     width: 45,
     height: 45,
-    marginRight: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -160,11 +152,11 @@ const styles = StyleSheet.create({
   },
   topTabContainer: {
     backgroundColor: 'white',
-    width: '98%',
-    height: '15%',
+    width: '95%',
+    height: 120,
     alignSelf: 'center',
     borderRadius: 15,
-    padding: 15,
+    padding: 20,
   },
   title: {
     fontSize: 16,

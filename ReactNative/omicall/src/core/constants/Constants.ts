@@ -1,7 +1,7 @@
 export const Constants = {
   logoUrl: 'https://omicall.com/wp-content/uploads/logo-OMI-NEW.png',
   avatarDefaultUrl: 'https://www.w3schools.com/howto/img_avatar.png',
-  socketUrl: 'http://localhost:8080/ws',
+  socketUrl: 'http://192.168.1.4:81',
   baseURL: 'http://103.5.210.82:8091',
   WIDTH_IMAGE: 300,
   HEIGHT_IMAGE: 300,
