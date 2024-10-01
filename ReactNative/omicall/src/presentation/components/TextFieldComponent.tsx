@@ -8,11 +8,13 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import React, {forwardRef, ReactNode, Ref, useState} from 'react';
+import React, {forwardRef, ReactNode, Ref, useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as DocumentPicker from 'react-native-document-picker';
 import {AppColors} from '../../core/constants/AppColors';
 import {FileComponent} from './index.ts';
+import {ImageOrVideo} from 'react-native-image-crop-picker';
+import {createThumbnail} from 'react-native-create-thumbnail';
 
 interface InputComponentProps {
   value?: string;
@@ -32,7 +34,7 @@ interface InputComponentProps {
   onKeyPress?: (event: any) => void;
   onSubmitEditing?: () => void;
   multiline?: boolean;
-  image?: string;
+  media?: ImageOrVideo;
   file?: DocumentPicker.DocumentPickerResponse;
   onRemoveImage?: () => void;
   onRemoveFile?: () => void;
@@ -41,6 +43,7 @@ interface InputComponentProps {
 const TextFieldComponent = forwardRef(
   (props: InputComponentProps, ref: Ref<TextInput>) => {
     const [isSecure, setIsSecure] = useState(props.secureTextEntry || false);
+    const [thumbnail, setThumbnail] = useState<string>('');
 
     const handlePress = () => {
       if (ref && typeof ref === 'object' && 'current' in ref) {
@@ -48,11 +51,23 @@ const TextFieldComponent = forwardRef(
       }
     };
 
+    useEffect(() => {
+      if (props.media && props.media.mime.startsWith('image/')) {
+        setThumbnail(props.media.path);
+      } else if (props.media && props.media.mime.startsWith('video/')) {
+        createThumbnail({
+          url: props.media.path,
+        }).then(response => {
+          setThumbnail(response.path);
+        });
+      }
+    }, [props.media]);
+
     return (
       <View style={[styles.container, props.styleContainer]}>
-        {props.image && (
+        {props.media && thumbnail !== '' && (
           <View style={styles.imageContainer}>
-            <Image source={{uri: props.image}} style={styles.image} />
+            <Image source={{uri: thumbnail}} style={styles.image} />
             <TouchableOpacity
               style={styles.closeButton}
               onPress={props.onRemoveImage}>
@@ -61,7 +76,11 @@ const TextFieldComponent = forwardRef(
           </View>
         )}
         {props.file && (
-          <FileComponent file={props.file} onRemoveFile={props.onRemoveFile} allowRemove={true} />
+          <FileComponent
+            file={props.file}
+            onRemoveFile={props.onRemoveFile}
+            allowRemove={true}
+          />
         )}
         <TouchableOpacity
           style={[

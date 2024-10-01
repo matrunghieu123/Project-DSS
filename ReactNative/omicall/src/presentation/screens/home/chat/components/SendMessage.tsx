@@ -67,7 +67,7 @@ const SendMessage = (props: SendMessageProps) => {
         styleContainer={styles.input}
         value={message}
         onChangeText={text => setMessage(text)}
-        image={mediaPicked?.path}
+        media={mediaPicked}
         file={filePicked}
         onRemoveImage={() => setMediaPicked(undefined)}
         onRemoveFile={() => setFilePicked(undefined)}

@@ -60,7 +60,7 @@ const ChatScreen = ({navigation, route}: any) => {
       setMessages(prevMessages => [
         ...prevMessages,
         {
-          message_id: prevMessages.length + 1, //TP
+          message_id: message.message_id,
           message: message.message,
           senderName: message.senderName,
           time: message.time,

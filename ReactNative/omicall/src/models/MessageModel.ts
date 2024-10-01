@@ -2,6 +2,7 @@ import {Status} from '../core/constants/Status.ts';
 
 export class MessageModel {
   public chatID: string;
+  public message_id: string;
   public senderName: string;
   public receiverName?: string;
   public message?: string;
@@ -12,6 +13,7 @@ export class MessageModel {
 
   constructor(
     chatID: string,
+    message_id: string,
     senderName: string,
     message: string,
     status: Status,
@@ -21,6 +23,7 @@ export class MessageModel {
     fileType?: string,
   ) {
     this.chatID = chatID;
+    this.message_id = message_id;
     this.senderName = senderName;
     this.message = message;
     this.status = status;
