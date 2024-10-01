@@ -12,6 +12,8 @@ import axios from 'axios';
 import {createThumbnail} from 'react-native-create-thumbnail';
 import {Constants} from '../../core/constants/Constants.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import VideoModal from '../modal/VideoModal.tsx';
+
 interface MessageBubbleProps {
   message?: string;
   senderName: string;
@@ -28,6 +30,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
   const user = useSelector(authSelector).UserInfo;
   const [thumbnail, setThumbnail] = useState<string>('');
   const [dimensions, setDimensions] = useState({width: 0, height: 0});
+  const [isPlayVideo, setIsPlayVideo] = useState(false);
 
   const isImageMimeType = (mimeType: string) => mimeType.startsWith('image/');
   const isVideoMimeType = (mimeType: string) => mimeType.startsWith('video/');
@@ -150,7 +153,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
             <TouchableOpacity
               onPress={() => {
                 if (isVideoMimeType(fileType)) {
-                  // Play video
+                  setIsPlayVideo(true);
                 } else {
                   setIsVisible(true); // Show image viewer
                 }
@@ -180,6 +183,11 @@ const MessageBubble = (props: MessageBubbleProps) => {
                 </View>
               )}
             </TouchableOpacity>
+            <VideoModal
+              videoUrl={fileUrl}
+              isVisible={isPlayVideo}
+              onClose={() => setIsPlayVideo(false)}
+            />
           </>
         )}
         {fileUrl &&
