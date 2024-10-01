@@ -32,8 +32,9 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import BottomSheetComponent from './components/BottomSheetComponent.tsx';
 import {ImageOrVideo} from 'react-native-image-crop-picker';
 import {DocumentPickerResponse} from 'react-native-document-picker';
-import uploadAPI from '../../../../services/upload_api.ts';
+import chatAPI from '../../../../services/chat_api.ts';
 import {Styles} from '../../../../core/constants/Styles.ts';
+import {Constants} from '../../../../core/constants/Constants.ts';
 
 const ChatScreen = ({navigation, route}: any) => {
   const {name, type} = route.params;
@@ -54,38 +55,34 @@ const ChatScreen = ({navigation, route}: any) => {
     bottomSheetRef.current?.expand();
   };
 
-  const handleNewMessage = useCallback(
-    (message: MessageModel) => {
-      if (
-        message.status === Status.SENT
-      ) {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          {
-            id: prevMessages.length + 1,
-            text: message.message,
-            senderName: message.senderName,
-            time: message.time,
-            fileUrl: message.fileUrl,
-            fileType: message.fileType,
-          },
-        ]);
-      }
-    },
-    [],
-  );
+  const handleNewMessage = useCallback((message: MessageModel) => {
+    if (message.status === Status.SENT) {
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          message_id: prevMessages.length + 1, //TP
+          message: message.message,
+          senderName: message.senderName,
+          time: message.time,
+          fileUrl: message.fileUrl,
+          fileType: message.fileType,
+
+        },
+      ]);
+    }
+  }, []);
 
   const handleSendMessage = (message: string) => {
-    const newMessage = {
-      id: messages.length + 1,
-      text: message,
-      senderName: user.UserName,
-      time: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
-    setMessages([...messages, newMessage]);
+    // const newMessage = {
+    //   id: messages.length + 1,
+    //   text: message,
+    //   senderName: user.UserName,
+    //   time: new Date().toLocaleTimeString([], {
+    //     hour: '2-digit',
+    //     minute: '2-digit',
+    //   }),
+    // };
+    // setMessages([...messages, newMessage]);
     switch (type) {
       case 'group': {
         let file = null;
@@ -103,14 +100,13 @@ const ChatScreen = ({navigation, route}: any) => {
           };
         }
         file
-          ? uploadAPI
-              .HandleUpload(user.UserName, name, message, file)
+          ? chatAPI.HandleUpload(user.UserName, name, message, file)
           : stompService.sendMessagePublic({
-              senderName: user.UserName,
-              receiverName: name,
-              message,
-              status: Status.MESSAGE,
-            });
+            senderName: user.UserName,
+            receiverName: name,
+            message,
+            status: Status.SENT,
+          });
         break;
       }
       case 'private': {
@@ -118,7 +114,7 @@ const ChatScreen = ({navigation, route}: any) => {
           senderName: user.UserName,
           receiverName: name,
           message,
-          status: Status.MESSAGE,
+          status: Status.SENT,
         });
         break;
       }
@@ -138,6 +134,24 @@ const ChatScreen = ({navigation, route}: any) => {
   useEffect(() => {
     stompService.setOnMessageCallback(handleNewMessage);
   }, [stompService, handleNewMessage]);
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const response: any = await chatAPI.HandleGetHistoryMessage(
+          user.UserName,
+          name,
+        );
+        setMessages(response);
+      } catch (error) {
+        console.error('Failed to fetch chat history:', error);
+      }
+    };
+
+    fetchChatHistory().catch(error =>
+      console.error('Error in fetchChatHistory:', error),
+    );
+  }, [name, user.UserName]);
 
   return (
     <GestureHandlerRootView>
@@ -163,12 +177,12 @@ const ChatScreen = ({navigation, route}: any) => {
                   messages[index - 1].senderName !== msg.senderName;
                 return (
                   <MessageBubble
-                    key={msg.id}
-                    message={msg.text}
+                    key={msg.message_id}
+                    message={msg.message}
                     senderName={msg.senderName}
                     showSenderName={showSenderName && type === 'group'}
                     time={msg.time}
-                    fileUrl={msg.fileUrl}
+                    fileUrl={Constants.socketUrl + msg.fileUrl}
                     fileType={msg.fileType}
                   />
                 );

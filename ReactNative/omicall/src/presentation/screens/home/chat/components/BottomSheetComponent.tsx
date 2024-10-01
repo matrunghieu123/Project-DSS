@@ -32,9 +32,10 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
 
   const handleMediaPicker = () => {
     ImagePicker.openPicker({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
+      // width: Constants.WIDTH_IMAGE,
+      // height: Constants.HEIGHT_IMAGE,
+      // cropping: true,
+      mediaType: 'any',
     })
       .then(image => {
         setMediaPicked(image);
@@ -47,9 +48,10 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
 
   const handleOpenCamera = () => {
     ImagePicker.openCamera({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
+      // width: Constants.WIDTH_IMAGE,
+      // height: Constants.HEIGHT_IMAGE,
+      // cropping: true,
+      mediaType: 'any',
     })
       .then(image => {
         setMediaPicked(image);

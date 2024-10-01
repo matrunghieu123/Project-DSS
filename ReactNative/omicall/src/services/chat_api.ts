@@ -1,7 +1,7 @@
 import {Constants} from '../core/constants/Constants';
 import axiosService from './axios_service.ts';
 
-class UploadApi {
+class ChatApi {
   HandleUpload = async (
     senderName: string,
     receiverName: string,
@@ -23,7 +23,19 @@ class UploadApi {
       data: formData,
     });
   };
+  HandleGetHistoryMessage = async (
+    senderName: string,
+    receiverName: string,
+  ) => {
+    return await axiosService(
+      `/api/chat/history?senderName=${senderName}&receiverName=${receiverName}`,
+      {
+        baseURL: Constants.socketUrl,
+        method: 'get',
+      },
+    );
+  };
 }
 
-const uploadAPI = new UploadApi();
-export default uploadAPI;
+const chatAPI = new ChatApi();
+export default chatAPI;
