@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Typography, Avatar, List } from 'antd';
 import './MemberList.css';
 
@@ -24,13 +24,19 @@ const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) =>
 
     useEffect(() => {
         const newAvatarColors = { ...avatarColors.current };
+        let hasChanged = false;
+
         privateChats.forEach((_, name) => {
             if (!newAvatarColors[name]) {
                 newAvatarColors[name] = getRandomColor();
+                hasChanged = true;
             }
         });
-        avatarColors.current = newAvatarColors;
-        setAvatarColors(newAvatarColors); // Cập nhật state màu avatar trong ChatRoom
+
+        if (hasChanged) {
+            avatarColors.current = newAvatarColors;
+            setAvatarColors(newAvatarColors); // Cập nhật state màu avatar trong ChatRoom
+        }
     }, [privateChats, setAvatarColors]);
 
     const getAvatar = (name) => {

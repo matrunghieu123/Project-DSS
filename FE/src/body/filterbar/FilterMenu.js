@@ -47,23 +47,19 @@ const CustomerMenu = () => (
 );
 
 const StaffMenu = () => (
-  <Menu>
-    <Menu.Item key="search">
-      <Input.Search placeholder="Tìm kiếm" />
-    </Menu.Item>
-    <Menu.Item key="1">Nhân viên A</Menu.Item>
-    <Menu.Item key="2">Nhân viên B</Menu.Item>
-  </Menu>
+  <Menu items={[ // Thay thế children bằng items
+    { key: 'search', label: <Input.Search placeholder="Tìm kiếm" /> },
+    { key: '1', label: 'Nhân viên A' },
+    { key: '2', label: 'Nhân viên B' },
+  ]} />
 );
 
 const MoreAttributesMenu = () => (
-  <Menu>
-    <Menu.Item key="search">
-      <Input.Search placeholder="Tìm kiếm" />
-    </Menu.Item>
-    <Menu.Item key="1">Thuộc tính A</Menu.Item>
-    <Menu.Item key="2">Thuộc tính B</Menu.Item>
-  </Menu>
+  <Menu items={[ // Thay thế children bằng items
+    { key: 'search', label: <Input.Search placeholder="Tìm kiếm" /> },
+    { key: '1', label: 'Thuộc tính A' },
+    { key: '2', label: 'Thuộc tính B' },
+  ]} />
 );
 
 const FilterBar = ({ onClearFilter }) => {
@@ -105,6 +101,8 @@ const FilterBar = ({ onClearFilter }) => {
     console.log('Selected Dates:', dates); // Xử lý dữ liệu ngày ở đây
   };
 
+  const buttonRef = React.useRef(null); // Thêm ref cho button
+
   return (
     <div
       style={{
@@ -133,6 +131,7 @@ const FilterBar = ({ onClearFilter }) => {
                 onVisibleChange={() => toggleDropdown('filter')}
               >
                 <Button
+                  ref={buttonRef} // Gán ref cho button
                   style={{
                     display: 'flex',
                     alignItems: 'center',

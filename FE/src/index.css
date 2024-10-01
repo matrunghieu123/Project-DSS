@@ -114,6 +114,8 @@ code {
   height: 91vh;
   display: flex;
   flex-direction: row;
+  overflow: hidden;
+  flex-wrap: wrap; /* Cho phép các phần tử con xuống dòng khi không đủ chỗ */
 }
 
 .empty-screen {
@@ -134,7 +136,7 @@ code {
 }
 
 .chat-input {
-  flex: 1;
+  flex: 1 1 60%; /* Chiếm 60% chiều rộng và cho phép co giãn */
   color: #1e3150;
   margin: 16px 0 16px 12px;
   display: flex;
@@ -145,7 +147,6 @@ code {
   font-family: Roboto;
   border-radius: 12px;
   flex-direction: column;
-  flex: 0 0 60%; /* Chiếm 60% chiều rộng */
 }
 
 .text-input {
@@ -178,13 +179,14 @@ code {
 } 
 
 .chat-tool-wrapper {
-  flex: 0 0 37%; /* Chiếm 40% chiều rộng */
+  flex: 1 1 37%; /* Chiếm 37% chiều rộng và cho phép co giãn */
   display: flex;
   margin: 16px 0 16px 16px;
 }
 
 .chat-tool-body {
   width: 100%;
+  padding-right: 16px; /* Thêm padding bên phải */
 }
 
 /* phần đăng kí */
@@ -250,5 +252,21 @@ code {
 
   .search-button {
     padding: 10px;
+  }
+}
+
+/* Điều chỉnh cho màn hình nhỏ hơn 768px */
+@media (max-width: 768px) {
+  .chat-input, .chat-tool-wrapper {
+    flex: 1 1 50%; /* Chiếm 50% chiều rộng khi màn hình nhỏ */
+    margin: 8px; /* Giảm margin để tiết kiệm không gian */
+  }
+}
+
+/* Điều chỉnh cho màn hình nhỏ hơn 480px */
+@media (max-width: 480px) {
+  .chat-input, .chat-tool-wrapper {
+    flex: 1 1 100%; /* Chiếm 100% chiều rộng khi màn hình rất nhỏ */
+    margin: 8px 0; /* Giảm margin để tiết kiệm không gian */
   }
 }

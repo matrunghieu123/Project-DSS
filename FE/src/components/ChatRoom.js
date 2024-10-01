@@ -77,13 +77,32 @@ const ChatRoom = () => {
 
     const loadMessagesFromServer = async (username) => {
         try {
-            const response = await fetch(`http://192.168.1.12:81/messages?username=${username}`);
+            const response = await fetch(`http://192.168.1.13:81/chatroom/public?username=${username}`); // Cập nhật URL
             const data = await response.json();
             // Xử lý dữ liệu nhận được từ server
             setPublicChats(data.publicMessages);
             setPrivateChats(data.privateMessages);
         } catch (error) {
             console.error("Lỗi khi tải tin nhắn từ server: ", error);
+        }
+    };
+
+    const loadChatHistory = async (senderName, receiverName) => {
+        try {
+            const response = await fetch(`http://192.168.1.13:81/chatroom/public?senderName=${senderName}&receiverName=${receiverName}`); // Cập nhật URL
+            const data = await response.json();
+            // Xử lý dữ liệu nhận được từ server
+            if (receiverName === "chat tổng") {
+                setPublicChats(data);
+            } else {
+                setPrivateChats(prevChats => {
+                    const newChats = new Map(prevChats);
+                    newChats.set(receiverName, data);
+                    return newChats;
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải lịch sử chat từ server: ", error);
         }
     };
 
@@ -95,21 +114,18 @@ const ChatRoom = () => {
     }, [userData.connected, userData.username]); // Thêm userData.username vào mảng phụ thuộc
 
     useEffect(() => {
+        if (userData.connected) {
+            loadChatHistory(userData.username, "chat tổng");
+        }
+    }, [userData.connected, userData.username]);
+
+    useEffect(() => {
         // Thêm các tab chat riêng tư clone
         const initialPrivateChats = new Map();
         initialPrivateChats.set('user1', []);
         initialPrivateChats.set('user2', []);
         setPrivateChats(initialPrivateChats);
     }, []);
-
-    const handleAvatarChange = async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const avatarUrl = await uploadFileToFirebase(file);
-            setAvatar(avatarUrl);
-        }
-    };
-
     // Hàm đăng nhập Firebase
     const login = () => {
         signInWithEmailAndPassword(auth, email, password)
@@ -147,7 +163,7 @@ const ChatRoom = () => {
     };
 
     const connect = () => {
-        let Sock = new SockJS('http://171.224.180.20:9090/ws'); // Thay thế địa chỉ IP và cổng
+        let Sock = new SockJS('http://192.168.1.13:81/ws'); // Thay thế địa chỉ IP và cổng nếu cần
         stompClientRef.current = over(Sock);
         stompClientRef.current.connect({}, onConnected, onError);
         console.log("Đang cố gắng kết nối đến WebSocket");
@@ -161,6 +177,7 @@ const ChatRoom = () => {
         stompClientRef.current.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
         userJoin();
         loadMessagesFromServer(userData.username); // Thêm dòng này để tải tin nhắn ngay sau khi kết nối
+        loadChatHistory(userData.username, "chat tổng");
     };
 
     const userJoin = () => {
@@ -272,7 +289,8 @@ const ChatRoom = () => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.12:81/send-message', {
+            // Kết nối với API server tại địa chỉ mới
+            const response = await fetch('http://192.168.1.13:81/chatroom/public', { // Cập nhật URL
                 method: 'POST',
                 body: formData,
             });
@@ -316,8 +334,8 @@ const ChatRoom = () => {
                 stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
                 setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);  // Thêm fileName vào tin nhắn hiển thị
 
-                // Gửi tin nhắn đến server BE
-                sendMessageToServer(userData.username, "chat tổng", message, files[0]); // Xóa await để không chờ phản hồi
+                // Gửi tin nhắn đến server BE tại địa chỉ mới
+                sendMessageToServer(userData.username, "chat tổng", message, files[0]);
 
                 setUserData({ ...userData, message: "" });
             } catch (error) {
@@ -354,13 +372,14 @@ const ChatRoom = () => {
                 addMessageToPrivateChat({ ...chatMessage, fileName });  // Thêm fileName vào tin nhắn hiển thị
                 setUserData({ ...userData, message: "" });
 
-                // Gửi tin nhắn đến server BE
-                sendMessageToServer(userData.username, tab, message, files[0]); // Xóa await để không chờ phản hồi
+                // Gửi tin nhắn đến server BE tại địa chỉ mới
+                sendMessageToServer(userData.username, tab, message, files[0]);
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
         }
     };
+
 
     // Thêm trạng thái mới
     const [isFilterCleared, setIsFilterCleared] = useState(false);
@@ -582,11 +601,6 @@ const ChatRoom = () => {
                                 placeholder="Nhập mật khẩu"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleAvatarChange}
                             />
                             <button onClick={login}>Đăng nhập</button>
                             <button onClick={register}>Đăng ký</button>
