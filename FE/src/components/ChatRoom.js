@@ -12,10 +12,20 @@ import CallDialog from './calldialog/CallDialog';
 import { Input, Button } from 'antd';
 import { auth } from '../firebase/FireBase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import axios from 'axios';
 
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
+
+let baseUrl = 'http://192.168.1.12:81'; // Biến toàn cục để lưu URL gốc
+
+const setBaseUrl = (url) => {
+    baseUrl = url;
+};
+
+// Sử dụng hàm setBaseUrl để thiết lập URL gốc
+setBaseUrl('http://192.168.1.12:81');
 
 const ChatRoom = () => {
     // Thêm state để quản lý email và password
@@ -37,7 +47,7 @@ const ChatRoom = () => {
 
     const stompClientRef = useRef(null); // Sử dụng useRef để quản lý stompClient
 
-    const storage = getStorage(); // Khởi tạo Storage
+    // const storage = getStorage();
 
     const [isUpdatedAsc, setIsUpdatedAsc] = useState(true); // State để theo dõi trạng thái mũi tên
     const [isCuuNhatActive, setIsCuuNhatActive] = useState(false); // State để theo dõi trạng thái "Cũ nhất"
@@ -63,22 +73,36 @@ const ChatRoom = () => {
         setIsCuuNhatActive(!isCuuNhatActive); // Đảo ngược trạng thái "Cũ nhất"
     };
 
-    const uploadFileToFirebase = async (file) => {
-        try {
-            const storageRef = ref(storage, `uploads/${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            return downloadURL; // Trả về URL để hiển thị trong tin nhắn
-        } catch (error) {
-            console.error("Lỗi khi tải lên Firebase Storage:", error);
-            return null; // Nếu có lỗi thì trả về null
-        }
-    };
+    // const uploadFileToFirebase = async (file) => {
+    //     try {
+    //         const storageRef = ref(storage, `uploads/${file.name}`);
+    //         const snapshot = await uploadBytes(storageRef, file);
+    //         const downloadURL = await getDownloadURL(snapshot.ref);
+    //         return downloadURL; // Trả về URL để hiển thị trong tin nhắn
+    //     } catch (error) {
+    //         console.error("Lỗi khi tải lên Firebase Storage:", error);
+    //         return null; // Nếu có lỗi thì trả về null
+    //     }
+    // };
 
     const loadMessagesFromServer = async (username) => {
+        if (!username) {
+            console.error("Username is required to load messages.");
+            return;
+        }
+
         try {
-            const response = await fetch(`http://192.168.1.13:81/chatroom/public?username=${username}`); // Cập nhật URL
-            const data = await response.json();
+            const response = await fetch(`${baseUrl}/api/chat/history?username=${encodeURIComponent(username)}`);
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.statusText}`);
+            }
+
+            const text = await response.text();
+            if (!text) {
+                throw new Error("Empty response from server");
+            }
+
+            const data = JSON.parse(text);
             // Xử lý dữ liệu nhận được từ server
             setPublicChats(data.publicMessages);
             setPrivateChats(data.privateMessages);
@@ -89,7 +113,7 @@ const ChatRoom = () => {
 
     const loadChatHistory = async (senderName, receiverName) => {
         try {
-            const response = await fetch(`http://192.168.1.13:81/chatroom/public?senderName=${senderName}&receiverName=${receiverName}`); // Cập nhật URL
+            const response = await fetch(`${baseUrl}/api/chat/history?senderName=${senderName}&receiverName=${receiverName}`);
             const data = await response.json();
             // Xử lý dữ liệu nhận được từ server
             if (receiverName === "chat tổng") {
@@ -163,7 +187,7 @@ const ChatRoom = () => {
     };
 
     const connect = () => {
-        let Sock = new SockJS('http://192.168.1.13:81/ws'); // Thay thế địa chỉ IP và cổng nếu cần
+        let Sock = new SockJS(`${baseUrl}/ws`); // Sử dụng URL gốc để kết nối WebSocket
         stompClientRef.current = over(Sock);
         stompClientRef.current.connect({}, onConnected, onError);
         console.log("Đang cố gắng kết nối đến WebSocket");
@@ -289,20 +313,20 @@ const ChatRoom = () => {
         }
 
         try {
-            // Kết nối với API server tại địa chỉ mới
-            const response = await fetch('http://192.168.1.13:81/chatroom/public', { // Cập nhật URL
-                method: 'POST',
-                body: formData,
+            const response = await axios({
+                method: 'post',
+                url: `${baseUrl}/api/upload`, // Sử dụng baseUrl
+                data: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
-            console.log('Message sent successfully:', data);
+            console.log('Message sent successfully:', response.data);
+            return response; // Trả về phản hồi từ server
         } catch (error) {
             console.error('Error sending message:', error);
+            throw error; // Ném lỗi để xử lý ở nơi gọi hàm
         }
     };
 
@@ -315,7 +339,9 @@ const ChatRoom = () => {
                 let fileType = null;
 
                 if (files.length > 0) {
-                    fileUrl = await uploadFileToFirebase(files[0]); // Tải file lên Firebase Storage
+                    // Gửi file lên server và lấy URL
+                    const response = await sendMessageToServer(userData.username, "chat tổng", message, files[0]);
+                    fileUrl = `${baseUrl}/api/${response.data.fileUrl}`; // Thay đổi giá trị fileUrl
                     fileName = files[0].name;  // Lưu tên file vào biến cục bộ
                     fileType = files[0].type;
                 }
@@ -334,9 +360,6 @@ const ChatRoom = () => {
                 stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
                 setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);  // Thêm fileName vào tin nhắn hiển thị
 
-                // Gửi tin nhắn đến server BE tại địa chỉ mới
-                sendMessageToServer(userData.username, "chat tổng", message, files[0]);
-
                 setUserData({ ...userData, message: "" });
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
@@ -353,7 +376,9 @@ const ChatRoom = () => {
                 let fileType = null;
 
                 if (files.length > 0) {
-                    fileUrl = await uploadFileToFirebase(files[0]); // Tải file lên Firebase Storage
+                    // Gửi file lên server và lấy URL
+                    const response = await sendMessageToServer(userData.username, tab, message, files[0]);
+                    fileUrl = `${baseUrl}${response.data.fileUrl}`; // Thay đổi giá trị fileUrl
                     fileName = files[0].name;  // Lưu tên file vào biến cục bộ
                     fileType = files[0].type;
                 }
@@ -371,9 +396,6 @@ const ChatRoom = () => {
                 stompClientRef.current.send("/app/private-message", {}, JSON.stringify(chatMessage));
                 addMessageToPrivateChat({ ...chatMessage, fileName });  // Thêm fileName vào tin nhắn hiển thị
                 setUserData({ ...userData, message: "" });
-
-                // Gửi tin nhắn đến server BE tại địa chỉ mới
-                sendMessageToServer(userData.username, tab, message, files[0]);
             } catch (error) {
                 console.error("Lỗi khi gửi tin nhắn:", error);
             }
@@ -382,7 +404,7 @@ const ChatRoom = () => {
 
 
     // Thêm trạng thái mới
-    const [isFilterCleared, setIsFilterCleared] = useState(false);
+    const [isFilterCleared, setIsFilterCleared] = useState(true); // Mặc định là true để hiển thị màn hình rỗng khi mới đăng nhập
 
     // Hàm xử lý khi nhấn vào icon xóa bộ lọc
     const handleClearFilter = () => {
@@ -402,6 +424,7 @@ const ChatRoom = () => {
         setTab(name);
         const avatar = getAvatar(name); // Lấy avatar từ hàm getAvatar
         setCurrentCustomer({ name, avatar, color });
+        setIsFilterCleared(false); // Khi chọn tab, đặt isFilterCleared thành false để hiển thị nội dung chat
     };
 
     const handleSetAvatarColors = (colors) => {
@@ -562,7 +585,7 @@ const ChatRoom = () => {
                                             <div className='chat-tool-body'>
                                                 <ChatTool 
                                                     avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
-                                                    username={userData.username}  // Truyền username 
+                                                    userName={userData.username}  // Truyền username 
                                                     isJoined={isJoined}
                                                 />
                                             </div>

@@ -2,21 +2,40 @@ import React, { useEffect, useRef } from 'react';
 import { Typography, Avatar, List } from 'antd';
 import './MemberList.css';
 
-// Hàm formatDate để định dạng thời gian
+// Hàm formatDate để định dạng thời gian theo kiểu "n phút trước", "n giờ trước", "n ngày trước"
 const formatDate = (time) => {
     if (!time) return "Không có thời gian";
-    
-    // Kiểm tra nếu time là một chuỗi thời gian đầy đủ
+
+    // Kiểm tra nếu time chỉ là chuỗi thời gian (giờ, phút, giây)
+    if (typeof time === 'string' && time.match(/\d{1,2}:\d{2}(:\d{2})? [APMapm]{2}/)) {
+        // Lấy ngày hiện tại và thêm vào trước chuỗi thời gian
+        const today = new Date().toISOString().split('T')[0]; // Lấy ngày hiện tại dạng YYYY-MM-DD
+        time = `${today} ${time}`; // Tạo chuỗi đầy đủ ngày giờ
+    }
+
     const date = new Date(time);
     if (isNaN(date.getTime())) {
-        // Nếu time chỉ là giờ và phút, thêm ngày mặc định
-        const dateWithDefaultDay = new Date(`1970-01-01T${time}Z`);
-        if (isNaN(dateWithDefaultDay.getTime())) return "Thời gian không hợp lệ";
-        return dateWithDefaultDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return "Thời gian không hợp lệ";
     }
-    
-    // Định dạng thời gian theo giờ và phút
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000); // Tính số giây đã qua
+    const diffInMinutes = Math.floor(diffInSeconds / 60); // Tính số phút đã qua
+    const diffInHours = Math.floor(diffInMinutes / 60); // Tính số giờ đã qua
+    const diffInDays = Math.floor(diffInHours / 24); // Tính số ngày đã qua
+    const diffInMonths = Math.floor(diffInDays / 30); // Tính số tháng đã qua
+
+    if (diffInSeconds < 60) {
+        return "Vừa gửi"; // Nếu chưa đủ 1 phút
+    } else if (diffInMinutes < 60) {
+        return `${diffInMinutes} phút trước`;
+    } else if (diffInHours < 24) {
+        return `${diffInHours} giờ trước`;
+    } else if (diffInDays < 30) {
+        return `${diffInDays} ngày trước`;
+    } else {
+        return `${diffInMonths} tháng trước`; // Nếu đã trôi qua hơn 30 ngày
+    }
 };
 
 const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) => {
@@ -48,13 +67,12 @@ const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) =>
         const chat = privateChats.get(name);
         if (chat && chat.length > 0) {
             const lastMessage = chat[chat.length - 1];
-            const time = lastMessage.time; // Sử dụng thuộc tính time
-
-            // Sử dụng hàm formatDate để định dạng thời gian
+            const time = lastMessage.time;
+    
             return formatDate(time);
         }
-        return "Không có tin nhắn"; // Trả về thông báo nếu không có tin nhắn
-    };
+        return "Không có tin nhắn";
+    };    
 
     const getInitials = (name) => {
         const nameParts = name.split(' ');

@@ -147,6 +147,7 @@ code {
   font-family: Roboto;
   border-radius: 12px;
   flex-direction: column;
+  max-height: -webkit-fill-available;
 }
 
 .text-input {

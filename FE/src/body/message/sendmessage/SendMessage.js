@@ -42,8 +42,11 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
         });
     };
 
-    const handleEmojiClick = (event, emojiObject) => {
-        handleMessage({ target: { value: userData.message + emojiObject.emoji } });
+    // Sửa hàm handleEmojiClick để xử lý đúng emoji
+    const handleEmojiClick = (emojiObject) => {
+        if (emojiObject && emojiObject.emoji) {
+            handleMessage({ target: { value: userData.message + emojiObject.emoji } });
+        }
         setShowEmojiPicker(false); // Ẩn picker sau khi chọn emoji
     };
 

@@ -119,6 +119,8 @@
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
+  word-wrap: break-word; /* Ngắt dòng khi từ quá dài */
+  word-break: break-word; /* Ngắt từ khi quá dài */
 }
 
 /* Nút xóa ghi chú */
@@ -130,11 +132,12 @@
 /* Container cho các ghi chú */
 .notes-container {
   height: 68vh;
-  overflow-y: auto;
+  overflow-y: auto; /* Thêm thanh cuộn dọc */
   padding: 8px;
   border: none; /* Ẩn tất cả các đường viền */
   border-top: 2px solid rgb(173, 176, 179);
   background-color: #fff;
+  box-sizing: border-box; /* Đảm bảo padding được tính vào kích thước */
 }
 
 /* Container cho file đính kèm của ghi chú */

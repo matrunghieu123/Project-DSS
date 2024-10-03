@@ -31,7 +31,7 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
         if (!previousChat) return true;
         const currentTime = new Date(currentChat.time).getTime();
         const previousTime = new Date(previousChat.time).getTime();
-        return (currentTime - previousTime) >= 30 * 60 * 1000; // 30 phút
+        return (currentTime - previousTime) >= 10 * 1000;
     };
 
     const getInitials = (name) => {
@@ -58,10 +58,11 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
                 return (
                     <List.Item
                         key={index}
-                        className={`message ${chat.senderName === userData.username ? "self" : ""}`}
+                        className={`message ${chat.senderName === userData.username ? "self" : ""} no-border`}
                         title={chat.time ? `Gửi lúc: ${chat.time}` : ''}
                     >
-                        {!isSameSender && chat.senderName !== userData.username && (
+                        {/* Hiển thị avatar nếu là tin nhắn đầu tiên hoặc cách nhau 1 phút */}
+                        {(!isSameSender || showTime) && chat.senderName !== userData.username && (
                             <List.Item.Meta
                                 avatar={
                                     <Avatar style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}>
@@ -69,7 +70,7 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
                                     </Avatar>
                                 }
                                 title={chat.senderName}
-                                description={chat.time ? chat.time : 'Không rõ thời gian'}
+                                description={chat.time ? new Date(chat.time).toLocaleString() : 'Không rõ thời gian'}
                             />
                         )}
                         <div className="message-content-wrapper">
@@ -86,7 +87,8 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
                                 </div>
                             </div>
                         </div>
-                        {!isSameSender && chat.senderName === userData.username && (
+                        {/* Hiển thị avatar nếu là tin nhắn đầu tiên hoặc cách nhau 1 phút */}
+                        {(!isSameSender || showTime) && chat.senderName === userData.username && (
                             <Avatar
                                 className="avatar self"
                                 style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}

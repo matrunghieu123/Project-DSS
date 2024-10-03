@@ -4,7 +4,7 @@ import { CloseOutlined, PaperClipOutlined } from '@ant-design/icons';
 import SendMessage from '../message/sendmessage/SendMessage';
 import './ChatTool.css';
 
-const ChatTool = ({ isJoined }) => { // Nhận props isJoined
+const ChatTool = ({ isJoined, userName }) => { // Nhận thêm props userName
   const [notes, setNotes] = useState([]); // Trạng thái để quản lý các ghi chú
   const [noteInput, setNoteInput] = useState(""); // Trạng thái để quản lý giá trị nhập vào của ghi chú
   const notesEndRef = useRef(null); // Tham chiếu đến phần cuối của danh sách ghi chú
@@ -80,7 +80,7 @@ const ChatTool = ({ isJoined }) => { // Nhận props isJoined
             <div key={index} className="note-item">
               <div className="note-header">
                 <div>
-                  <span className="note-date">Nhân viên {index + 1}</span>
+                  <span className="note-date">{userName}</span> {/* Sử dụng userName */}
                   <span> Ngày {note.date}</span>
                 </div>
                 <Button

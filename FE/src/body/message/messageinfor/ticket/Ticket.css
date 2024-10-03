@@ -1,0 +1,89 @@
+.ticket-content {
+    padding: 20px;
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.ticket-header button {
+    margin-right: 10px;
+}
+
+.ticket-title {
+    text-align: center;
+    margin: 0;
+}
+
+.ticket-details {
+    margin-bottom: 20px;
+}
+
+.ticket-detail-item {
+    margin-bottom: 8px;
+}
+
+.ticket-detail-label {
+    display: block;
+    font-weight: normal;
+    color: #595959;
+}
+
+.ticket-detail-value {
+    display: block;
+    margin-left: 10px;
+    color: black;
+    font-weight: 500;
+}
+
+.ticket-steps {
+    margin: 16px 0;
+}
+
+.ticket-info .ant-input {
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.ticket-info a {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.ticket-history {
+    margin-bottom: 20px;
+}
+
+.ticket-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.column-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.column-title .anticon {
+    color: gray;
+}
+
+.column-icons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.small-icon {
+    font-size: 12px; /* Điều chỉnh kích thước icon */
+}
+
+.divider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 10px 0;
+}

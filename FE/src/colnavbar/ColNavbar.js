@@ -16,11 +16,11 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
   };
 
   return (
-    <Sider theme="light" width={70}>
+    <Sider theme="light" width={70} style={{ backgroundColor: 'rgb(245, 246, 250)' }}>
       <Menu
         theme="light"
         mode="vertical"
-        style={{ textAlign: "center", marginTop: "20px", padding: 0, backgroundColor: '#f5f6fa', border: 'none',}}
+        style={{ textAlign: "center", marginTop: "20px", padding: 0, backgroundColor: '#f5f6fa', border: 'none' }}
       >
         <Menu.Item
           key="0"
