@@ -15,6 +15,7 @@ import {AppColors} from '../../core/constants/AppColors';
 import {FileComponent} from './index.ts';
 import {ImageOrVideo} from 'react-native-image-crop-picker';
 import {createThumbnail} from 'react-native-create-thumbnail';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InputComponentProps {
   value?: string;
@@ -73,6 +74,14 @@ const TextFieldComponent = forwardRef(
               onPress={props.onRemoveImage}>
               <Icon name="close" size={14} color="white" />
             </TouchableOpacity>
+            {props.media?.mime.startsWith('video/') && (
+              <Ionicons
+                name={'play-circle'}
+                size={36}
+                color={AppColors.greyLine}
+                style={styles.playIcon}
+              />
+            )}
           </View>
         )}
         {props.file && (
@@ -161,6 +170,8 @@ const styles = StyleSheet.create({
     height: 70,
     marginTop: 10,
     marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   image: {
     width: '100%',
@@ -175,6 +186,9 @@ const styles = StyleSheet.create({
     top: 5,
     right: 5,
   },
+  playIcon: {
+    position: 'absolute',
+  }
 });
 
 export default TextFieldComponent;

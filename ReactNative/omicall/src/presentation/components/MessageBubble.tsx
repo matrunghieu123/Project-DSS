@@ -13,6 +13,7 @@ import {createThumbnail} from 'react-native-create-thumbnail';
 import {Constants} from '../../core/constants/Constants.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import VideoModal from '../modal/VideoModal.tsx';
+import {Format} from '../../core/utils/Format.ts';
 
 interface MessageBubbleProps {
   message?: string;
@@ -226,7 +227,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
                   ? styles.sentTime
                   : styles.receivedTime,
               ]}>
-              {time}
+              {Format.formatTime(time)}
             </Text>
           </View>
         )}
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
   messageContainer: {
     maxWidth: '80%',
     borderRadius: 10,
-    marginVertical: 5,
+    marginBottom: 5,
   },
   sentMessageContainer: {
     backgroundColor: AppColors.secondary,
