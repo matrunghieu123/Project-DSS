@@ -242,11 +242,13 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     color: AppColors.grey,
     marginBottom: 2,
+    marginHorizontal: 10,
   },
   messageContainer: {
     maxWidth: '80%',
     borderRadius: 10,
-    marginBottom: 5,
+    marginBottom: 10,
+    marginHorizontal: 10,
   },
   sentMessageContainer: {
     backgroundColor: AppColors.secondary,

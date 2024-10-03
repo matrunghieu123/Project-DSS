@@ -23,13 +23,25 @@ class ChatApi {
       data: formData,
     });
   };
-  HandleGetHistoryMessage = async (
-    senderName: string,
+  // HandleGetHistoryMessage = async (
+  //   senderName: string,
+  //   receiverName: string,
+  //   page: number,
+  // ) => {
+  //   return await axiosService(
+  //     `/api/chat/history?senderName=${senderName}&receiverName=${receiverName}&page=${page}&size=20`,
+  //     {
+  //       baseURL: Constants.socketUrl,
+  //       method: 'get',
+  //     },
+  //   );
+  // };
+  HandleGetHistoryPublicMessage = async (
     receiverName: string,
     page: number,
   ) => {
     return await axiosService(
-      `/api/chat/history?senderName=${senderName}&receiverName=${receiverName}&page=${page}&size=20`,
+      `/api/chat/public?receiverName=${receiverName}&page=${page}&size=20`,
       {
         baseURL: Constants.socketUrl,
         method: 'get',

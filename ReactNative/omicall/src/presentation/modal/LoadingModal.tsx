@@ -13,15 +13,15 @@ const LoadingModal = (props: LoadingModalComponentProps) => {
   return (
     <Modal
       style={Styles.flex}
-  visible={visible}
-  transparent
-  statusBarTranslucent>
-  <View style={styles.container}>
-  <ActivityIndicator color={AppColors.white} size='large' />
-  <Text style={styles.text}>{text}</Text>
-    </View>
+      visible={visible}
+      transparent
+      statusBarTranslucent>
+      <View style={styles.container}>
+        <ActivityIndicator color={AppColors.white} size="large" />
+        <Text style={styles.text}>{text}</Text>
+      </View>
     </Modal>
-);
+  );
 };
 
 const styles = StyleSheet.create({

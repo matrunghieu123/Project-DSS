@@ -16,7 +16,7 @@ const AllChatScreen = ({navigation}: any) => {
     <ChatComponent
       type={'group'}
       navigation={navigation}
-      name={'Group Chat'}
+      name={'Chat chung'}
       content={'Bạn có tin nhắn mới'}
     />,
   ]);

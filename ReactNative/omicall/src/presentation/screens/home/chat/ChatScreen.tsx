@@ -104,8 +104,7 @@ const ChatScreen = ({navigation, route}: any) => {
 
     setLoadingMore(true);
     try {
-      const response: any = await chatAPI.HandleGetHistoryMessage(
-        user.UserName,
+      const response: any = await chatAPI.HandleGetHistoryPublicMessage(
         name,
         page,
       );
@@ -132,7 +131,7 @@ const ChatScreen = ({navigation, route}: any) => {
 
     const showDateSeparator = currentMessageDate !== nextMessageDate;
     const showSenderName =
-      index === 0 || messages[index - 1].senderName !== item.senderName;
+      index === messages.length - 1 || messages[index + 1].senderName !== item.senderName;
 
     return (
       <>
@@ -142,7 +141,9 @@ const ChatScreen = ({navigation, route}: any) => {
           senderName={item.senderName}
           showSenderName={showSenderName && type === 'group'}
           time={item.time.toString().split(' ')[1]}
-          fileUrl={Constants.socketUrl + '/uploads/' + item.fileUrl?.split('\\').pop()}
+          fileUrl={
+            Constants.socketUrl + '/uploads/' + item.fileUrl?.split('\\').pop()
+          }
           fileType={item.fileType}
         />
         {showDateSeparator && (
@@ -165,8 +166,7 @@ const ChatScreen = ({navigation, route}: any) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response: any = await chatAPI.HandleGetHistoryMessage(
-          user.UserName,
+        const response: any = await chatAPI.HandleGetHistoryPublicMessage(
           name,
           0,
         );
@@ -270,12 +270,12 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: AppColors.lightGrey,
-    paddingHorizontal: 5,
   },
   dateSeparator: {
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
+    paddingHorizontal: 10,
   },
   dateText: {
     fontFamily: Fonts.regular,
