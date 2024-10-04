@@ -13,6 +13,7 @@ import {Fonts} from '../../../core/constants/Fonts.ts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import Sound from 'react-native-sound';
 
 const CustomKeyboard: FC<{navigation: any}> = ({navigation}) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
@@ -20,13 +21,36 @@ const CustomKeyboard: FC<{navigation: any}> = ({navigation}) => {
   const [inputValue, setInputValue] = useState('');
   const textInputRef = React.useRef<TextInput>(null);
 
+  Sound.setCategory('Playback');
+
+  const playSound = () => {
+    const sound = new Sound('dtmf.wav', Sound.MAIN_BUNDLE, error => {
+      if (error) {
+        console.log('Error loading sound: ', error);
+        return;
+      }
+      sound.play(() => {
+        sound.release();
+      });
+    });
+  };
+
   const handleKeyPress = (key: string) => {
     textInputRef.current?.focus();
     setInputValue(prev => prev + key);
+    playSound();
   };
 
   const handleDeletePress = () => {
     setInputValue(prev => prev.slice(0, -1));
+  };
+
+  const handleLongPress = (key: string) => {
+    if (key === '0') {
+      textInputRef.current?.focus();
+      setInputValue(prev => prev + '+');
+      playSound();
+    }
   };
 
   return (
@@ -46,8 +70,11 @@ const CustomKeyboard: FC<{navigation: any}> = ({navigation}) => {
           <TouchableOpacity
             key={key}
             style={styles.key}
-            onPress={() => handleKeyPress(key)}>
+            onPress={() => handleKeyPress(key)}
+            onLongPress={() => handleLongPress(key)}
+            delayLongPress={500}>
             <Text style={styles.keyText}>{key}</Text>
+            {key === '0' && <Text style={styles.plusText}>+</Text>}
           </TouchableOpacity>
         ))}
       </RowComponent>
@@ -136,6 +163,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: AppColors.secondary,
     fontFamily: Fonts.bold,
+  },
+  plusText: {
+    fontSize: 16,
+    color: AppColors.secondary,
+    fontFamily: Fonts.bold,
+    position: 'absolute',
+    bottom: -2,
   },
   bottomRow: {
     justifyContent: 'space-evenly',

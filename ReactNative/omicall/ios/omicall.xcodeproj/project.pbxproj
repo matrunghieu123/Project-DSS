@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* omicallTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* omicallTests.m */; };
 		0F02890E2C92BECD002AB858 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0F02890D2C92BECD002AB858 /* GoogleService-Info.plist */; };
+		0F8CB3A52CAF925D00E34FB6 /* dtmf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 0F8CB3A22CAF925D00E34FB6 /* dtmf.wav */; };
+		0F8CB3A62CAF925D00E34FB6 /* ringbacktone.wav in Resources */ = {isa = PBXBuildFile; fileRef = 0F8CB3A32CAF925D00E34FB6 /* ringbacktone.wav */; };
+		0F8CB3A72CAF925D00E34FB6 /* ringtone.wav in Resources */ = {isa = PBXBuildFile; fileRef = 0F8CB3A42CAF925D00E34FB6 /* ringtone.wav */; };
 		0FAF007B2C895E5C0092473E /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0FAF00672C895E5C0092473E /* AntDesign.ttf */; };
 		0FAF007C2C895E5C0092473E /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0FAF00682C895E5C0092473E /* Entypo.ttf */; };
 		0FAF007D2C895E5C0092473E /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0FAF00692C895E5C0092473E /* EvilIcons.ttf */; };
@@ -58,6 +61,9 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* omicallTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = omicallTests.m; sourceTree = "<group>"; };
 		0F02890D2C92BECD002AB858 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		0F8CB3A22CAF925D00E34FB6 /* dtmf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = dtmf.wav; sourceTree = "<group>"; };
+		0F8CB3A32CAF925D00E34FB6 /* ringbacktone.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ringbacktone.wav; sourceTree = "<group>"; };
+		0F8CB3A42CAF925D00E34FB6 /* ringtone.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ringtone.wav; sourceTree = "<group>"; };
 		0FAF00672C895E5C0092473E /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
 		0FAF00682C895E5C0092473E /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
 		0FAF00692C895E5C0092473E /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
@@ -215,6 +221,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				0F8CB3A22CAF925D00E34FB6 /* dtmf.wav */,
+				0F8CB3A32CAF925D00E34FB6 /* ringbacktone.wav */,
+				0F8CB3A42CAF925D00E34FB6 /* ringtone.wav */,
 				13B07FAE1A68108700A75B9A /* omicall */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* omicallTests */,
@@ -357,6 +366,9 @@
 				0FAF00802C895E5C0092473E /* FontAwesome5_Brands.ttf in Resources */,
 				0FAF00852C895E5C0092473E /* FontAwesome6_Solid.ttf in Resources */,
 				0FAF008B2C895E5C0092473E /* Octicons.ttf in Resources */,
+				0F8CB3A52CAF925D00E34FB6 /* dtmf.wav in Resources */,
+				0F8CB3A62CAF925D00E34FB6 /* ringbacktone.wav in Resources */,
+				0F8CB3A72CAF925D00E34FB6 /* ringtone.wav in Resources */,
 				0FAF007F2C895E5C0092473E /* FontAwesome.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				0FAF007B2C895E5C0092473E /* AntDesign.ttf in Resources */,

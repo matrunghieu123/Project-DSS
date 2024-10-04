@@ -14,6 +14,7 @@ import {Constants} from '../../core/constants/Constants.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import VideoModal from '../modal/VideoModal.tsx';
 import {Format} from '../../core/utils/Format.ts';
+import FastImage from 'react-native-fast-image';
 
 interface MessageBubbleProps {
   message?: string;
@@ -160,8 +161,8 @@ const MessageBubble = (props: MessageBubbleProps) => {
                 }
               }}>
               {thumbnail && (
-                <Image
-                  source={{uri: thumbnail}}
+                <FastImage
+                  source={{uri: thumbnail, priority: FastImage.priority.high}}
                   style={[
                     styles.image,
                     {
@@ -172,6 +173,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
                       ? styles.sentImage
                       : styles.receivedImage,
                   ]}
+                  resizeMode={FastImage.resizeMode.contain}
                 />
               )}
               {isVideoMimeType(fileType) && (
