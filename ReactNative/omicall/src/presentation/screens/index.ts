@@ -15,6 +15,7 @@ import HistoryScreen from './history/HistoryScreen.tsx';
 import RecordScreen from './record/RecordScreen.tsx';
 import FilterScreen from './home/filter/FilterScreen.tsx';
 import ChatScreen from './home/chat/ChatScreen.tsx';
+import ModalCallingScreen from './call/ModalCallingScreen.tsx';
 
 export {
   SplashScreen,
@@ -34,4 +35,5 @@ export {
   ContactsScreen,
   HistoryScreen,
   RecordScreen,
+  ModalCallingScreen,
 };

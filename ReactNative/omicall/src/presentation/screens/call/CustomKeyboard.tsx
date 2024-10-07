@@ -1,38 +1,41 @@
 import React, {FC, useState} from 'react';
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Styles} from '../../../core/constants/Styles.ts';
+import {Styles} from '../../../core/constants/Styles';
 import {RowComponent} from '../../components';
-import {AppColors} from '../../../core/constants/AppColors.ts';
-import {Fonts} from '../../../core/constants/Fonts.ts';
+import {AppColors} from '../../../core/constants/AppColors';
+import {Fonts} from '../../../core/constants/Fonts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Sound from 'react-native-sound';
+import JsSIPService from '../../../services/jsSIP_service';
+import {MediaStream} from 'react-native-webrtc';
+import ModalCallingScreen from './ModalCallingScreen';
+import {Validate} from '../../../core/utils/Validate.ts';
 
-const CustomKeyboard: FC<{navigation: any}> = ({navigation}) => {
+const CustomKeyboard: FC<{
+  navigation: any;
+  sound: Sound;
+  remoteStream: MediaStream;
+  jsSIPService: JsSIPService;
+}> = ({navigation, sound, remoteStream, jsSIPService}) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
   const [inputValue, setInputValue] = useState('');
   const textInputRef = React.useRef<TextInput>(null);
-
-  Sound.setCategory('Playback');
+  const [isCalling, setIsCalling] = useState(false);
 
   const playSound = () => {
-    const sound = new Sound('dtmf.wav', Sound.MAIN_BUNDLE, error => {
-      if (error) {
-        console.log('Error loading sound: ', error);
-        return;
-      }
-      sound.play(() => {
-        sound.release();
-      });
-    });
+    if (sound) {
+      sound.play();
+    }
   };
 
   const handleKeyPress = (key: string) => {
@@ -53,37 +56,62 @@ const CustomKeyboard: FC<{navigation: any}> = ({navigation}) => {
     }
   };
 
+  const handleCallPress = () => {
+    if (!Validate.vietnamesePhoneNumber(inputValue)) {
+      Alert.alert('Gọi thất bại', 'Số điện thoại không đúng định dạng');
+      return;
+    }
+    setIsCalling(true);
+  };
+
+  const handleTextChange = (text: string) => {
+    const filteredText = text.replace(/[^0-9]/g, '');
+    setInputValue(filteredText);
+  };
+
   return (
-    <View style={[Styles.flex, styles.keyboardContainer]}>
-      <RowComponent style={styles.inputRow}>
-        <TextInput
-          placeholder={'Nhập số điện thoại'}
-          style={[styles.input, Styles.flex]}
-          value={inputValue}
-          showSoftInputOnFocus={false}
-          ref={textInputRef}
+    <>
+      <View style={[Styles.flex, styles.keyboardContainer]}>
+        <RowComponent style={styles.inputRow}>
+          <TextInput
+            placeholder={'Nhập số điện thoại'}
+            style={[styles.input, Styles.flex]}
+            value={inputValue}
+            showSoftInputOnFocus={false}
+            onChangeText={handleTextChange}
+            ref={textInputRef}
+          />
+          <AddContactButton navigation={navigation} />
+        </RowComponent>
+        <RowComponent style={styles.keyboard}>
+          {keys.map(key => (
+            <TouchableOpacity
+              key={key}
+              style={styles.key}
+              onPress={() => handleKeyPress(key)}
+              onLongPress={() => handleLongPress(key)}
+              delayLongPress={500}>
+              <Text style={styles.keyText}>{key}</Text>
+              {key === '0' && <Text style={styles.plusText}>+</Text>}
+            </TouchableOpacity>
+          ))}
+        </RowComponent>
+        <RowComponent style={styles.bottomRow}>
+          <SettingButton />
+          <CallButton onPress={handleCallPress} />
+          <DeleteButton onPress={handleDeletePress} />
+        </RowComponent>
+      </View>
+      {isCalling && (
+        <ModalCallingScreen
+          isCalling={isCalling}
+          setIsCalling={setIsCalling}
+          remoteStream={remoteStream}
+          numberCallOut={inputValue}
+          jsSIPService={jsSIPService}
         />
-        <AddContactButton navigation={navigation} />
-      </RowComponent>
-      <RowComponent style={styles.keyboard}>
-        {keys.map(key => (
-          <TouchableOpacity
-            key={key}
-            style={styles.key}
-            onPress={() => handleKeyPress(key)}
-            onLongPress={() => handleLongPress(key)}
-            delayLongPress={500}>
-            <Text style={styles.keyText}>{key}</Text>
-            {key === '0' && <Text style={styles.plusText}>+</Text>}
-          </TouchableOpacity>
-        ))}
-      </RowComponent>
-      <RowComponent style={styles.bottomRow}>
-        <SettingButton />
-        <CallButton />
-        <DeleteButton onPress={handleDeletePress} />
-      </RowComponent>
-    </View>
+      )}
+    </>
   );
 };
 
@@ -106,9 +134,9 @@ const SettingButton: FC = () => {
   );
 };
 
-const CallButton: FC = () => {
+const CallButton: FC<{onPress: () => void}> = ({onPress}) => {
   return (
-    <TouchableOpacity style={[styles.callButton]}>
+    <TouchableOpacity style={[styles.callButton]} onPress={onPress}>
       <FontAwesome6 name="phone" size={26} color={AppColors.white} />
     </TouchableOpacity>
   );

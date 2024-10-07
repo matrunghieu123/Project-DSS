@@ -7,6 +7,8 @@ export const Constants = {
   MAX_HEIGHT_IMAGE: 300,
   LIMIT_DOCUMENT_SIZE: 10, // MB
   //API_CALL
-  socketUrlAlohub: 'wss://crm.alohub.vn:57445',
-  passwordAlohub: 'DMJ@#2024',
+  socketUrlAlohub: 'wss://app.alohub.vn:57443',
+  sipUrlAlohub: 'app.alohub.vn:55090',
+  passwordAlohub: 'BACMY@2023',
+  extensionAlohub: '2522',
 };

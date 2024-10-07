@@ -1,10 +1,16 @@
 export class Validate {
   static email = (email: string) => {
-    let regexEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    const regexEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     return regexEmail.test(email);
   };
   static password = (password: string) => {
-    let regexPassword = /^.{6,}$/;
+    const regexPassword = /^.{6,}$/;
     return regexPassword.test(password);
+  };
+
+  static vietnamesePhoneNumber = (phoneNumber: string) => {
+    const regexPhoneNumber =
+      /(?:\+84|0084|0)[235789][0-9]{1,2}[0-9]{7}(?:[^\d]+|$)/g;
+    return regexPhoneNumber.test(phoneNumber);
   };
 }

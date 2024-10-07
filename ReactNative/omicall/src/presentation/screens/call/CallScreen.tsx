@@ -1,5 +1,12 @@
-import {View, StyleSheet, TouchableOpacity, Text, Keyboard, TouchableWithoutFeedback} from 'react-native';
-import React, {FC} from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import React, {FC, useEffect, useState} from 'react';
 import {Styles} from '../../../core/constants/Styles.ts';
 import {RowComponent} from '../../components';
 import {AppColors} from '../../../core/constants/AppColors.ts';
@@ -8,12 +15,66 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import CustomKeyboard from './CustomKeyboard.tsx';
+import JsSIPService from '../../../services/jsSIP_service.ts';
+import Sound from 'react-native-sound';
+import {MediaStream} from 'react-native-webrtc';
+import {Constants} from '../../../core/constants/Constants.ts';
 
-const Header: FC<{navigation: any}> = ({navigation}) => {
+const CallScreen: FC<{navigation: any}> = ({navigation}) => {
+  const [sound, setSound] = useState<Sound | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [jsSIPService, setJsSIPService] = useState<JsSIPService | null>(null);
+
+  useEffect(() => {
+    const jsSIPService = new JsSIPService(Constants.extensionAlohub, stream =>
+      setRemoteStream(stream),
+    );
+    setJsSIPService(jsSIPService);
+
+    Sound.setCategory('Playback');
+    const soundInstance = new Sound('dtmf.wav', Sound.MAIN_BUNDLE, error => {
+      if (error) {
+        console.log('Error loading sound: ', error);
+        return;
+      }
+      setSound(soundInstance);
+    });
+
+    return () => {
+      soundInstance.release();
+    };
+  }, []);
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={Styles.flex}>
+        <View style={Styles.flex}>
+          <Header navigation={navigation} jsSIPService={jsSIPService!} />
+          <Content />
+        </View>
+        <CustomKeyboard
+          navigation={navigation}
+          sound={sound!}
+          jsSIPService={jsSIPService!}
+          remoteStream={remoteStream!}
+        />
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
+
+const Header: FC<{navigation: any; jsSIPService: JsSIPService}> = ({
+  navigation,
+  jsSIPService,
+}) => {
+  const handleCallPress = () => {
+    jsSIPService.disconnect();
+    navigation.goBack();
+  };
   return (
     <SafeAreaView style={styles.header}>
       <RowComponent style={styles.row}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={handleCallPress}>
           <MaterialIcons
             name={'arrow-back-ios'}
             size={24}
@@ -47,20 +108,6 @@ const Content: FC = () => {
       <Text style={styles.text}>Cuộc gọi gần nhất</Text>
       <Text style={[styles.text, styles.notHaveData]}>Chưa có dữ liệu</Text>
     </View>
-  );
-};
-
-const CallScreen: FC<{navigation: any}> = ({navigation}) => {
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={Styles.flex}>
-        <View style={Styles.flex}>
-          <Header navigation={navigation} />
-          <Content />
-        </View>
-        <CustomKeyboard navigation={navigation} />
-      </View>
-    </TouchableWithoutFeedback>
   );
 };
 

@@ -1,0 +1,177 @@
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  SafeAreaView,
+} from 'react-native';
+import {Styles} from '../../../core/constants/Styles.ts';
+import {AppColors} from '../../../core/constants/AppColors.ts';
+import CallOutIcon from '../../../../assets/svg/CallOutIcon.tsx';
+import {AvatarCircle, RowComponent, SpaceComponent} from '../../components';
+import {Fonts} from '../../../core/constants/Fonts.ts';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {MediaStream, RTCView} from 'react-native-webrtc';
+import JsSIPService from '../../../services/jsSIP_service.ts';
+
+interface Props {
+  isCalling: boolean;
+  setIsCalling: (value: boolean) => void;
+  remoteStream: MediaStream;
+  jsSIPService: JsSIPService;
+  numberCallOut: string;
+}
+
+const ModalCallingScreen = (props: Props) => {
+  const {isCalling, setIsCalling, remoteStream, jsSIPService, numberCallOut} =
+    props;
+
+  const [connectionStatus, setConnectionStatus] = useState('');
+  const [time, setTime] = useState(0);
+  const [callDuration, setCallDuration] = useState(0);
+  let timer: NodeJS.Timeout;
+
+  const handleCallEnd = () => {
+    setIsCalling(false);
+    jsSIPService.cancelCall();
+  };
+
+  const formatDuration = (duration: number) => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  useEffect(() => {
+    if (isCalling) {
+      jsSIPService.makeCall(numberCallOut);
+      setTime(Date.now());
+    }
+  }, [isCalling]);
+
+  useEffect(() => {
+    const updateConnectionStatus = (status: string) => {
+      switch (status) {
+        case 'connecting':
+          setConnectionStatus('Đang kết nối...');
+          break;
+        case 'progress':
+          setConnectionStatus('Đang đổ chuông...');
+          break;
+        case 'connected':
+          setConnectionStatus('Đã kết nối');
+          break;
+        case 'ended':
+          setConnectionStatus('Kết thúc cuộc gọi');
+          setTimeout(() => setIsCalling(false), 2000);
+          break;
+        case 'failed':
+          setConnectionStatus('Cuộc gọi thất bại');
+          setTimeout(() => setIsCalling(false), 2000);
+          break;
+        default:
+          setConnectionStatus(status);
+      }
+    };
+
+    jsSIPService.onConnectionStatusChanged(updateConnectionStatus);
+
+    return () => {
+      jsSIPService.onConnectionStatusChanged(() => {});
+    };
+  }, [jsSIPService]);
+
+  useEffect(() => {
+    if (connectionStatus === 'confirmed') {
+      timer = setInterval(() => {
+        setCallDuration(prevDuration => prevDuration + 1);
+      }, 1000);
+    } else {
+      clearInterval(timer);
+    }
+    return () => clearInterval(timer);
+  }, [connectionStatus]);
+
+  return (
+    <Modal visible={isCalling}>
+      <SafeAreaView
+        style={[Styles.flex, {backgroundColor: AppColors.secondary}]}>
+        {remoteStream && <RTCView streamURL={remoteStream.toURL()} />}
+        <RowComponent style={styles.row}>
+          <RowComponent>
+            <CallOutIcon />
+            <Text style={styles.callIn}>0123456789</Text>
+          </RowComponent>
+          <Text style={styles.callOut}>
+            Cuộc gọi đi{' '}
+            {new Date(time).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        </RowComponent>
+        <View style={{flex: 1, alignItems: 'center'}}>
+          <SpaceComponent height={50} />
+          <AvatarCircle style={{width: 80, height: 80}} />
+          <Text style={styles.name}>Không xác định</Text>
+          <Text style={styles.callOut}>{numberCallOut}</Text>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          {connectionStatus !== 'confirmed' ? (
+            <Text style={styles.status}>{connectionStatus}</Text>
+          ) : (
+            <Text style={styles.status}>{formatDuration(callDuration)}</Text>
+          )}
+          <SpaceComponent height={50} />
+          <TouchableOpacity style={styles.callEnd} onPress={handleCallEnd}>
+            <MaterialIcons name="call-end" size={40} color={AppColors.white} />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  row: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  callIn: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
+    color: AppColors.white,
+    marginLeft: 10,
+  },
+  name: {
+    fontSize: 18,
+    fontFamily: Fonts.bold,
+    color: AppColors.white,
+    marginTop: 20,
+    marginBottom: 5,
+  },
+  callOut: {
+    fontSize: 16,
+    fontFamily: Fonts.regular,
+    color: AppColors.white,
+  },
+  status: {
+    fontSize: 26,
+    fontFamily: Fonts.regular,
+    color: AppColors.white,
+    marginTop: 20,
+  },
+  callEnd: {
+    backgroundColor: AppColors.red,
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+export default ModalCallingScreen;
