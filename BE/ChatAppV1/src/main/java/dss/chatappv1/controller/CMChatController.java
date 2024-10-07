@@ -1,10 +1,10 @@
 package dss.chatappv1.controller;
 
 import dss.chatappv1.bot.TelegramBot;
-import dss.chatappv1.controller.dto.MessageDto;
-import dss.chatappv1.model.Message;
+import dss.chatappv1.controller.dto.CMChatDto;
+import dss.chatappv1.model.CMChat;
 import dss.chatappv1.model.Status;
-import dss.chatappv1.service.MessageService;
+import dss.chatappv1.service.CMChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -37,41 +37,36 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@CrossOrigin(origins ="*")
-public class MessageController {
+public class CMChatController {
 
     private static final String UPLOADED_FOLDER = "C:\\Users\\ADMIN\\Downloads\\";
 
     @Autowired
     TelegramBot telegramBot;
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    private MessageService messageService;
+    private CMChatService cmChatService;
 
-    @MessageMapping("/message/public")
-    @SendTo("/chatroom/public")
-    public void  chatPublic(@Payload Message message) {
-        message.getMessage_id();
-        String timestamp = getCurrentTime();
-        message.setTime(timestamp);
-        message.setStatus(Status.SENT);
-        Message newMessage = messageService.createMessage(message);
+    @MessageMapping("/messagev2")
+    @SendTo("/chatroom/publicv2")
+    public ResponseEntity<CMChat> receiveMessageTelegram(@Payload CMChat message) {
+        message.setCreated(LocalDateTime.now());
+        message.setIStatus(1L);
 
-        // Send message to chat app
+        CMChat newMessage = cmChatService.createCMChat(message);
+
         simpMessagingTemplate.convertAndSend("/chatroom/public", newMessage);
-        log.info("Response:"+new ResponseEntity<>(newMessage, HttpStatus.OK));
+        return new ResponseEntity<>(newMessage, HttpStatus.OK);
     }
 
-    @PostMapping("/api/upload")
+    @PostMapping("/api/uploadv2")
     public ResponseEntity<Map<String, String>> uploadFile(
-            @RequestParam("senderName") String senderName,
-            @RequestParam("receiverName") String receiverName,
-            @RequestParam(value = "message", required = false) String messageText,
+            @RequestParam("senderName") String socialName,
             @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        Message message = new Message();
         Map<String, String> response = new HashMap<>();
         String fileUrl = null;
         String fileType = null;
@@ -79,8 +74,8 @@ public class MessageController {
         // Xử lý việc upload file
         if (file != null && !file.isEmpty()) {
             try {
-                String fileName = UUID.randomUUID() + "fileUrl_" + file.getOriginalFilename();
-                Path path = Paths.get(UPLOADED_FOLDER, fileName); // đường dẫn
+                String fileName = UUID.randomUUID() + "_fileUrl_" + file.getOriginalFilename();
+                Path path = Paths.get(UPLOADED_FOLDER, fileName);
 
                 if (!Files.exists(path.getParent())) {
                     Files.createDirectories(path.getParent());
@@ -89,10 +84,11 @@ public class MessageController {
                 Files.write(path, file.getBytes());
 
                 if (Files.exists(path)) {
-                    fileUrl = UPLOADED_FOLDER + fileName; // Tạo URL
-                    fileType = file.getContentType();
+                    fileUrl = "/uploads/" + fileName; // Tạo URL cho file
                     response.put("fileUrl", fileUrl);
+                    fileType = file.getContentType();
                     response.put("fileType", fileType);
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -100,29 +96,39 @@ public class MessageController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         }
-
-        message.setSenderName(senderName);
-        message.setReceiverName(receiverName);
-        message.setMessage(messageText);
-        message.setFileUrl(fileUrl);
-        message.setFileType(fileType);
-        message.setTime(getCurrentTime());
-        message.setStatus(Status.SENT);
-
+        // Tạo đối tượng CMChat
+        CMChat message = new CMChat();
+        message.setSocialName(socialName);
+        message.setContentText(fileUrl);
+        // Gán dữ liệu vào contentText và xác định datatype
+        if (message.getContentText() != null) {
+            if (fileType.startsWith("application")) {
+                message.setDataType("File"); // Nếu là file
+            } else if (fileType.startsWith("image")||fileType.endsWith(".jpg") || message.getContentText().endsWith(".png")) {
+                message.setDataType("Image"); // Nếu là hình ảnh
+            } else if (fileType.startsWith("video") || fileType.endsWith(".mp4") || message.getContentText().endsWith(".avi")) {
+                message.setDataType("Video"); // Nếu là video
+            } else if (fileType.startsWith("audio") || fileType.endsWith(".mp3") || fileType.endsWith("wav")) {
+                message.setDataType("Audio"); // Nếu là video
+            } else {
+                message.setDataType("Text"); // Nếu là văn bản
+            }
+        }
         // Gọi phương thức receiveMessageTelegram để gửi tin nhắn
-        chatPublic(message);
+        receiveMessageTelegram(message);
 
         // Trả về phản hồi sau khi hoàn thành
         response.put("status", "Message sent successfully");
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/uploads/{filename:.+}")
+
+    @GetMapping("/v2/uploads/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
             Path file = Paths.get(UPLOADED_FOLDER).resolve(filename).normalize();
             Resource resource = new UrlResource(file.toUri());
 
-            if (resource.exists() && resource.isReadable()) {
+            if (resource.exists() || resource.isReadable()) {
                 // Determine the file's content type
                 String contentType = Files.probeContentType(file);
 
@@ -130,6 +136,7 @@ public class MessageController {
                 if (contentType == null) {
                     contentType = "application/octet-stream";
                 }
+
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(contentType))
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
@@ -144,22 +151,20 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/api/chat/history")
-    public ResponseEntity<List<Message>> getChatHistory(
+    @GetMapping("/api/v2/chat/history")
+    public ResponseEntity<List<CMChat>> getChatHistory(
             @RequestParam(value = "chatId", required = false) Long chatId,
             @RequestParam(value = "senderName", required = false) String senderName,
-            @RequestParam(value = "receiverName", required = false) String receiverName,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size ) {
+            @RequestParam(value = "size", defaultValue = "20") int size) {
 
-        System.out.println("Sender: " + senderName + ", Receiver: " + receiverName);
-        Page<Message> chatHistory;
-
+        Page<CMChat> chatHistory;
         Pageable pageable = PageRequest.of(page, size);
+
         if (chatId != null) {
-            chatHistory = messageService.getMessagesByChatId(chatId, pageable);
-        } else if (senderName != null && receiverName != null) {
-            chatHistory = messageService.getMessagesBetweenUsers(senderName, receiverName, pageable );
+            chatHistory = cmChatService.getMessagesByChatId(chatId, pageable);
+        } else if (senderName != null) {
+            chatHistory = cmChatService.getMessagesBetweenUsers(senderName, pageable);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -167,40 +172,34 @@ public class MessageController {
         return new ResponseEntity<>(chatHistory.getContent(), HttpStatus.OK);
     }
 
-    @GetMapping("/api/chat/public")
-    public ResponseEntity<List<Message>> getChatPublicHistory(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size ) {
+    @PutMapping("/message/statusv2")
+    public ResponseEntity<CMChat> updateMessageStatus(@RequestParam("messageId") Long messageId,
+                                                      @RequestParam("status") Long status) {
+        CMChat message = cmChatService.findMessageById(messageId);
 
-        Page<Message> chatHistory;
+        if (message != null) {
+            // Cập nhật trạng thái tin nhắn
+            message.setIStatus(status);
+            message.setUpdated(LocalDateTime.now());
 
-        Pageable pageable = PageRequest.of(page, size);
+            CMChat updatedMessage = cmChatService.updateMessageStatus(message);
 
-            chatHistory = messageService.getMessageByPublicChat(pageable );
+            // Gửi trạng thái tin nhắn cập nhật đến FE
+            simpMessagingTemplate.convertAndSend("/chatroom/public", updatedMessage);
 
-        return new ResponseEntity<>(chatHistory.getContent(), HttpStatus.OK);
-    }
-
-    @PutMapping("/update-status")
-    public ResponseEntity<Message> updateMessageStatus(@RequestBody Message update) {
-        Message updatedMessage = messageService.updateMessageStatus(update);
-
-        if (updatedMessage == null) {
-            return ResponseEntity.notFound().build();  // Trả về 404 nếu không tìm thấy tin nhắn
+            return new ResponseEntity<>(updatedMessage, HttpStatus.OK);
         }
 
-        return ResponseEntity.ok(updatedMessage);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @MessageMapping("/private-message")
-    public Message recMessage(@Payload Message message) {
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
-        System.out.println(message);
-        return message;
-    }
+//    @MessageMapping("/private-message")
+//    public CMChat recMessage(@Payload CMChat message) {
+//        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
+//        return message;
+//    }
 
-    private String getCurrentTime() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        return LocalDateTime.now().format(dtf);
+    private Long getChatID() {
+        return 5739833199L;
     }
 }

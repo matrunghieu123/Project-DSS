@@ -2,12 +2,12 @@ package dss.chatappv1.controller.dto;
 
 import dss.chatappv1.model.Status;
 
-public class MessageDto {
+import java.io.Serializable;
+
+public class MessageDto implements Serializable {
     private Long chatId;
     private String senderName;
-
     private String receiverName;
-
     public String getFile() {
         return file;
     }
@@ -89,4 +89,5 @@ public class MessageDto {
     }
 
     private Status status;
+
 }

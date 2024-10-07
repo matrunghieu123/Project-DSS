@@ -1,12 +1,10 @@
 package dss.chatappv1.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -16,6 +14,9 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
+    private Long message_id;
+
+    @Column(nullable = true)
     private Long chatId;
 
     private String senderName;
@@ -28,8 +29,7 @@ public class Message {
     @Column(nullable = true)
     private String fileType;
 
-    private String file;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String message;
 
     @Column(nullable = false)
@@ -39,7 +39,4 @@ public class Message {
     @Column(nullable = false)
     private Status status;
 
-    public Message() {
-
-    }
 }

@@ -22,8 +22,8 @@ public class TelegramConfig {
     private SimpMessagingTemplate messagingTemplate;
     @Bean
     @Scope("singleton")
-    public TelegramBot telegramBot(@Value("${bot.name}") String botName,
-                                   @Value("${bot.token}") String botToken){
+    public TelegramBot telegramBot(@Value("${telegram.bot.name}") String botName,
+                                   @Value("${telegram.bot.token}") String botToken){
         if (telegramBotInstance == null) {
             synchronized (TelegramConfig.class) {
                 if (telegramBotInstance == null) {
