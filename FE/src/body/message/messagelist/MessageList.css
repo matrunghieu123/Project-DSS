@@ -1,11 +1,13 @@
 .chat-messages {
   flex: 1;
   display: flex;
-  border-top: 1px solid rgba(0, 177, 255);
+  border-top: 2px solid rgb(173, 176, 179);
   overflow-x: hidden;
-  overflow-y: overlay;
+  overflow-y: auto; /* Thêm thanh cuộn dọc */
   flex-direction: column;
-  padding: 8px 0;
+  padding: 10px;
+  box-sizing: border-box; /* Đảm bảo padding được tính vào kích thước */
+  margin-right: -12px; /* Tạo không gian cho thanh cuộn */
 }
 
 .message {
@@ -27,6 +29,8 @@
   border-radius: 50%;
   object-fit: cover;
   background-color: #000;
+  border: none; /* Thêm dòng này để loại bỏ viền */
+  align-self: flex-start; /* Đảm bảo avatar căn lên đầu */
 }
 
 /* Avatar của người khác nằm bên trái */
@@ -50,8 +54,9 @@
   padding: 10px;
   border-radius: 8px;
   background-color: #f0f0f0;
-  max-width: fit-content; /* Thay đổi từ 100% sang fit-content */
+  max-width: 100%; /* Đảm bảo tin nhắn không vượt quá khung */
   word-wrap: break-word;
+  word-break: break-word; /* Ngắt từ khi quá dài */
   position: relative;
   align-self: flex-start;
   margin-left: 0; /* Xóa khoảng cách thừa */
@@ -62,7 +67,9 @@
   text-align: right; /* Căn chỉnh text sang bên phải */
   margin-right: 10px;
   margin-left: 0; /* Đảm bảo không có khoảng cách thừa bên trái */
-  max-width: fit-content; /* Thay đổi từ 100% sang fit-content */
+  max-width: 100%; /* Đảm bảo tin nhắn không vượt quá khung */
+  word-wrap: break-word;
+  word-break: break-word; /* Ngắt từ khi quá dài */
 }
 
 /* Đảm bảo thời gian không bị đẩy vào */
@@ -88,36 +95,13 @@
   display: inline-block; /* Hiển thị thời gian khi hover */
 }
 
-.message-avatar,
-.avatar.self {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: #000;
+/* Thêm khoảng cách cho các tin nhắn không phải là tin nhắn đầu tiên */
+.message:not(:first-child) .message-content-wrapper {
+  margin-left: 50px; /* Khoảng cách giữa avatar và nội dung tin nhắn bên phải */
 }
 
-/* Avatar của người khác nằm bên trái */
-.message .message-avatar {
-  margin-right: 10px; /* Khoảng cách giữa avatar và nội dung tin nhắn bên phải */
-}
-
-/* Avatar của bản thân nằm bên phải */
-.message.self .avatar.self {
-  margin-left: 10px; /* Khoảng cách giữa text và avatar bên phải */
-}
-
-/* Phần tử giả để chiếm không gian của avatar khi không có avatar */
-/* của bản thân */
-.avatar-placeholder.self {
-  width: 40px;
-  height: 40px;
-  margin-left: 10px;
-  background-color: transparent; /* Đảm bảo placeholder không có màu nền */
-}
-/* của người khác */
-.message-avatar-placeholder {
-  margin-left: 50px;
+.message.self:not(:first-child) .message-content-wrapper {
+  margin-right: 50px; /* Khoảng cách giữa text và avatar bên phải */
 }
 
 .message-file {
@@ -151,13 +135,14 @@
 }
 
 .message-sender-time-wrapper {
-  width: auto; /* Đảm bảo chiều rộng của phần tên và thời gian không ảnh hưởng tới nội dung tin nhắn */
+  width: 100%; /* Đảm bảo chiều rộng của phần tên và thời gian không ảnh hưởng tới nội dung tin nhắn */
   margin-bottom: 5px; /* Khoảng cách giữa thời gian và nội dung tin nhắn */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Điều chỉnh cho tin nhắn của bản thân */
 .message.self .message-sender-time-wrapper {
-  display: flex;
   justify-content: flex-end; /* Đẩy phần tên và giờ sang bên phải */
 }
 
@@ -179,6 +164,12 @@
 }
 
 /* Điều chỉnh margin cho tin nhắn đầu tiên */
-.message:first-child .message-data {
+.message:first-child.self .message-data {
   margin-left: 70px; /* Điều chỉnh khoảng cách trên để tránh phần tên và giờ */
+}
+
+.message.no-border {
+  border: none;
+  margin: 0;
+  padding: 5px 0;
 }

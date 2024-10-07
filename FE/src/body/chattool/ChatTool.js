@@ -1,163 +1,120 @@
-import React, { useState, useRef } from "react";
-import { Card, Switch, Input, Button, Avatar, Form, Collapse, Tooltip, Tag } from "antd";
-import { PhoneOutlined, MailOutlined, QuestionCircleOutlined, CalendarOutlined, HomeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "antd";
+import { CloseOutlined, PaperClipOutlined } from '@ant-design/icons';
+import SendMessage from '../message/sendmessage/SendMessage';
 import './ChatTool.css';
 
-const { Panel } = Collapse;
+const ChatTool = ({ isJoined, userName }) => { // Nhận thêm props userName
+  const [notes, setNotes] = useState([]); // Trạng thái để quản lý các ghi chú
+  const [noteInput, setNoteInput] = useState(""); // Trạng thái để quản lý giá trị nhập vào của ghi chú
+  const notesEndRef = useRef(null); // Tham chiếu đến phần cuối của danh sách ghi chú
 
-const ChatTool = ({ avatar, username }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [form] = Form.useForm();
-
-  const [tags, setTags] = useState(["tuvan", "hotro", "phananhdichvu"]); // Dữ liệu tag mẫu
-  const [inputValue, setInputValue] = useState(""); 
-
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
+  const handleNoteInputChange = (e) => {
+    setNoteInput(e.target.value);
   };
 
-  const inputRef = useRef(null);
+  // Xóa hàm handleAddNote vì không sử dụng
+  // const handleAddNote = (content, fileName = null) => {
+  //   if (content.trim() !== "" || fileName) {
+  //     const newNote = {
+  //       date: new Date().toLocaleDateString(),
+  //       time: new Date().toLocaleTimeString(),
+  //       content: content.trim(),
+  //       fileName: fileName ? fileName.name : null, // Chuyển đổi đối tượng File thành tên file
+  //     };
+  //     setNotes(prevNotes => [...prevNotes, newNote]);
+  //     setNoteInput("");
+  //   }
+  // };
 
-  const handleAddTag = () => {
-    if (inputValue.trim() !== "") {
-      setTags(prevTags => [...prevTags, `#${inputValue.trim()}`]);
-      setInputValue("");
-      if (inputRef.current) {
-        inputRef.current.focus();
+  const handleDeleteNote = (index) => {
+    setNotes(prevNotes => prevNotes.filter((_, i) => i !== index));
+  };
+
+  const handleSend = async (message, files) => {
+    if (isJoined) { // Kiểm tra nếu đã tham gia
+      console.log("Sending message:", message);
+      console.log("Selected files:", files);
+
+      if (message.trim() !== '' || files.length > 0) {
+        const newNote = {
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          content: message.trim(),
+          fileName: files.length > 0 ? files[0].name : null, // Lấy tên file đầu tiên
+          filePreview: files.length > 0 ? URL.createObjectURL(files[0]) : null, // Tạo URL preview cho file
+          fileType: files.length > 0 ? files[0].type : null, // Lấy loại file
+        };
+        setNotes(prevNotes => [...prevNotes, newNote]);
+        setNoteInput("");
       }
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleAddTag();
+  const handleFileClick = (filePreview, fileType, fileName) => {
+    if (fileType.startsWith('image/')) {
+      window.open(filePreview, '_blank');
+    } else {
+      const link = document.createElement('a');
+      link.href = filePreview;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
-  const handleEdit = () => {
-    setIsEditing(!isEditing);
-  };
+  // useEffect để cuộn xuống cuối khi danh sách ghi chú thay đổi
+  useEffect(() => {
+    if (notesEndRef.current) {
+      notesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [notes]);
 
   return (
     <div className="chat-tool-container">
-      <div style={{ padding: "16px 10px 0 16px" }}>
-        <Card style={{ marginBottom: 16 }}>
-          <Form layout="vertical">
-            <div style={{ display: 'flex', alignItems: 'center', flex: '1' }}>
-              <div style={{ display: 'flex', alignItems: 'center', flex: '1' }}>
-                <Switch defaultChecked style={{ flex: '0' }} />
-                <span className="infor-text" style={{ padding: '10px' }}>Trạng thái ChatBot</span>
-              </div>
-              <Tooltip title="Trạng thái hiện tại của ChatBot" getPopupContainer={trigger => trigger.parentElement}>
-                <QuestionCircleOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
-              </Tooltip>
-            </div>
-          </Form>
-        </Card>
-
-        <Collapse bordered={false} accordion style={{ background: 'white' }}>
-          <Panel className="infor-text" header="Tag" key="1">
-            <Form layout="vertical">
-              <Input
-                style={{
-                  border: 0,
-                }}
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Tìm kiếm | Thêm Tag"
-                suffix={
-                  <Button
-                    type="text"
-                    icon={<PlusOutlined />}
-                    onClick={handleAddTag}
-                    disabled={!inputValue.trim()}
-                  />
-                }
-                prefix={<SearchOutlined />}
-              />
-              <div style={{ marginTop: 8 }}>
-                {tags.map((tag, index) => (
-                  <Tag key={index} closable>
-                    #{tag}
-                  </Tag>
-                ))}
-              </div>
-              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' }}>
-                <Button type="primary">Lưu lại</Button>
-                <Button>Hủy</Button>
-              </div>
-            </Form>
-          </Panel>
-
-          <Panel className="infor-text" header="Ghi chú & Tương tác" key="2">
-            <Form layout="vertical">
-              <Input.TextArea 
-                placeholder="Ghi chú..." 
-                style={{
-                  border: 0,
-                }}
-              />
-            </Form>
-          </Panel>
-
-          <Panel className="infor-text" header="Thông tin cuộc trò chuyện" key="3">
-            <div 
-              style={{ 
-                maxHeight: 338, 
-                overflowX: 'hidden', 
-                overflowY: 'auto' 
-              }}
-            >
-              <Card bordered={false}>
-                <div style={{ textAlign: "center" }}>
-                  <Avatar size={64}>{avatar}</Avatar>
-                  <p className="infor-text" style={{ marginTop: 8 }}>{username}</p>
+      <div className="notes-title">Ghi chú</div> {/* Thay đổi từ thẻ <h2> thành <div> */}
+      <div className="tool-wrapper">
+        <div className="notes-container">
+          {notes.map((note, index) => (
+            <div key={index} className="note-item">
+              <div className="note-header">
+                <div>
+                  <span className="note-date">{userName}</span> {/* Sử dụng userName */}
+                  <span> Ngày {note.date}</span>
                 </div>
-
-                <Form form={form} layout="vertical">
-                  <Form.Item className="infor-text" label="Giới tính">
-                    <Input 
-                      placeholder="- - -" 
-                      disabled={!isEditing} 
-                    />
-                  </Form.Item>
-                  <Form.Item className="infor-text" label="Số điện thoại">
-                    <Input 
-                      prefix={<PhoneOutlined />} 
-                      placeholder="Nhập số điện thoại" 
-                      disabled={!isEditing} 
-                    />
-                  </Form.Item>
-                  <Form.Item className="infor-text" label="Email">
-                    <Input 
-                      prefix={<MailOutlined />} 
-                      placeholder="Nhập email" 
-                      disabled={!isEditing} 
-                    />
-                  </Form.Item>
-                  <Form.Item className="infor-text" label="Ngày sinh">
-                    <Input 
-                      prefix={<CalendarOutlined />} 
-                      placeholder="Nhập ngày sinh" 
-                      disabled={!isEditing} 
-                    />
-                  </Form.Item>
-                  <Form.Item label="Địa chỉ">
-                    <Input 
-                      prefix={<HomeOutlined />} 
-                      placeholder="Nhập địa chỉ" 
-                      disabled={!isEditing} 
-                    />
-                  </Form.Item>
-                  <Button type="primary" block onClick={handleEdit}>
-                    {isEditing ? 'Lưu' : 'Chỉnh sửa'}
-                  </Button>
-                </Form>
-              </Card>
+                <Button
+                  type="text"
+                  icon={<CloseOutlined />}
+                  onClick={() => handleDeleteNote(index)}
+                  className="note-delete-button"
+                />
+              </div>
+              <div className="note-content">
+                {note.content}
+                {note.fileName && (
+                  <div className="note-attachment">
+                    <PaperClipOutlined />
+                    <Button type="link" onClick={() => handleFileClick(note.filePreview, note.fileType, note.fileName)}>
+                      {note.fileName}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-          </Panel>
-        </Collapse>
+          ))}
+          <div ref={notesEndRef} /> {/* Thêm phần tử để cuộn đến */}
+        </div>
+        {isJoined && ( // Chỉ hiển thị SendMessage nếu đã tham gia
+          <SendMessage
+            userData={{ message: noteInput }}
+            handleMessage={handleNoteInputChange}
+            handleKeyPress={(e) => { if (e.key === 'Enter') handleSend(noteInput, []); }}
+            sendValue={handleSend} // Truyền hàm handleSend
+            sendPrivateValue={handleSend} // Truyền hàm handleSend
+            tab="NOTES"
+          />
+        )}
       </div>
     </div>
   );

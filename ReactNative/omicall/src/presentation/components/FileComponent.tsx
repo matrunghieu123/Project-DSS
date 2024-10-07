@@ -12,6 +12,7 @@ import {AppColors} from '../../core/constants/AppColors.ts';
 import DocumentIcon from '../../../assets/svg/DocumentIcon.tsx';
 import {RowComponent} from './index.ts';
 import {Fonts} from '../../core/constants/Fonts.ts';
+import {Styles} from '../../core/constants/Styles.ts';
 
 interface FileComponentProps {
   file: DocumentPicker.DocumentPickerResponse;
@@ -36,7 +37,7 @@ const FileComponent = (props: FileComponentProps) => {
   return (
     <RowComponent style={[styles.fileContainer, props.style]}>
       <DocumentIcon style={styles.icon} />
-      <View style={styles.flex}>
+      <View style={Styles.flex}>
         <Text style={styles.fileName} numberOfLines={1}>
           {file.name}
         </Text>
@@ -80,9 +81,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     margin: 5,
-  },
-  flex: {
-    flex: 1,
   },
 });
 

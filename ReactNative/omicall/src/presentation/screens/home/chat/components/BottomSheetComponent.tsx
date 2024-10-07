@@ -6,15 +6,15 @@ import BottomSheet, {
 import {Alert, StyleSheet} from 'react-native';
 import ItemComponent from './ItemComponent.tsx';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
-import * as DocumentPicker from 'react-native-document-picker';
 import {Constants} from '../../../../../core/constants/Constants.ts';
+import DocumentPicker, {
+  DocumentPickerResponse,
+} from 'react-native-document-picker';
 
 interface BottomSheetComponentProps {
   bottomSheetRef: RefObject<BottomSheet>;
   setMediaPicked: (media: ImageOrVideo | undefined) => void;
-  setFilePicked: (
-    file: DocumentPicker.DocumentPickerResponse | undefined,
-  ) => void;
+  setFilePicked: (file: DocumentPickerResponse | undefined) => void;
 }
 
 const BottomSheetComponent = (props: BottomSheetComponentProps) => {
@@ -32,9 +32,10 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
 
   const handleMediaPicker = () => {
     ImagePicker.openPicker({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
+      // width: Constants.WIDTH_IMAGE,
+      // height: Constants.HEIGHT_IMAGE,
+      // cropping: true,
+      mediaType: 'any',
     })
       .then(image => {
         setMediaPicked(image);
@@ -47,9 +48,10 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
 
   const handleOpenCamera = () => {
     ImagePicker.openCamera({
-      width: Constants.WIDTH_IMAGE,
-      height: Constants.HEIGHT_IMAGE,
-      cropping: true,
+      // width: Constants.WIDTH_IMAGE,
+      // height: Constants.HEIGHT_IMAGE,
+      // cropping: true,
+      mediaType: 'any',
     })
       .then(image => {
         setMediaPicked(image);

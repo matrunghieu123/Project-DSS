@@ -1,16 +1,41 @@
 .top-chat {
     padding: 10px; 
     background-color: white;
-    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .avatar-section {
     display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
+.avatar-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.avatar-info .info {
+    margin-left: 10px;
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .link-section {
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.link-section .ant-btn {
+    margin-left: 8px;
 }
 
 @media (max-width: 576px) {

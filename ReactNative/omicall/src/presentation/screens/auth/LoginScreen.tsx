@@ -19,7 +19,7 @@ import {Validate} from '../../../core/utils/Validate.ts';
 import {useDispatch} from 'react-redux';
 import {addAuth} from '../../redux/AuthReducer.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import authenticationAPI from '../../../services/AuthApi.ts';
+import authenticationAPI from '../../../services/auth_api.ts';
 import LoadingModal from '../../modal/LoadingModal.tsx';
 import {LoginModel} from '../../../models/LoginModel.ts';
 

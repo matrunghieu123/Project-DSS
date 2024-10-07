@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaFileWord, FaFileExcel, FaFilePdf, FaFileAlt } from 'react-icons/fa';
 
 const getFileIcon = (fileType) => {
@@ -15,8 +14,6 @@ const getFileIcon = (fileType) => {
 };
 
 const FileMessage = ({ fileUrl, fileType, fileName }) => {
-    console.log('Tên file:', fileName);  // Thêm dòng này để kiểm tra
-
     return (
         <div style={styles.fileMessage}>
             {getFileIcon(fileType)}

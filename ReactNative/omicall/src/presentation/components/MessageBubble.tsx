@@ -4,12 +4,17 @@ import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../redux/AuthReducer';
-import {Constants} from '../../core/constants/Constants.ts';
 import ImageView from 'react-native-image-viewing';
 import FileViewer from 'react-native-file-viewer';
 import {FileComponent} from './index.ts';
 import RNFS, {TemporaryDirectoryPath} from 'react-native-fs';
 import axios from 'axios';
+import {createThumbnail} from 'react-native-create-thumbnail';
+import {Constants} from '../../core/constants/Constants.ts';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import VideoModal from '../modal/VideoModal.tsx';
+import {Format} from '../../core/utils/Format.ts';
+import FastImage from 'react-native-fast-image';
 
 interface MessageBubbleProps {
   message?: string;
@@ -25,6 +30,23 @@ const MessageBubble = (props: MessageBubbleProps) => {
   const [visible, setIsVisible] = useState(false);
   const [fileSize, setFileSize] = useState<number | null>(null);
   const user = useSelector(authSelector).UserInfo;
+  const [thumbnail, setThumbnail] = useState<string>('');
+  const [dimensions, setDimensions] = useState({width: 0, height: 0});
+  const [isPlayVideo, setIsPlayVideo] = useState(false);
+
+  const isImageMimeType = (mimeType: string) => mimeType.startsWith('image/');
+  const isVideoMimeType = (mimeType: string) => mimeType.startsWith('video/');
+  const isDocumentMimeType = (mimeType: string) => {
+    const documentMimeTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+    ];
+    return documentMimeTypes.includes(mimeType);
+  };
 
   const getFileSize = async (url: string): Promise<number> => {
     try {
@@ -41,7 +63,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
     const decodedUrl = decodeURIComponent(url);
     const parts = decodedUrl.split('/');
     const lastPart = parts[parts.length - 1];
-    return lastPart.split('?')[0];
+    return lastPart.split('?')[0].split('fileUrl_')[1];
   };
 
   const handleOpenFile = () => {
@@ -63,9 +85,50 @@ const MessageBubble = (props: MessageBubbleProps) => {
     }
   };
 
+  const resizeImage = (path: string) => {
+    Image.getSize(
+      path,
+      (width, height) => {
+        let newWidth = width;
+        let newHeight = height;
+
+        if (
+          width > Constants.MAX_WIDTH_IMAGE ||
+          height > Constants.MAX_HEIGHT_IMAGE
+        ) {
+          const widthRatio = width / Constants.MAX_WIDTH_IMAGE;
+          const heightRatio = height / Constants.MAX_HEIGHT_IMAGE;
+          const ratio = Math.max(widthRatio, heightRatio);
+
+          newWidth = width / ratio;
+          newHeight = height / ratio;
+        }
+
+        setDimensions({width: newWidth, height: newHeight});
+      },
+      error => {
+        console.error('Error getting image size:', error);
+      },
+    );
+  };
+
   useEffect(() => {
-    if (fileUrl && fileType === 'file') {
-      getFileSize(fileUrl).then(size => setFileSize(size));
+    if (fileType && fileUrl) {
+      if (isImageMimeType(fileType)) {
+        setThumbnail(fileUrl);
+        resizeImage(fileUrl);
+      } else if (isVideoMimeType(fileType)) {
+        createThumbnail({
+          url: fileUrl,
+        })
+          .then(response => {
+            setThumbnail(response.path);
+            resizeImage(response.path);
+          })
+          .catch(err => console.log('Error creating thumbnail:', err));
+      } else if (isDocumentMimeType(fileType)) {
+        getFileSize(fileUrl).then(size => setFileSize(size));
+      }
     }
   }, [fileUrl, fileType]);
 
@@ -81,42 +144,73 @@ const MessageBubble = (props: MessageBubbleProps) => {
             ? styles.sentMessageContainer
             : styles.receivedMessageContainer,
         ]}>
-        {fileUrl && fileType === 'media' && (
+        {fileUrl && fileType && (
           <>
             <ImageView
-              images={[{uri: fileUrl}]}
+              images={[{uri: thumbnail}]}
               imageIndex={0}
-              visible={visible}
+              visible={visible && isImageMimeType(fileType)}
               onRequestClose={() => setIsVisible(false)}
             />
-            <TouchableOpacity onPress={() => setIsVisible(true)}>
-              <Image
-                source={{uri: fileUrl}}
-                style={[
-                  styles.image,
-                  user.UserName === senderName
-                    ? styles.sentImage
-                    : styles.receivedImage,
-                ]}
-              />
+            <TouchableOpacity
+              onPress={() => {
+                if (isVideoMimeType(fileType)) {
+                  setIsPlayVideo(true);
+                } else {
+                  setIsVisible(true); // Show image viewer
+                }
+              }}>
+              {thumbnail && (
+                <FastImage
+                  source={{uri: thumbnail, priority: FastImage.priority.high}}
+                  style={[
+                    styles.image,
+                    {
+                      width: dimensions.width,
+                      height: dimensions.height,
+                    },
+                    user.UserName === senderName
+                      ? styles.sentImage
+                      : styles.receivedImage,
+                  ]}
+                  resizeMode={FastImage.resizeMode.contain}
+                />
+              )}
+              {isVideoMimeType(fileType) && (
+                <View style={styles.playIconContainer}>
+                  <Ionicons
+                    name="play-circle"
+                    size={50}
+                    color={AppColors.greyLine}
+                  />
+                </View>
+              )}
             </TouchableOpacity>
+            <VideoModal
+              videoUrl={fileUrl}
+              isVisible={isPlayVideo}
+              onClose={() => setIsPlayVideo(false)}
+            />
           </>
         )}
-        {fileUrl && fileType === 'file' && fileSize !== null && (
-          <TouchableOpacity onPress={handleOpenFile}>
-            <FileComponent
-              file={{
-                uri: fileUrl,
-                name: getFileNameFromUrl(fileUrl),
-                size: fileSize,
-                fileCopyUri: fileUrl,
-                type: 'file',
-              }}
-              allowRemove={false}
-              style={styles.file}
-            />
-          </TouchableOpacity>
-        )}
+        {fileUrl &&
+          fileType &&
+          isDocumentMimeType(fileType) &&
+          fileSize !== null && (
+            <TouchableOpacity onPress={handleOpenFile}>
+              <FileComponent
+                file={{
+                  uri: fileUrl,
+                  name: getFileNameFromUrl(fileUrl),
+                  size: fileSize,
+                  fileCopyUri: fileUrl,
+                  type: 'file',
+                }}
+                allowRemove={false}
+                style={styles.file}
+              />
+            </TouchableOpacity>
+          )}
         {message && (
           <View>
             <Text
@@ -135,7 +229,7 @@ const MessageBubble = (props: MessageBubbleProps) => {
                   ? styles.sentTime
                   : styles.receivedTime,
               ]}>
-              {time}
+              {Format.formatTime(time)}
             </Text>
           </View>
         )}
@@ -150,11 +244,13 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     color: AppColors.grey,
     marginBottom: 2,
+    marginHorizontal: 10,
   },
   messageContainer: {
     maxWidth: '80%',
     borderRadius: 10,
-    marginVertical: 5,
+    marginBottom: 10,
+    marginHorizontal: 10,
   },
   sentMessageContainer: {
     backgroundColor: AppColors.secondary,
@@ -191,8 +287,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   image: {
-    width: Constants.WIDTH_IMAGE,
-    height: Constants.HEIGHT_IMAGE,
     borderRadius: 10,
   },
   sentImage: {
@@ -205,6 +299,15 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginLeft: 0,
     borderTopRightRadius: 0,
+  },
+  playIconContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -9,4 +9,6 @@ export const AppColors = {
   black: '#000000',
   transparent: '#F2F2F2',
   white: '#FFFFFF',
+  green: '#4bc35b',
+  lightGreen: '#e9f7ed',
 };

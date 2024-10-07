@@ -24,8 +24,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 30,
-    marginBottom: 12,
-    marginHorizontal: 20,
   },
 });
 export default AvatarCircle;

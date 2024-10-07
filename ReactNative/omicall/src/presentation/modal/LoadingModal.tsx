@@ -1,6 +1,7 @@
 import {View, Text, Modal, StyleSheet, ActivityIndicator} from 'react-native';
 import React from 'react';
 import {AppColors} from '../../core/constants/AppColors';
+import {Styles} from '../../core/constants/Styles.ts';
 
 interface LoadingModalComponentProps {
   visible: boolean;
@@ -11,22 +12,19 @@ const LoadingModal = (props: LoadingModalComponentProps) => {
   const {visible, text} = props;
   return (
     <Modal
-      style={styles.flex}
-  visible={visible}
-  transparent
-  statusBarTranslucent>
-  <View style={styles.container}>
-  <ActivityIndicator color={AppColors.white} size='large' />
-  <Text style={styles.text}>{text}</Text>
-    </View>
+      style={Styles.flex}
+      visible={visible}
+      transparent
+      statusBarTranslucent>
+      <View style={styles.container}>
+        <ActivityIndicator color={AppColors.white} size="large" />
+        <Text style={styles.text}>{text}</Text>
+      </View>
     </Modal>
-);
+  );
 };
 
 const styles = StyleSheet.create({
-  flex:{
-    flex: 1,
-  },
   container: {
     flex: 1,
     justifyContent: 'center',

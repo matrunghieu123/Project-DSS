@@ -39,6 +39,18 @@ PODS:
   - hermes-engine (0.75.3):
     - hermes-engine/Pre-built (= 0.75.3)
   - hermes-engine/Pre-built (0.75.3)
+  - libwebp (1.3.2):
+    - libwebp/demux (= 1.3.2)
+    - libwebp/mux (= 1.3.2)
+    - libwebp/sharpyuv (= 1.3.2)
+    - libwebp/webp (= 1.3.2)
+  - libwebp/demux (1.3.2):
+    - libwebp/webp
+  - libwebp/mux (1.3.2):
+    - libwebp/demux
+  - libwebp/sharpyuv (1.3.2)
+  - libwebp/webp (1.3.2):
+    - libwebp/sharpyuv
   - PromisesObjC (2.4.0)
   - RCT-Folly (2024.01.01.00):
     - boost
@@ -1270,6 +1282,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-create-thumbnail (2.0.0):
+    - React-Core
   - react-native-document-picker (9.3.1):
     - DoubleConversion
     - glog
@@ -1291,8 +1305,74 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-orientation-locker (1.7.0):
+    - React-Core
   - react-native-safe-area-context (4.11.0):
     - React-Core
+  - react-native-slider (4.5.3):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-video (6.6.3):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - react-native-video/Video (= 6.6.3)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-video/Video (6.6.3):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - React-nativeconfig (0.75.3)
   - React-NativeModulesApple (0.75.3):
     - glog
@@ -1555,6 +1635,10 @@ PODS:
     - React-utils (= 0.75.3)
   - RNCAsyncStorage (2.0.0):
     - React-Core
+  - RNFastImage (8.6.3):
+    - React-Core
+    - SDWebImage (~> 5.11.1)
+    - SDWebImageWebPCoder (~> 0.8.4)
   - RNFBApp (20.5.0):
     - Firebase/CoreOnly (= 10.29.0)
     - React-Core
@@ -1683,8 +1767,19 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSound (0.11.2):
+    - React-Core
+    - RNSound/Core (= 0.11.2)
+  - RNSound/Core (0.11.2):
+    - React-Core
   - RNSVG (15.6.0):
     - React-Core
+  - SDWebImage (5.11.1):
+    - SDWebImage/Core (= 5.11.1)
+  - SDWebImage/Core (5.11.1)
+  - SDWebImageWebPCoder (0.8.5):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.7.0)
   - TOCropViewController (2.7.4)
   - Yoga (0.0.0)
@@ -1727,8 +1822,12 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-create-thumbnail (from `../node_modules/react-native-create-thumbnail`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-video (from `../node_modules/react-native-video`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1756,6 +1855,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNFileViewer (from `../node_modules/react-native-file-viewer`)
@@ -1764,6 +1864,7 @@ DEPENDENCIES:
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSound (from `../node_modules/react-native-sound`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1778,7 +1879,10 @@ SPEC REPOS:
     - FirebaseStorage
     - GoogleUtilities
     - GTMSessionFetcher
+    - libwebp
     - PromisesObjC
+    - SDWebImage
+    - SDWebImageWebPCoder
     - SocketRocket
     - TOCropViewController
 
@@ -1854,10 +1958,18 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-create-thumbnail:
+    :path: "../node_modules/react-native-create-thumbnail"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-orientation-locker:
+    :path: "../node_modules/react-native-orientation-locker"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-slider:
+    :path: "../node_modules/@react-native-community/slider"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1912,6 +2024,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNFastImage:
+    :path: "../node_modules/react-native-fast-image"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBStorage:
@@ -1928,6 +2042,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSound:
+    :path: "../node_modules/react-native-sound"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   Yoga:
@@ -1949,6 +2065,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 8d2103d6c0176779aea4e25df6bb1410f9946680
+  libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 4464f4d875961fce86008d45f4ecf6cef6de0740
   RCTDeprecation: 4191f6e64b72d9743f6fe1a8a16e89e868f5e9e7
@@ -1979,8 +2096,12 @@ SPEC CHECKSUMS:
   React-logger: 4072f39df335ca443932e0ccece41fbeb5ca8404
   React-Mapbuffer: a90dc2b770956814f2f2ac4553063c5ce2618fe8
   React-microtasksnativemodule: 40cde5ee77232199dec72ea853902afb929390dc
+  react-native-create-thumbnail: ab55d24aea01723cf386f18b0b542aabb1982f27
   react-native-document-picker: 1928548d8b19bbc9f2219b01f1d350aa8ff76508
+  react-native-orientation-locker: 5819fd23ca89cbac0d736fb4314745f62716d517
   react-native-safe-area-context: 851c62c48dce80ccaa5637b6aa5991a1bc36eca9
+  react-native-slider: 5103fdf2444d1038fb614d6992aae8a65c0d1596
+  react-native-video: 930f42f60f3fe75e81899a51076d501422c79393
   React-nativeconfig: cd572c97f64676dcc2a1c88fc644b693b98408bf
   React-NativeModulesApple: 249c7a23d8ad82f13778f4f525a8d19ccf4deb86
   React-perflogger: 3bbb82f18e9ac29a1a6931568e99d6305ef4403b
@@ -2008,6 +2129,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 4291c041b116b97f7203d961a3cc95adf2347064
   ReactCommon: d5e70af52fb05bd546fd7f002c549f57116c59e4
   RNCAsyncStorage: d35c79ffba52c1013013e16b1fc295aec2feabb6
+  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: 017499cd7ea340963bfac43b4fcb28d2b0b21a09
   RNFBStorage: ac1286ebca9cee42d97d9f3e980e0f30bb360424
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
@@ -2016,7 +2138,10 @@ SPEC CHECKSUMS:
   RNImageCropPicker: 771e2ca319d2cf92e04ebf334ece892ee9a6728f
   RNReanimated: f12dfda120df1bc53833874b7f0280a39e1d050f
   RNScreens: de55b9d7de8a017d1588dcb70415492d0b0597c2
+  RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
   RNSVG: 5da7a24f31968ec74f0b091e3440080f347e279b
+  SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
+  SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: 33604ac44957ebe3f30f15b4cd0a3f96634e624a

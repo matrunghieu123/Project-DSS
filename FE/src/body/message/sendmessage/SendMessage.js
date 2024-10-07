@@ -1,36 +1,29 @@
 import React, { useRef, useState } from 'react';
 import './SendMessage.css';
-import { FaPaperPlane, FaPaperclip, FaTimes } from 'react-icons/fa'; // Import icon từ react-icons
+import { FaPaperPlane, FaPaperclip, FaTimes, FaSmile } from 'react-icons/fa';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import EmojiPicker from 'emoji-picker-react';
 
-// Component SendMessage nhận các props: userData, handleMessage, handleKeyPress, sendValue, sendPrivateValue, tab
 const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendPrivateValue, tab }) => {
-    const inputRef = useRef(null); // Tham chiếu đến trường nhập liệu
-    const fileInputRef = useRef(null); // Tham chiếu đến trường input file
-    const [selectedFiles, setSelectedFiles] = useState([]); // Trạng thái để lưu trữ tệp đã chọn
+    const inputRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Trạng thái hiển thị emoji picker
 
-    // Hàm handleSend để xử lý việc gửi tin nhắn
-    const handleSend = () => {
-        console.log("Sending message:", userData.message); // Kiểm tra xem tin nhắn có được gửi hay không
-        console.log("Selected files:", selectedFiles); // Kiểm tra danh sách file
-
-        // Kiểm tra nếu message hoặc file đã chọn có giá trị
+    const handleSend = async () => {
         if (userData.message.trim() !== '' || selectedFiles.length > 0) {
             const files = selectedFiles.map(fileObj => fileObj.file);
-            
-            // Kiểm tra xem đang ở chế độ public hay private và gửi tương ứng
             if (tab === "CHATROOM") {
-                sendValue(userData.message, files);  // Gửi tin nhắn cho public chat
+                await sendValue(userData.message, files);
             } else {
-                sendPrivateValue(userData.message, files);  // Gửi tin nhắn cho private chat
+                await sendPrivateValue(userData.message, files);
             }
-            
-            // Xóa nội dung tin nhắn và file đã chọn sau khi gửi
             handleMessage({ target: { value: '' } });
-            setSelectedFiles([]);  // Reset selectedFiles sau khi gửi
+            setSelectedFiles([]);
         }
     };
 
-    // Hàm handleFileChange để xử lý khi người dùng chọn file
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
         const newFiles = files.map(file => ({
@@ -40,7 +33,6 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
         setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
     };
 
-    // Hàm removeSelectedFile để xóa file đã chọn
     const removeSelectedFile = (index) => {
         setSelectedFiles(prevFiles => {
             const newFiles = [...prevFiles];
@@ -48,6 +40,14 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
             newFiles.splice(index, 1);
             return newFiles;
         });
+    };
+
+    // Sửa hàm handleEmojiClick để xử lý đúng emoji
+    const handleEmojiClick = (emojiObject) => {
+        if (emojiObject && emojiObject.emoji) {
+            handleMessage({ target: { value: userData.message + emojiObject.emoji } });
+        }
+        setShowEmojiPicker(false); // Ẩn picker sau khi chọn emoji
     };
 
     return (
@@ -73,8 +73,10 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
                     </div>
                 )}
                 <div className="send-message">
+                    <Avatar size={30} icon={<UserOutlined />} className="send-avatar" />
+                    <div className="send-divider"></div>
                     <input
-                        ref={inputRef} // Gắn ref vào trường nhập liệu
+                        ref={inputRef}
                         type="text"
                         className="input-message"
                         placeholder="Nhập tin nhắn"
@@ -87,23 +89,39 @@ const SendMessage = ({ userData, handleMessage, handleKeyPress, sendValue, sendP
                     <button
                         type="button"
                         className="file-button"
-                        onClick={() => fileInputRef.current.click()} // Mở hộp thoại chọn tệp khi nhấn nút
+                        onClick={() => fileInputRef.current.click()}
                     >
                         <FaPaperclip />
                     </button>
                     <input
-                        ref={fileInputRef} // Gắn ref vào input file
+                        ref={fileInputRef}
                         type="file"
-                        style={{ display: 'none' }} // Ẩn input file
+                        style={{ display: 'none' }}
                         onChange={handleFileChange}
                         multiple
                     />
 
-                    {/* Nút gửi với icon */}
+                    {/* Nút emoji */}
+                    {tab !== "NOTES" && ( // Thêm điều kiện kiểm tra tab
+                        <button
+                            type="button"
+                            className="emoji-button"
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        >
+                            <FaSmile />
+                        </button>
+                    )}
+                    {showEmojiPicker && tab !== "NOTES" && ( // Thêm điều kiện kiểm tra tab
+                        <div className="emoji-picker">
+                            <EmojiPicker onEmojiClick={handleEmojiClick} />
+                        </div>
+                    )}
+
+                    {/* Nút gửi */}
                     <button
                         type="button"
                         className="send-button"
-                        onClick={handleSend} // Sử dụng hàm handleSend
+                        onClick={handleSend}
                     >
                         <FaPaperPlane />
                     </button>
