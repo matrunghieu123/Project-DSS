@@ -8,11 +8,21 @@ import LogoVB from './logo-img/Logo-Viber.png';
 
 const { Sider } = Layout;
 
-const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
-  const handleTabChange = (newTab) => {
+const ColNavbar = ({ setTab, handleResetFilter, setLoginType, setSource, setMembers, baseUrl }) => { // Nhận baseUrl
+  const handleTabChange = async (newTab, source) => {
     setTab(newTab);
     handleResetFilter();
-    setLoginType(newTab); // Cập nhật loại đăng nhập dựa trên tab
+    setLoginType(newTab);
+    setSource(source);
+
+    // Gọi API để lấy danh sách thành viên
+    try {
+      const response = await fetch(`${baseUrl}/chatroom/${source}`);
+      const data = await response.json();
+      setMembers(data.members); // Giả sử API trả về danh sách thành viên trong thuộc tính 'members'
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách thành viên:", error);
+    }
   };
 
   return (
@@ -27,12 +37,12 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
           style={menuItemStyle}
         >
           <Tooltip
-            title="Chat tổng"
+            title="Chat chung"
             placement="top"
             overlayInnerStyle={tooltipStyle}
           >
             <div
-              onClick={() => handleTabChange("CHATROOM")} // Thay đổi tab và reset filter
+              onClick={() => handleTabChange("CHATROOM", null)}
               style={iconContainerStyle}
             >
               <MessageOutlined style={{ fontSize: "20px" }} />
@@ -47,7 +57,7 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
               src={LogoFB}
               alt="LogoFB"
               style={iconStyle}
-              onClick={() => handleTabChange("FACEBOOK")} // Thay đổi tab và reset filter
+              onClick={() => handleTabChange("FACEBOOK", "facebook")} // Truyền thông tin nguồn
             />
           </Tooltip>
         </Menu.Item>
@@ -58,7 +68,7 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
               src={LogoZL}
               alt="LogoZL"
               style={iconStyle}
-              onClick={() => handleTabChange("ZALO")} // Thay đổi tab và reset filter
+              onClick={() => handleTabChange("ZALO", "zalo")} // Truyền thông tin nguồn
             />
           </Tooltip>
         </Menu.Item>
@@ -69,7 +79,7 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
               src={LogoTL}
               alt="LogoTL"
               style={iconStyle}
-              onClick={() => handleTabChange("TELEGRAM")} // Thay đổi tab và reset filter
+              onClick={() => handleTabChange("TELEGRAM", "telegram")} // Truyền thông tin nguồn
             />
           </Tooltip>
         </Menu.Item>
@@ -80,7 +90,7 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType }) => {
               src={LogoVB}
               alt="LogoVB"
               style={iconStyle}
-              onClick={() => handleTabChange("VIBER")} // Thay đổi tab và reset filter
+              onClick={() => handleTabChange("VIBER", "viber")} // Truyền thông tin nguồn
             />
           </Tooltip>
         </Menu.Item>

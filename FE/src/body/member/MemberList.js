@@ -38,23 +38,25 @@ const formatDate = (time) => {
     }
 };
 
-const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) => {
+const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors, source, members }) => { // Thêm members
     const avatarColors = useRef({});
 
     useEffect(() => {
-        const newAvatarColors = { ...avatarColors.current };
-        let hasChanged = false;
+        if (privateChats) {
+            const newAvatarColors = { ...avatarColors.current };
+            let hasChanged = false;
 
-        privateChats.forEach((_, name) => {
-            if (!newAvatarColors[name]) {
-                newAvatarColors[name] = getRandomColor();
-                hasChanged = true;
+            privateChats.forEach((_, name) => {
+                if (!newAvatarColors[name]) {
+                    newAvatarColors[name] = getRandomColor();
+                    hasChanged = true;
+                }
+            });
+
+            if (hasChanged) {
+                avatarColors.current = newAvatarColors;
+                setAvatarColors(newAvatarColors); // Cập nhật state màu avatar trong ChatRoom
             }
-        });
-
-        if (hasChanged) {
-            avatarColors.current = newAvatarColors;
-            setAvatarColors(newAvatarColors); // Cập nhật state màu avatar trong ChatRoom
         }
     }, [privateChats, setAvatarColors]);
 
@@ -85,10 +87,16 @@ const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) =>
         return colors[Math.floor(Math.random() * colors.length)];
     };
 
+    const filteredChats = members || (tab === "CHATROOM"
+        ? privateChats ? [...new Set(privateChats.keys())] : [] // Sử dụng Set để loại bỏ trùng lặp
+        : source 
+            ? privateChats ? [...new Set(privateChats.keys())].filter(name => name.includes(source)) : []
+            : privateChats ? [...new Set(privateChats.keys())] : []);
+
     return (
         <div className="member-list">
             <List
-                dataSource={[...privateChats.keys()]}
+                dataSource={filteredChats} // Sử dụng danh sách đã lọc
                 renderItem={(name) => (
                     <List.Item
                         onClick={() => setTab(name, avatarColors.current[name])}
@@ -100,8 +108,14 @@ const MemberList = ({ privateChats, setTab, tab, userData, setAvatarColors }) =>
                                     {getAvatar(name) ? null : getInitials(name)}
                                 </Avatar>
                             }
-                            title={<Typography.Text className="member-name">{name}</Typography.Text>}
-                            description={<Typography.Text className="member-time">{getLastMessageTime(name)}</Typography.Text>}
+                            title={
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography.Text className="member-name">{name}</Typography.Text>
+                                    <Typography.Text className="member-time" style={{ marginLeft: 'auto' }}>
+                                        {getLastMessageTime(name)}
+                                    </Typography.Text>
+                                </div>
+                            }
                         />
                     </List.Item>
                 )}

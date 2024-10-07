@@ -23,82 +23,108 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
             );
         } else if (fileUrl) {
             return <FileMessage fileUrl={fileUrl} fileType={fileType} fileName={fileName} />;
+        } else {
+            return null;
         }
-        return null;
     };
-
-    const shouldShowTime = (currentChat, previousChat) => {
-        if (!previousChat) return true;
-        const currentTime = new Date(currentChat.time).getTime();
-        const previousTime = new Date(previousChat.time).getTime();
-        return (currentTime - previousTime) >= 10 * 1000;
-    };
-
+    
     const getInitials = (name) => {
         const nameParts = name.split(' ');
         const initials = nameParts.map(part => part[0]).join('');
         return initials.toUpperCase();
     };
 
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        return `${day}/${month}/${year}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+    };
+
     return (
         <List
             className="chat-messages"
             itemLayout="horizontal"
-            dataSource={chats && chats.filter(chat => {
-                if (tab === 'private') {
-                    return (chat.senderName === userData.username || chat.receiverName === userData.username);
-                }
-                return true;
-            })}
-            renderItem={(chat, index) => {
-                const previousChat = chats[index - 1];
-                const isSameSender = previousChat && previousChat.senderName === chat.senderName;
-                const showTime = shouldShowTime(chat, previousChat);
+            dataSource={chats && chats
+                .filter(chat => {
+                    if (tab === 'private') {
+                        return (chat.senderName === userData.username || chat.receiverName === userData.username);
+                    } else {
+                        return true;
+                    }
+                })
+                .sort((a, b) => new Date(a.time) - new Date(b.time))} // Sắp xếp tin nhắn theo thời gian
+                renderItem={(chat, index) => {
+                    const previousChat = chats[index - 1];
+                    const isSameSender = index > 0 && previousChat && previousChat.senderName === chat.senderName;
+                    const isFirstMessage = index === 0;
+                    const isSelf = chat.senderName === userData.username;
+                    const isNewSenderAfterDifferentUser = index > 0 && previousChat && previousChat.senderName !== chat.senderName;
+                  
 
-                return (
-                    <List.Item
-                        key={index}
-                        className={`message ${chat.senderName === userData.username ? "self" : ""} no-border`}
-                        title={chat.time ? `Gửi lúc: ${chat.time}` : ''}
-                    >
-                        {/* Hiển thị avatar nếu là tin nhắn đầu tiên hoặc cách nhau 1 phút */}
-                        {(!isSameSender || showTime) && chat.senderName !== userData.username && (
-                            <List.Item.Meta
-                                avatar={
-                                    <Avatar style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}>
-                                        {getInitials(chat.senderName)}
-                                    </Avatar>
-                                }
-                                title={chat.senderName}
-                                description={chat.time ? new Date(chat.time).toLocaleString() : 'Không rõ thời gian'}
-                            />
-                        )}
-                        <div className="message-content-wrapper">
-                            {(!isSameSender || showTime) && (
-                                <div className="message-sender-time-wrapper">
-                                    <span className="message-sender-time">{chat.senderName} - {chat.time}</span>
+                    let avatarMeta = null;
+                    let senderTimeWrapper = null;
+                    let selfAvatar = null;
+
+                    if (!isSameSender || isFirstMessage || isNewSenderAfterDifferentUser) {
+                        if (isSelf) {
+                            senderTimeWrapper = (
+                                <div className="message-sender-time-wrapper self">
+                                    <span className="message-sender">{chat.senderName}</span>
+                                    <span className="message-time">{formatDateTime(chat.time)}</span>
                                 </div>
-                            )}
-                            <div className="message-content-inner">
-                                <div className="message-data">
-                                    <span className="message-content">{chat.message}</span>
-                                    {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType, chat.fileName)}
-                                    <span className="message-time-hover">{chat.time}</span>
+                            );
+                    
+                            selfAvatar = (
+                                <Avatar
+                                    className="avatar self"
+                                    style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}
+                                >
+                                    {getInitials(chat.senderName)}
+                                </Avatar>
+                            );
+                        } else {
+                            avatarMeta = (
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}>
+                                            {getInitials(chat.senderName)}
+                                        </Avatar>
+                                    }
+                                    title={chat.senderName}
+                                    description={chat.time ? formatDateTime(chat.time) : 'Không rõ thời gian'}
+                                />
+                            );
+                        }
+                    }                    
+
+                    return (
+                        <List.Item
+                            key={index}
+                            className={`message ${isSelf ? "self" : ""} no-border`}
+                            title={chat.time ? `Gửi lúc: ${formatDateTime(chat.time)}` : ''}
+                        >
+                            {avatarMeta}
+                            <div className="message-content-wrapper">
+                                {senderTimeWrapper}
+                                <div className={`message-content-inner ${isSelf ? "self" : ""}`}>
+                                    <div className="message-data">
+                                        <span className="message-content">{chat.message}</span>
+                                        {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType, chat.fileName)}
+                                        <span className="message-time-hover">{formatDateTime(chat.time)}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        {/* Hiển thị avatar nếu là tin nhắn đầu tiên hoặc cách nhau 1 phút */}
-                        {(!isSameSender || showTime) && chat.senderName === userData.username && (
-                            <Avatar
-                                className="avatar self"
-                                style={{ backgroundColor: avatarColors[chat.senderName] || '#7265e6' }}
-                            >
-                                {getInitials(chat.senderName)}
-                            </Avatar>
-                        )}
-                    </List.Item>
-                );
-            }}
+                            {selfAvatar}
+                        </List.Item>
+                    );
+                }}                
         >
             <div ref={endOfMessagesRef} />
         </List>

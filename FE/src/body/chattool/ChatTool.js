@@ -13,20 +13,6 @@ const ChatTool = ({ isJoined, userName }) => { // Nhận thêm props userName
     setNoteInput(e.target.value);
   };
 
-  // Xóa hàm handleAddNote vì không sử dụng
-  // const handleAddNote = (content, fileName = null) => {
-  //   if (content.trim() !== "" || fileName) {
-  //     const newNote = {
-  //       date: new Date().toLocaleDateString(),
-  //       time: new Date().toLocaleTimeString(),
-  //       content: content.trim(),
-  //       fileName: fileName ? fileName.name : null, // Chuyển đổi đối tượng File thành tên file
-  //     };
-  //     setNotes(prevNotes => [...prevNotes, newNote]);
-  //     setNoteInput("");
-  //   }
-  // };
-
   const handleDeleteNote = (index) => {
     setNotes(prevNotes => prevNotes.filter((_, i) => i !== index));
   };

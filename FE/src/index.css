@@ -111,7 +111,7 @@ code {
 }
 
 .chat-border {
-  height: 91vh;
+  height: -webkit-fill-available;
   display: flex;
   flex-direction: row;
   overflow: hidden;
@@ -148,6 +148,7 @@ code {
   border-radius: 12px;
   flex-direction: column;
   max-height: -webkit-fill-available;
+  min-height: 400px;
 }
 
 .text-input {

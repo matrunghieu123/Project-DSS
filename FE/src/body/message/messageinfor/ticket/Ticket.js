@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Drawer, Input, Steps, Table, Typography, Tag } from 'antd';
-import { EyeOutlined, EditOutlined, SearchOutlined, FilterOutlined, CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { 
+    EyeOutlined, 
+    EditOutlined, 
+    SearchOutlined, 
+    FilterOutlined, 
+    CaretUpOutlined, 
+    CaretDownOutlined, 
+    DeleteOutlined 
+} from '@ant-design/icons';
 import { FaPaperclip } from 'react-icons/fa';
 import './Ticket.css';
 
@@ -70,31 +78,168 @@ const columns = [
     },
 ];
 
+
 const data = [
     {
         key: '1',
-        user: 'User ...',
+        user: 'Nguyễn Văn A',
         statusBefore: 'Đang xử lý',
-        statusAfter: 'Online',
-        updateDate: '20-12-2024',
-        content: 'text tối đa 2 dòng',
-        file: 'xxx.png',
+        statusAfter: 'Hoàn thành',
+        updateDate: '01-01-2024',
+        content: 'Nội dung xử lý 1',
+        file: 'file1.png',
     },
-    // Thêm các hàng khác nếu cần
+    {
+        key: '2',
+        user: 'Trần Thị B',
+        statusBefore: 'Chờ xử lý',
+        statusAfter: 'Đang xử lý',
+        updateDate: '02-01-2024',
+        content: 'Nội dung xử lý 2',
+        file: 'file2.png',
+    },
+    {
+        key: '3',
+        user: 'Lê Văn C',
+        statusBefore: 'Hoàn thành',
+        statusAfter: 'Đang xử lý',
+        updateDate: '03-01-2024',
+        content: 'Nội dung xử lý 3',
+        file: 'file3.png',
+    },
+    {
+        key: '4',
+        user: 'Phạm Thị D',
+        statusBefore: 'Đang xử lý',
+        statusAfter: 'Chờ xử lý',
+        updateDate: '04-01-2024',
+        content: 'Nội dung xử lý 4',
+        file: 'file4.png',
+    },
+    {
+        key: '5',
+        user: 'Hoàng Văn E',
+        statusBefore: 'Chờ xử lý',
+        statusAfter: 'Hoàn thành',
+        updateDate: '05-01-2024',
+        content: 'Nội dung xử lý 5',
+        file: 'file5.png',
+    },
+    {
+        key: '6',
+        user: 'Đỗ Thị F',
+        statusBefore: 'Hoàn thành',
+        statusAfter: 'Chờ xử lý',
+        updateDate: '06-01-2024',
+        content: 'Nội dung xử lý 6',
+        file: 'file6.png',
+    },
+    {
+        key: '7',
+        user: 'Ngô Văn G',
+        statusBefore: 'Đang xử lý',
+        statusAfter: 'Hoàn thành',
+        updateDate: '07-01-2024',
+        content: 'Nội dung xử lý 7',
+        file: 'file7.png',
+    },
+    {
+        key: '8',
+        user: 'Vũ Thị H',
+        statusBefore: 'Chờ xử lý',
+        statusAfter: 'Đang xử lý',
+        updateDate: '08-01-2024',
+        content: 'Nội dung xử lý 8',
+        file: 'file8.png',
+    },
+    {
+        key: '9',
+        user: 'Bùi Văn I',
+        statusBefore: 'Hoàn thành',
+        statusAfter: 'Chờ xử lý',
+        updateDate: '09-01-2024',
+        content: 'Nội dung xử lý 9',
+        file: 'file9.png',
+    },
+    {
+        key: '10',
+        user: 'Dương Thị J',
+        statusBefore: 'Đang xử lý',
+        statusAfter: 'Hoàn thành',
+        updateDate: '10-01-2024',
+        content: 'Nội dung xử lý 10',
+        file: 'file10.png',
+    },
+    {
+        key: '11',
+        user: 'Lý Văn K',
+        statusBefore: 'Chờ xử lý',
+        statusAfter: 'Đang xử lý',
+        updateDate: '11-01-2024',
+        content: 'Nội dung xử lý 11',
+        file: 'file11.png',
+    },
 ];
 
+
 const Ticket = ({ visible, onClose }) => {
+    const [activeTab, setActiveTab] = useState('process'); // Mặc định là 'process'
+    const [activeButton, setActiveButton] = useState('detail');
+
+    const handleCloseTab = (tab) => {
+        if (tab === activeTab) {
+            setActiveTab('');
+        }
+    };
+
     return (
         <Drawer
             placement="right"
             onClose={onClose}
             visible={visible}
-            width={'80%'}
+            width={'71%'}
+            closable={false}
+            title={
+                <div className="ticket-header-top">
+                    <div 
+                        className={`ticket-tab ${activeTab === 'process' ? 'active' : 'inactive'}`} 
+                        onClick={() => setActiveTab('process')}
+                    >
+                        Xử lý ticket
+                        <span className="close-tab" onClick={() => handleCloseTab('process')}>×</span>
+                    </div>
+                    <div className="right-buttons">
+                        <Button type="text" className="close-button" onClick={onClose}>Đóng tất cả</Button>
+                    </div>
+                </div>
+            }
         >
             <div className="ticket-content">
                 <div className="ticket-header">
-                    <Button type="text">Chi tiết <EyeOutlined /></Button>
-                    <Button type="text">Xử lý <EditOutlined /></Button>
+                    <Button 
+                        type="text" 
+                        className={activeButton === 'detail' ? 'active-button' : ''}
+                        onClick={() => setActiveButton('detail')}
+                    >
+                        Chi tiết <EyeOutlined />
+                    </Button>
+                    <Button 
+                        type="text" 
+                        className={activeButton === 'process' ? 'active-button' : ''}
+                        onClick={() => setActiveButton('process')}
+                    >
+                        Xử lý <EditOutlined />
+                    </Button>
+                    <Button 
+                        type="text"
+                        className="delete-button"
+                        style={{ 
+                            backgroundColor: 'red', 
+                            color: 'white' 
+                        }}
+                    >
+                        Xóa <DeleteOutlined />
+                    </Button>
                 </div>
                 <div className="ticket-info">
                     <Title level={4} className="ticket-title">Ticket xxxxx</Title>
@@ -166,7 +311,9 @@ const Ticket = ({ visible, onClose }) => {
                         alignItems: 'center' 
                     }}
                 >
-                    <Title level={4} className="ticket-title">Lịch sử tác động</Title>
+                    <Title level={4} className="ticket-title">
+                        Lịch sử tác động
+                    </Title>
                     <hr className="divider" />
                     <Table 
                         columns={columns} 

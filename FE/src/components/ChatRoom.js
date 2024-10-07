@@ -10,9 +10,6 @@ import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
 import CallDialog from './calldialog/CallDialog';
 import { Input, Button } from 'antd';
-import { auth } from '../firebase/FireBase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from 'axios';
 
 
@@ -27,12 +24,39 @@ const setBaseUrl = (url) => {
 // Sử dụng hàm setBaseUrl để thiết lập URL gốc
 setBaseUrl('http://192.168.1.12:81');
 
-const ChatRoom = () => {
-    // Thêm state để quản lý email và password
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+// Định nghĩa các endpoint API
+const apiEndpoints = {
+    publicChat: '/api/chat/public',
+    privateChat: '/api/chat/private',
+    upload: '/api/upload',
+};
 
-    const [privateChats, setPrivateChats] = useState(new Map());     
+// Hàm kiểm tra các endpoint API
+const checkApiEndpoints = async () => {
+    try {
+        const results = await Promise.all(Object.values(apiEndpoints).map(endpoint => 
+            axios.get(`${baseUrl}${endpoint}`)
+                .then(response => ({ endpoint, status: response.status, data: response.data }))
+                .catch(error => ({ endpoint, error: error.message }))
+        ));
+
+        results.forEach(result => {
+            if (result.error) {
+                console.error(`Error with ${result.endpoint}: ${result.error}`);
+            } else {
+                console.log(`Success with ${result.endpoint}:`, result.data);
+            }
+        });
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra các API:", error);
+    }
+};
+
+// Gọi hàm checkApiEndpoints để kiểm tra các API
+checkApiEndpoints();
+
+const ChatRoom = () => {
+    const [privateChats, setPrivateChats] = useState(() => new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab, setTab] = useState("CHATROOM");
     const [loginType, setLoginType] = useState("CHATROOM"); // Thêm state để quản lý loại đăng nhập
@@ -54,10 +78,14 @@ const ChatRoom = () => {
 
     const [isJoined, setIsJoined] = useState(false); // Thêm trạng thái tham gia
 
-    const [avatar, setAvatar] = useState(null); // Thêm state để quản lý ảnh đại diện
-
     const [currentCustomer, setCurrentCustomer] = useState({ name: '', avatar: '', color: '' });
     const [avatarColors, setAvatarColors] = useState({});
+
+    const [source, setSource] = useState(null); // Thêm state để lưu nguồn
+
+    const [joinedMembers, setJoinedMembers] = useState(new Map()); // Thêm state để theo dõi trạng thái tham gia của từng thành viên
+
+    const [members, setMembers] = useState([]); // Thêm state để lưu danh sách thành viên
 
     // Hàm để lấy avatar
     const getAvatar = (name) => {
@@ -72,19 +100,7 @@ const ChatRoom = () => {
     const toggleCuuNhat = () => {
         setIsCuuNhatActive(!isCuuNhatActive); // Đảo ngược trạng thái "Cũ nhất"
     };
-
-    // const uploadFileToFirebase = async (file) => {
-    //     try {
-    //         const storageRef = ref(storage, `uploads/${file.name}`);
-    //         const snapshot = await uploadBytes(storageRef, file);
-    //         const downloadURL = await getDownloadURL(snapshot.ref);
-    //         return downloadURL; // Trả về URL để hiển thị trong tin nhắn
-    //     } catch (error) {
-    //         console.error("Lỗi khi tải lên Firebase Storage:", error);
-    //         return null; // Nếu có lỗi thì trả về null
-    //     }
-    // };
-
+    
     const loadMessagesFromServer = async (username) => {
         if (!username) {
             console.error("Username is required to load messages.");
@@ -92,7 +108,7 @@ const ChatRoom = () => {
         }
 
         try {
-            const response = await fetch(`${baseUrl}/api/chat/history?username=${encodeURIComponent(username)}`);
+            const response = await fetch(`${baseUrl}${apiEndpoints.publicChat}?username=${encodeURIComponent(username)}`);
             if (!response.ok) {
                 throw new Error(`Server error: ${response.statusText}`);
             }
@@ -113,10 +129,10 @@ const ChatRoom = () => {
 
     const loadChatHistory = async (senderName, receiverName) => {
         try {
-            const response = await fetch(`${baseUrl}/api/chat/history?senderName=${senderName}&receiverName=${receiverName}`);
+            const response = await fetch(`${baseUrl}${apiEndpoints.publicChat}?senderName=${senderName}&receiverName=${receiverName}`);
             const data = await response.json();
             // Xử lý dữ liệu nhận được từ server
-            if (receiverName === "chat tổng") {
+            if (receiverName === "Chat chung") {
                 setPublicChats(data);
             } else {
                 setPrivateChats(prevChats => {
@@ -135,56 +151,13 @@ const ChatRoom = () => {
         if (userData.connected) {
             loadMessagesFromServer(userData.username);
         }
-    }, [userData.connected, userData.username]); // Thêm userData.username vào mảng phụ thuộc
+    }, [userData.connected, userData.username]); 
 
     useEffect(() => {
         if (userData.connected) {
-            loadChatHistory(userData.username, "chat tổng");
+            loadChatHistory(userData.username, "Chat chung");
         }
     }, [userData.connected, userData.username]);
-
-    useEffect(() => {
-        // Thêm các tab chat riêng tư clone
-        const initialPrivateChats = new Map();
-        initialPrivateChats.set('user1', []);
-        initialPrivateChats.set('user2', []);
-        setPrivateChats(initialPrivateChats);
-    }, []);
-    // Hàm đăng nhập Firebase
-    const login = () => {
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("Đăng nhập thành công:", user);
-                // Sử dụng tên người dùng nhập thay vì email
-                const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
-                setUserData({ ...userData, username, avatar, connected: true });
-                setTab(username); // Đặt tab thành tên người dùng vừa đăng nhập
-                loadMessagesFromServer(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng nhập
-                connect();
-            })
-            .catch((error) => {
-                console.error("Đăng nhập thất bại:", error.message);
-            });
-    };
-
-    // Hàm đăng ký người dùng mới
-    const register = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("Đăng ký thành công:", user);
-                // Sử dụng tên người dùng nhập thay vì email
-                const username = userData.username; // Lấy username từ dữ liệu người dùng nhập
-                setUserData({ ...userData, username, avatar, connected: true });
-                setTab(username); // Đặt tab thành tên người dùng vừa đăng ký
-                loadMessagesFromServer(username); // Thêm dòng này để tải tin nhắn ngay sau khi đăng ký
-                connect();
-            })
-            .catch((error) => {
-                console.error("Đăng ký thất bại:", error.message);
-            });
-    };
 
     const connect = () => {
         let Sock = new SockJS(`${baseUrl}/ws`); // Sử dụng URL gốc để kết nối WebSocket
@@ -201,15 +174,12 @@ const ChatRoom = () => {
         stompClientRef.current.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
         userJoin();
         loadMessagesFromServer(userData.username); // Thêm dòng này để tải tin nhắn ngay sau khi kết nối
-        loadChatHistory(userData.username, "chat tổng");
+        loadChatHistory(userData.username, "Chat chung");
     };
 
     const userJoin = () => {
-        var chatMessage = {
-            senderName: userData.username,
-            status: "JOIN"
-        };
-        stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
+        // Bỏ qua việc gửi tin nhắn lên WebSocket
+        console.log("User join logic executed without WebSocket request.");
     };
 
     const onMessageReceived = (payload) => {
@@ -223,7 +193,7 @@ const ChatRoom = () => {
             payloadData.fileUrl = payloadData.fileUrl || '';
             payloadData.fileName = payloadData.fileName || '';  // fileName
             payloadData.message = payloadData.message || '';
-            payloadData.receiverName = payloadData.receiverName || 'chat tổng';
+            payloadData.receiverName = payloadData.receiverName || 'Chat chung';
             payloadData.senderName = payloadData.senderName || 'unknown';
             payloadData.time = payloadData.time || new Date().toLocaleTimeString();
 
@@ -236,10 +206,11 @@ const ChatRoom = () => {
                     break;
 
                 case "MESSAGE":
-                    if (payloadData.receiverName === "chat tổng") {
-                        setPublicChats(prevPublicChats => [...prevPublicChats, payloadData]);
+                    if (payloadData.receiverName === "Chat chung") {
+                        setPublicChats(prevPublicChats => 
+                            [...prevPublicChats, payloadData].sort((a, b) => new Date(a.time) - new Date(b.time))
+                        );
                     } else {
-                        // Xử lý tin nhắn riêng tư
                         addMessageToPrivateChat(payloadData);
                     }
                     break;
@@ -315,7 +286,7 @@ const ChatRoom = () => {
         try {
             const response = await axios({
                 method: 'post',
-                url: `${baseUrl}/api/upload`, // Sử dụng baseUrl
+                url: `${baseUrl}${apiEndpoints.upload}`, // Sử dụng apiEndpoints.upload
                 data: formData,
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -340,7 +311,7 @@ const ChatRoom = () => {
 
                 if (files.length > 0) {
                     // Gửi file lên server và lấy URL
-                    const response = await sendMessageToServer(userData.username, "chat tổng", message, files[0]);
+                    const response = await sendMessageToServer(userData.username, "Chat chung", message, files[0]);
                     fileUrl = `${baseUrl}/api/${response.data.fileUrl}`; // Thay đổi giá trị fileUrl
                     fileName = files[0].name;  // Lưu tên file vào biến cục bộ
                     fileType = files[0].type;
@@ -348,12 +319,12 @@ const ChatRoom = () => {
 
                 const chatMessage = {
                     senderName: userData.username,
-                    receiverName: "chat tổng",
+                    receiverName: "Chat chung",
                     message: message || "",
                     status: "MESSAGE",
                     fileType: fileType,
                     fileUrl: fileUrl,
-                    time: new Date().toLocaleTimeString()
+                    time: new Date().toISOString() // Sử dụng toISOString để có cả ngày và giờ
                 };
 
                 // Gửi tin nhắn ngay lập tức mà không chờ phản hồi từ server
@@ -390,7 +361,7 @@ const ChatRoom = () => {
                     status: "MESSAGE",
                     fileType: fileType,
                     fileUrl: fileUrl,
-                    time: new Date().toLocaleTimeString()
+                    time: new Date().toISOString() // Sử dụng toISOString để có cả ngày và giờ
                 };
 
                 stompClientRef.current.send("/app/private-message", {}, JSON.stringify(chatMessage));
@@ -416,20 +387,100 @@ const ChatRoom = () => {
         setIsFilterCleared(false);
     };
 
-    const handleJoin = () => {
-        setIsJoined(true); // Cập nhật trạng thái tham gia
+    const handleJoin = (memberName) => {
+        setJoinedMembers(prev => new Map(prev).set(memberName, true)); // Cập nhật trạng thái tham gia cho thành viên
+        if (memberName === tab) {
+            setIsJoined(true); // Cập nhật trạng thái isJoined khi tab hiện tại được tham gia
+
+            // Thêm tin nhắn hệ thống thông báo người dùng đã tham gia
+            const systemMessage = {
+                senderName: 'System',
+                message: `${userData.username} đã tham gia cuộc hội thoại.`,
+                time: new Date().toISOString(),
+                status: 'SYSTEM'
+            };
+
+            if (tab === "CHATROOM") {
+                setPublicChats(prevPublicChats => [...prevPublicChats, systemMessage]);
+            } else {
+                setPrivateChats(prevChats => {
+                    const newChats = new Map(prevChats);
+                    const chatList = newChats.get(tab) || [];
+                    newChats.set(tab, [...chatList, systemMessage]);
+                    return newChats;
+                });
+            }
+        }
     };
 
-    const handleSetTab = (name, color) => {
+    const handleTransfer = (memberName) => {
+        setJoinedMembers(prev => new Map(prev).set(memberName, false)); // Cập nhật trạng thái chưa tham gia cho thành viên
+        if (memberName === tab) {
+            setIsJoined(false); // Cập nhật trạng thái isJoined khi tab hiện tại bị chuyển
+        }
+    };
+
+    const handleSetTab = (name, color, source) => {
         setTab(name);
-        const avatar = getAvatar(name); // Lấy avatar từ hàm getAvatar
+        setSource(source); // Cập nhật nguồn khi chọn tab
+        const avatar = getAvatar(name);
         setCurrentCustomer({ name, avatar, color });
-        setIsFilterCleared(false); // Khi chọn tab, đặt isFilterCleared thành false để hiển thị nội dung chat
+        setIsFilterCleared(false);
     };
 
     const handleSetAvatarColors = (colors) => {
         setAvatarColors(colors);
     };
+
+    const fetchUsersBySource = async (source) => {
+        try {
+            let response;
+            switch (source) {
+                case 'facebook':
+                    response = await fetch(`${baseUrl}/api/facebook/users`);
+                    break;
+                case 'zalo':
+                    response = await fetch(`${baseUrl}/api/zalo/users`);
+                    break;
+                case 'telegram':
+                    response = await fetch(`${baseUrl}/api/chatroom/telegram`);
+                    break;
+                case 'viber':
+                    response = await fetch(`${baseUrl}/api/viber/users`);
+                    break;
+                default:
+                    throw new Error('Nguồn không hợp lệ');
+            }
+
+            if (!response.ok) {
+                throw new Error(`Error fetching users: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.users; // Giả sử API trả về danh sách người dùng trong thuộc tính 'users'
+        } catch (error) {
+            console.error("Lỗi khi gọi API:", error);
+            return []; // Trả về mảng rỗng nếu có lỗi
+        }
+    };
+
+    // Sử dụng useEffect để gọi hàm fetchUsersBySource khi source thay đổi
+    useEffect(() => {
+        const loadUsers = async () => {
+            if (source) {
+                const users = await fetchUsersBySource(source);
+                // TODO: Xử lý dữ liệu người dùng từ API thực tế
+                // Ví dụ: const newPrivateChats = new Map(users.map(user => [user.name, user.messages]));
+                const newPrivateChats = new Map(users.map(user => [user, []])); // Giả lập dữ liệu
+                setPrivateChats(newPrivateChats);
+            } else {
+                // Nếu không có source, hiển thị tất cả
+                setPrivateChats(new Map()); // Hoặc giữ nguyên dữ liệu hiện tại
+            }
+        };
+
+        loadUsers();
+    }, [source]);
 
     return (
         <div className="container">
@@ -438,7 +489,14 @@ const ChatRoom = () => {
                     <div className="body-nav">
                         <div className="body-col-nav">
                             <div className="col-nav">
-                                <ColNavbar setTab={handleSetTab} handleResetFilter={handleResetFilter} setLoginType={setLoginType} />
+                                <ColNavbar 
+                                    setTab={handleSetTab} 
+                                    handleResetFilter={handleResetFilter} 
+                                    setLoginType={setLoginType} 
+                                    setSource={setSource} 
+                                    setMembers={setMembers} 
+                                    baseUrl={baseUrl} // Truyền baseUrl vào ColNavbar
+                                />
                             </div>
                         </div>
 
@@ -488,7 +546,7 @@ const ChatRoom = () => {
                                             style={{ 
                                                 cursor: 'pointer', 
                                                 display: 'flex', 
-                                                alignItems: 'center',
+                                                alignItems: 'center', 
                                             }}
                                         >
                                             {isCuuNhatActive ? 'Mới nhất' : 'Cũ nhất'} {/* Thay đổi chữ hiển thị */}
@@ -501,15 +559,40 @@ const ChatRoom = () => {
                                                     color: isCuuNhatActive ? 'lightgray' : 'black' // Thay đổi màu sắc
                                                 }}
                                             >
-                                                <span style={{ fontSize: '12px', transform: 'scale(1, 0.6)', color: isCuuNhatActive ? 'lightgray' : 'black' }}>&#9650;</span> {/* Mũi tên lên */}
-                                                <span style={{ fontSize: '12px', transform: 'scale(1, 0.6)', marginTop: '-8px', color: isCuuNhatActive ? 'black' : 'lightgray' }}>&#9660;</span> {/* Mũi tên xuống */}
+                                                <span 
+                                                    style={{ 
+                                                        fontSize: '12px', 
+                                                        transform: 'scale(1, 0.6)', 
+                                                        color: isCuuNhatActive ? 'lightgray' : 'black' 
+                                                    }}
+                                                >
+                                                    &#9650;
+                                                </span> {/* Mũi tên lên */}
+                                                <span 
+                                                    style={{ 
+                                                        fontSize: '12px', 
+                                                        transform: 'scale(1, 0.6)', 
+                                                        marginTop: '-8px', 
+                                                        color: isCuuNhatActive ? 'black' : 'lightgray' 
+                                                    }}
+                                                >
+                                                    &#9660;
+                                                </span> {/* Mũi tên xuống */}
                                             </span>
                                         </span>
                                     </div>
 
                                     <div className='member-box'>
                                         <div className='member-list'>
-                                            <MemberList privateChats={privateChats} setTab={handleSetTab} tab={tab} userData={userData} setAvatarColors={handleSetAvatarColors} />
+                                            <MemberList 
+                                                privateChats={privateChats} 
+                                                setTab={handleSetTab} 
+                                                tab={tab} 
+                                                userData={userData} 
+                                                setAvatarColors={handleSetAvatarColors} 
+                                                source={source} 
+                                                members={members} // Truyền danh sách thành viên vào MemberList
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -544,6 +627,7 @@ const ChatRoom = () => {
                                                     </div>
                                                 </div>
                                                 <div className='chat-input-box'>
+
                                                     <div className='chat-input-box-1'>
                                                         <div style={{
                                                             flex: 1,
@@ -553,18 +637,34 @@ const ChatRoom = () => {
                                                             flexDirection: 'column',
                                                         }}>
                                                             <MessageList 
-                                                                chats={tab === "CHATROOM" ? publicChats : privateChats.get(tab) || []} 
+                                                                chats={tab === "CHATROOM" ? publicChats : (privateChats?.get(tab) || [])} 
                                                                 tab={tab} userData={userData} endOfMessagesRef={endOfMessagesRef} avatarColors={avatarColors}
                                                             />
-                                                            {!isJoined && ( // Hiển thị nút "Tham gia" nếu chưa tham gia
-                                                                <Button type="primary" onClick={handleJoin} style={{ marginTop: '10px' }}>
-                                                                    Tham gia
-                                                                </Button>
+                                                            {!joinedMembers.get(tab) && (
+                                                                <div style={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'center',
+                                                                    marginTop: '10px',
+                                                                }}>
+                                                                    <Button 
+                                                                        type="primary" 
+                                                                        onClick={() => handleJoin(tab)} 
+                                                                        style={{ 
+                                                                            width: 'fit-content',
+                                                                        }}
+                                                                    >
+                                                                        Tham gia
+                                                                    </Button>
+                                                                </div>
                                                             )}
                                                         </div>
-                                                        {isJoined && ( // Chỉ hiển thị SendMessage nếu đã tham gia
+                                                        {joinedMembers.get(tab) && (
                                                             <div style={{
                                                                 backgroundColor: 'white',
+                                                                display: 'flex',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                flexDirection: 'column',
                                                             }}>
                                                                 <SendMessage 
                                                                     userData={userData} 
@@ -574,6 +674,17 @@ const ChatRoom = () => {
                                                                     sendPrivateValue={sendPrivateValue} 
                                                                     tab={tab} 
                                                                 />
+                                                                <Button 
+                                                                    type="default" 
+                                                                    onClick={() => handleTransfer(tab)} 
+                                                                    style={{ 
+                                                                        marginTop: '10px',
+                                                                        backgroundColor: '#0ec50e',
+                                                                        color: 'white',
+                                                                    }}
+                                                                >
+                                                                    Chuyển nhân viên phụ trách
+                                                                </Button>
                                                             </div>
                                                         )}
                                                     </div>
@@ -586,7 +697,7 @@ const ChatRoom = () => {
                                                 <ChatTool 
                                                     avatar={userData.username[0].toUpperCase()}  // Truyền ký tự đầu tiên của username làm avatar
                                                     userName={userData.username}  // Truyền username 
-                                                    isJoined={isJoined}
+                                                    isJoined={joinedMembers.get(tab)} // Sử dụng trạng thái tham gia của tab hiện tại
                                                 />
                                             </div>
                                         </div>
@@ -610,23 +721,9 @@ const ChatRoom = () => {
                                 placeholder="Nhập tên của bạn"
                                 name="userName"
                                 value={userData.username}
-                                onChange={handleUsername} // Hàm này sẽ cập nhật state của username
+                                onChange={handleUsername}
                             />
-                            <input
-                                className='name-input'
-                                placeholder="Nhập email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                            <input
-                                className='name-input'
-                                type="password"
-                                placeholder="Nhập mật khẩu"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <button onClick={login}>Đăng nhập</button>
-                            <button onClick={register}>Đăng ký</button>
+                            <button onClick={connect}>Kết nối</button> {/* Thay đổi nút để chỉ kết nối */}
                         </>
                     ) : (
                         <p>Vui lòng đăng nhập từ ứng dụng {loginType}</p>
