@@ -14,34 +14,25 @@ import {Fonts} from '../../../core/constants/Fonts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import Sound from 'react-native-sound';
 import JsSIPService from '../../../services/jsSIP_service';
 import {MediaStream} from 'react-native-webrtc';
-import ModalCallingScreen from './ModalCallingScreen';
 import {Validate} from '../../../core/utils/Validate.ts';
+import {ModalCallingScreen} from '../index.ts';
 
 const CustomKeyboard: FC<{
   navigation: any;
-  sound: Sound;
   remoteStream: MediaStream;
   jsSIPService: JsSIPService;
-}> = ({navigation, sound, remoteStream, jsSIPService}) => {
+}> = ({navigation, remoteStream, jsSIPService}) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
   const [inputValue, setInputValue] = useState('');
   const textInputRef = React.useRef<TextInput>(null);
   const [isCalling, setIsCalling] = useState(false);
 
-  const playSound = () => {
-    if (sound) {
-      sound.play();
-    }
-  };
-
   const handleKeyPress = (key: string) => {
     textInputRef.current?.focus();
     setInputValue(prev => prev + key);
-    playSound();
   };
 
   const handleDeletePress = () => {
@@ -52,7 +43,6 @@ const CustomKeyboard: FC<{
     if (key === '0') {
       textInputRef.current?.focus();
       setInputValue(prev => prev + '+');
-      playSound();
     }
   };
 

@@ -59,6 +59,7 @@ const ChatScreen = ({navigation, route}: any) => {
   };
 
   const handleNewMessage = useCallback((message: MessageModel) => {
+    if (message.receiverName !== user) return;
     setMessages(prevMessages => [
       {
         message_id: message.message_id,
@@ -78,7 +79,7 @@ const ChatScreen = ({navigation, route}: any) => {
       file = {
         uri: mediaPicked.path,
         type: mediaPicked.mime,
-        name: mediaPicked.filename,
+        name: mediaPicked.path.split('/').pop(),
       };
     } else if (filePicked) {
       file = {
@@ -89,7 +90,7 @@ const ChatScreen = ({navigation, route}: any) => {
     }
     file
       ? chatAPI.HandleUpload(user.UserName, name, message, file)
-      : stompService.sendMessagePublic({
+      : stompService.sendMessageTelegram({
           senderName: user.UserName,
           receiverName: name,
           message,
@@ -131,7 +132,8 @@ const ChatScreen = ({navigation, route}: any) => {
 
     const showDateSeparator = currentMessageDate !== nextMessageDate;
     const showSenderName =
-      index === messages.length - 1 || messages[index + 1].senderName !== item.senderName;
+      index === messages.length - 1 ||
+      messages[index + 1].senderName !== item.senderName;
 
     return (
       <>

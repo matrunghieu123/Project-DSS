@@ -1,13 +1,4 @@
-import {
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-  PanResponder,
-  Animated,
-  Easing,
-} from 'react-native';
+import {Modal, StyleSheet, TouchableOpacity, View, Text} from 'react-native';
 import React, {useState, useRef, useEffect} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -15,6 +6,7 @@ import Video, {VideoRef} from 'react-native-video';
 import Slider from '@react-native-community/slider';
 import {AppColors} from '../../core/constants/AppColors';
 import {Fonts} from '../../core/constants/Fonts.ts';
+import {Styles} from '../../core/constants/Styles.ts';
 
 interface VideoModalProps {
   videoUrl: string;
@@ -31,7 +23,6 @@ const VideoModal = (props: VideoModalProps) => {
   const [duration, setDuration] = useState(0);
   const videoRef = useRef<VideoRef>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pan = useRef(new Animated.ValueXY()).current;
 
   const resetControlsTimeout = () => {
     if (timeoutRef.current) {
@@ -86,125 +77,90 @@ const VideoModal = (props: VideoModalProps) => {
     if (!isVisible) {
       setVideoEnded(false);
       setPaused(false);
-      pan.setValue({x: 0, y: 0});
     }
   }, [isVisible]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 20;
-      },
-      onPanResponderMove: Animated.event([null, {dy: pan.y}], {
-        useNativeDriver: false,
-      }),
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 100) {
-          Animated.timing(pan, {
-            toValue: {x: 0, y: 1000},
-            duration: 200,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: false,
-          }).start(() => onClose());
-        } else {
-          Animated.spring(pan, {
-            toValue: {x: 0, y: 0},
-            useNativeDriver: false,
-            friction: 5,
-            tension: 100,
-          }).start();
-        }
-      },
-    }),
-  ).current;
-
   return (
     <Modal animationType={'slide'} visible={isVisible} transparent={true}>
-      <Animated.View
-        style={[styles.overlay, {transform: pan.getTranslateTransform()}]}
-        {...panResponder.panHandlers}>
-        <TouchableOpacity
-          style={styles.overlay}
-          onPress={toggleControls}
-          activeOpacity={1}>
-          <View style={styles.modalBackground}>
-            {controlsVisible && (
-              <>
-                <TouchableOpacity
-                  onPress={onClose}
-                  style={styles.closeButton}
-                  activeOpacity={1}>
-                  <Ionicons name="close" size={30} color={AppColors.white} />
-                </TouchableOpacity>
-                {videoEnded ? (
-                  <TouchableOpacity
-                    onPress={handleReplay}
-                    style={styles.pauseButton}
-                    activeOpacity={1}>
-                    <MaterialIcons
-                      name="replay"
-                      size={60}
-                      color={AppColors.white}
-                    />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => setPaused(!paused)}
-                    style={styles.pauseButton}
-                    activeOpacity={1}>
-                    <Ionicons
-                      name={paused ? 'play' : 'pause'}
-                      size={60}
-                      color={AppColors.white}
-                    />
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-            <Video
-              ref={videoRef}
-              source={{uri: videoUrl}}
-              style={styles.video}
-              resizeMode="contain"
-              paused={paused}
-              onEnd={() => {
-                setVideoEnded(true);
-                setControlsVisible(true);
-              }}
-              onLoad={data => setDuration(data.duration)}
-              onProgress={data => setCurrentTime(data.currentTime)}
-            />
-          </View>
-        </TouchableOpacity>
-        <View style={{alignItems: 'center'}}>
+      <TouchableOpacity
+        style={Styles.flex}
+        onPress={toggleControls}
+        activeOpacity={1}>
+        <View style={styles.modalBackground}>
           {controlsVisible && (
             <>
-              <Slider
-                style={styles.slider}
-                minimumValue={0}
-                maximumValue={duration}
-                value={currentTime}
-                minimumTrackTintColor={AppColors.white}
-                maximumTrackTintColor={AppColors.greyIcon}
-                thumbTintColor={AppColors.white}
-                onSlidingComplete={handleSeek}
-              />
-              <View style={styles.timeContainer}>
-                <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-                <Text style={styles.timeText}>{formatTime(duration)}</Text>
-              </View>
+              <TouchableOpacity
+                onPress={onClose}
+                style={styles.closeButton}
+                activeOpacity={1}>
+                <Ionicons name="close" size={30} color={AppColors.white} />
+              </TouchableOpacity>
+              {videoEnded ? (
+                <TouchableOpacity
+                  onPress={handleReplay}
+                  style={styles.pauseButton}
+                  activeOpacity={1}>
+                  <MaterialIcons
+                    name="replay"
+                    size={60}
+                    color={AppColors.white}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setPaused(!paused)}
+                  style={styles.pauseButton}
+                  activeOpacity={1}>
+                  <Ionicons
+                    name={paused ? 'play' : 'pause'}
+                    size={60}
+                    color={AppColors.white}
+                  />
+                </TouchableOpacity>
+              )}
             </>
           )}
+          <Video
+            ref={videoRef}
+            source={{uri: videoUrl}}
+            style={styles.video}
+            resizeMode="contain"
+            ignoreSilentSwitch="ignore"
+            paused={paused}
+            onEnd={() => {
+              setVideoEnded(true);
+              setControlsVisible(true);
+            }}
+            onLoad={data => setDuration(data.duration)}
+            onProgress={data => setCurrentTime(data.currentTime)}
+          />
         </View>
-      </Animated.View>
+      </TouchableOpacity>
+      <View style={{alignItems: 'center'}}>
+        {controlsVisible && (
+          <>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={duration}
+              value={currentTime}
+              minimumTrackTintColor={AppColors.white}
+              maximumTrackTintColor={AppColors.greyIcon}
+              thumbTintColor={AppColors.white}
+              onSlidingComplete={handleSeek}
+            />
+            <View style={styles.timeContainer}>
+              <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+              <Text style={styles.timeText}>{formatTime(duration)}</Text>
+            </View>
+          </>
+        )}
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-  },
   modalBackground: {
     flex: 1,
     backgroundColor: AppColors.black,
@@ -213,8 +169,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
-    left: 10,
+    top: 50,
+    right: 15,
     zIndex: 1,
   },
   pauseButton: {

@@ -13,14 +13,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ContentScreen from './ContentScreen';
 import {useSelector} from 'react-redux';
 import {authSelector} from '../../redux/AuthReducer';
-import {Status} from '../../../core/constants/Status';
 import StompService from '../../../services/stomp_service.ts';
 import {Styles} from '../../../core/constants/Styles.ts';
 
 const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
   const user = useSelector(authSelector).UserInfo;
   const [activeTab, setActiveTab] = useState('all');
-  const [isConnected, setIsConnected] = useState(false);
   const stompService = StompService.getInstance(user.UserName);
   const tabNames: {[key: string]: string} = {
     all: 'Tất cả',
@@ -34,22 +32,12 @@ const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
     stompService.connect();
     const checkConnection = setInterval(() => {
       if (stompService.isConnected()) {
-        setIsConnected(true);
         clearInterval(checkConnection);
       }
     }, 1000);
 
     return () => clearInterval(checkConnection);
   }, [stompService]);
-
-  useEffect(() => {
-    if (isConnected) {
-      stompService.joinChatRoom({
-        senderName: user.UserName,
-        status: Status.JOIN,
-      });
-    }
-  }, [isConnected, user.UserName, stompService]);
 
   return (
     <View style={Styles.flex}>

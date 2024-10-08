@@ -1,7 +1,6 @@
 import {Client} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import {Constants} from '../core/constants/Constants.ts';
-import {JoinChatRoomParam} from '../params/JoinChatRoomParam.ts';
 import {SendMessageParam} from '../params/SendMessageParam.ts';
 import {MessageModel} from '../models/MessageModel.ts';
 
@@ -22,6 +21,11 @@ class StompService {
         this.client.subscribe('/chatroom/public', message => {
           const parsedMessage = JSON.parse(message.body);
           console.log('STOMP Message Public:', parsedMessage);
+          this.onMessageCallback(parsedMessage);
+        });
+        this.client.subscribe('/chatroom/telegram', message => {
+          const parsedMessage = JSON.parse(message.body);
+          console.log('STOMP Message Telegram:', parsedMessage);
           this.onMessageCallback(parsedMessage);
         });
         this.client.subscribe('/user/' + name + '/private', message => {
@@ -60,7 +64,7 @@ class StompService {
     this.onMessageCallback = callback;
   };
 
-  public joinChatRoom = (param: JoinChatRoomParam) => {
+  public sendMessagePublic = (param: SendMessageParam) => {
     if (this.isConnected()) {
       this.client.publish({
         destination: '/app/message',
@@ -71,10 +75,10 @@ class StompService {
     }
   };
 
-  public sendMessagePublic = (param: SendMessageParam) => {
+  public sendMessageTelegram = (param: SendMessageParam) => {
     if (this.isConnected()) {
       this.client.publish({
-        destination: '/app/message',
+        destination: '/chatroom',
         body: JSON.stringify(param),
       });
     } else {

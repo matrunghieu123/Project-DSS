@@ -16,12 +16,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import CustomKeyboard from './CustomKeyboard.tsx';
 import JsSIPService from '../../../services/jsSIP_service.ts';
-import Sound from 'react-native-sound';
 import {MediaStream} from 'react-native-webrtc';
 import {Constants} from '../../../core/constants/Constants.ts';
 
 const CallScreen: FC<{navigation: any}> = ({navigation}) => {
-  const [sound, setSound] = useState<Sound | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [jsSIPService, setJsSIPService] = useState<JsSIPService | null>(null);
 
@@ -30,19 +28,6 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
       setRemoteStream(stream),
     );
     setJsSIPService(jsSIPService);
-
-    Sound.setCategory('Playback');
-    const soundInstance = new Sound('dtmf.wav', Sound.MAIN_BUNDLE, error => {
-      if (error) {
-        console.log('Error loading sound: ', error);
-        return;
-      }
-      setSound(soundInstance);
-    });
-
-    return () => {
-      soundInstance.release();
-    };
   }, []);
 
   return (
@@ -54,7 +39,6 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
         </View>
         <CustomKeyboard
           navigation={navigation}
-          sound={sound!}
           jsSIPService={jsSIPService!}
           remoteStream={remoteStream!}
         />

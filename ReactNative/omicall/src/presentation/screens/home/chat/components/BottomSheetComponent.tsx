@@ -48,8 +48,8 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
 
   const handleOpenCamera = () => {
     ImagePicker.openCamera({
-      // width: Constants.WIDTH_IMAGE,
-      // height: Constants.HEIGHT_IMAGE,
+      // width: Constants.MAX_WIDTH_IMAGE,
+      // height: Constants.MAX_HEIGHT_IMAGE,
       // cropping: true,
       mediaType: 'any',
     })

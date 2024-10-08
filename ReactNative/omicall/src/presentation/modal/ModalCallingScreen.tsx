@@ -7,14 +7,14 @@ import {
   Modal,
   SafeAreaView,
 } from 'react-native';
-import {Styles} from '../../../core/constants/Styles.ts';
-import {AppColors} from '../../../core/constants/AppColors.ts';
-import CallOutIcon from '../../../../assets/svg/CallOutIcon.tsx';
-import {AvatarCircle, RowComponent, SpaceComponent} from '../../components';
-import {Fonts} from '../../../core/constants/Fonts.ts';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {MediaStream, RTCView} from 'react-native-webrtc';
-import JsSIPService from '../../../services/jsSIP_service.ts';
+import JsSIPService from '../../services/jsSIP_service';
+import {Styles} from '../../core/constants/Styles.ts';
+import {AppColors} from '../../core/constants/AppColors.ts';
+import CallOutIcon from '../../../assets/svg/CallOutIcon.tsx';
+import {AvatarCircle, RowComponent, SpaceComponent} from '../components';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Fonts} from '../../core/constants/Fonts.ts';
 
 interface Props {
   isCalling: boolean;
@@ -65,11 +65,17 @@ const ModalCallingScreen = (props: Props) => {
           break;
         case 'ended':
           setConnectionStatus('Kết thúc cuộc gọi');
-          setTimeout(() => setIsCalling(false), 2000);
+          setTimeout(() => setIsCalling(false), 5000);
           break;
         case 'failed':
           setConnectionStatus('Cuộc gọi thất bại');
-          setTimeout(() => setIsCalling(false), 2000);
+          setTimeout(() => setIsCalling(false), 5000);
+          break;
+        case 'unwanted':
+          setConnectionStatus(
+            'Khách hàng đăng ký không nhận cuộc gọi này',
+          );
+          setTimeout(() => setIsCalling(false), 5000);
           break;
         default:
           setConnectionStatus(status);
@@ -119,11 +125,11 @@ const ModalCallingScreen = (props: Props) => {
           <Text style={styles.callOut}>{numberCallOut}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          {connectionStatus !== 'confirmed' ? (
-            <Text style={styles.status}>{connectionStatus}</Text>
-          ) : (
-            <Text style={styles.status}>{formatDuration(callDuration)}</Text>
-          )}
+          <Text style={styles.status}>
+            {connectionStatus !== 'confirmed'
+              ? connectionStatus
+              : formatDuration(callDuration)}
+          </Text>
           <SpaceComponent height={50} />
           <TouchableOpacity style={styles.callEnd} onPress={handleCallEnd}>
             <MaterialIcons name="call-end" size={40} color={AppColors.white} />
@@ -162,7 +168,8 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: Fonts.regular,
     color: AppColors.white,
-    marginTop: 20,
+    textAlign: 'center',
+    padding: 20,
   },
   callEnd: {
     backgroundColor: AppColors.red,

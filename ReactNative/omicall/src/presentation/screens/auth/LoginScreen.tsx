@@ -46,31 +46,40 @@ const LoginScreen = ({navigation}: any) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await authenticationAPI.HandleAuthentication(
-        '/token',
-        {
-          userName: 'CRM',
-          password: '1',
-          parameters: {
-            languageName: 'Việt Nam',
-            languageCode: 'vi_VN',
-          },
-        },
-        'post',
-      );
+      // const response = await authenticationAPI.HandleAuthentication(
+      //   '/token',
+      //   {
+      //     userName: 'CRM',
+      //     password: '1',
+      //     parameters: {
+      //       languageName: 'Việt Nam',
+      //       languageCode: 'vi_VN',
+      //     },
+      //   },
+      //   'post',
+      // );
+      //
+      // const loginResponse = response as LoginModel;
+      // const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
 
-      const loginResponse = response as LoginModel;
-      const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
+      const loginResponsePlain = {
+        token: 'abc',
+        UserInfo: {
+          AD_User_ID: 1,
+          UserName: 'CRM',
+          Email: 'abc@gmail.com'
+        }
+      }
 
       dispatch(addAuth(loginResponsePlain));
       await AsyncStorage.setItem('auth', JSON.stringify(loginResponsePlain));
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       Alert.alert(
         'Đăng nhập thất bại',
         'Vui lòng kiểm tra lại thông tin đăng nhập',
       );
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
