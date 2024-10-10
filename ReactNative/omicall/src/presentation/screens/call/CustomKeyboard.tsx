@@ -23,7 +23,8 @@ const CustomKeyboard: FC<{
   navigation: any;
   remoteStream: MediaStream;
   jsSIPService: JsSIPService;
-}> = ({navigation, remoteStream, jsSIPService}) => {
+  phoneNumber: string;
+}> = ({navigation, remoteStream, jsSIPService, phoneNumber}) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
   const [inputValue, setInputValue] = useState('');
@@ -99,6 +100,7 @@ const CustomKeyboard: FC<{
           remoteStream={remoteStream}
           numberCallOut={inputValue}
           jsSIPService={jsSIPService}
+          numberCallIn={phoneNumber}
         />
       )}
     </>

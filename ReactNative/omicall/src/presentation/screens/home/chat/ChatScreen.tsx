@@ -59,7 +59,7 @@ const ChatScreen = ({navigation, route}: any) => {
   };
 
   const handleNewMessage = useCallback((message: MessageModel) => {
-    if (message.receiverName !== user) return;
+    if (message.receiverName !== name) return;
     setMessages(prevMessages => [
       {
         message_id: message.message_id,
@@ -90,7 +90,7 @@ const ChatScreen = ({navigation, route}: any) => {
     }
     file
       ? chatAPI.HandleUpload(user.UserName, name, message, file)
-      : stompService.sendMessageTelegram({
+      : stompService.sendMessagePublic({
           senderName: user.UserName,
           receiverName: name,
           message,

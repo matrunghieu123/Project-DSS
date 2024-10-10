@@ -71,7 +71,7 @@ class JsSIPService {
         });
 
         session.on('failed', (e: any) => {
-          const errorCode = this.extractErrorCode(e.message.data);
+          const errorCode = e.message?.status_code || 0;
           switch (errorCode) {
             case 607:
               this.updateConnectionStatus('unwanted');
@@ -108,11 +108,6 @@ class JsSIPService {
         return !/^a=candidate:\d+ \d+ \w+ \d+ [0-9a-fA-F:]+ .*/.test(line);
       })
       .join('\r\n');
-  };
-
-  private extractErrorCode = (data: string): number => {
-    const match = data.match(/SIP\/2\.0 (\d{3})/);
-    return match ? parseInt(match[1], 10) : 0;
   };
 
   private updateConnectionStatus(status: string) {

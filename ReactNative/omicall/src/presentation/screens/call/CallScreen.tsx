@@ -6,7 +6,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from 'react-native';
-import React, {FC, useEffect, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import {Styles} from '../../../core/constants/Styles.ts';
 import {RowComponent} from '../../components';
 import {AppColors} from '../../../core/constants/AppColors.ts';
@@ -18,10 +18,42 @@ import CustomKeyboard from './CustomKeyboard.tsx';
 import JsSIPService from '../../../services/jsSIP_service.ts';
 import {MediaStream} from 'react-native-webrtc';
 import {Constants} from '../../../core/constants/Constants.ts';
+import LoadingModal from '../../modal/LoadingModal.tsx';
+import authenticationAPI from '../../../services/auth_api.ts';
+import {ListPhoneModel} from '../../../models/ListPhoneModel.ts';
+import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheetListPhone from './BottomSheetListPhone.tsx';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const CallScreen: FC<{navigation: any}> = ({navigation}) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [jsSIPService, setJsSIPService] = useState<JsSIPService | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [listPhone, setListPhone] = useState<ListPhoneModel | null>(null);
+  const [phoneChoose, setPhoneChoose] = useState<string>('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        const response = await authenticationAPI.HandleListPhone();
+        setListPhone(response);
+        response.records.find(item => {
+          if (item.IsDefault) {
+            setPhoneChoose(`${item.Value} - ${item.Name}`);
+          }
+        });
+      } catch (error) {
+        console.log('Error: ', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData().catch(error => console.log('Error: ', error));
+  }, [phoneChoose]);
 
   useEffect(() => {
     const jsSIPService = new JsSIPService(Constants.extensionAlohub, stream =>
@@ -31,26 +63,42 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={Styles.flex}>
+    <GestureHandlerRootView style={Styles.flex}>
+      <LoadingModal visible={isLoading} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={Styles.flex}>
-          <Header navigation={navigation} jsSIPService={jsSIPService!} />
-          <Content />
+          <View style={Styles.flex}>
+            <Header
+              navigation={navigation}
+              bottomSheetRef={bottomSheetRef}
+              jsSIPService={jsSIPService!}
+              phoneChoose={phoneChoose}
+            />
+            <Content />
+          </View>
+          <CustomKeyboard
+            navigation={navigation}
+            jsSIPService={jsSIPService!}
+            remoteStream={remoteStream!}
+            phoneNumber={phoneChoose}
+          />
+          <BottomSheetListPhone
+            bottomSheetRef={bottomSheetRef}
+            listPhone={listPhone!}
+            setPhoneChoose={setPhoneChoose}
+          />
         </View>
-        <CustomKeyboard
-          navigation={navigation}
-          jsSIPService={jsSIPService!}
-          remoteStream={remoteStream!}
-        />
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </GestureHandlerRootView>
   );
 };
 
-const Header: FC<{navigation: any; jsSIPService: JsSIPService}> = ({
-  navigation,
-  jsSIPService,
-}) => {
+const Header: FC<{
+  navigation: any;
+  bottomSheetRef: any;
+  jsSIPService: JsSIPService;
+  phoneChoose: string;
+}> = ({navigation, bottomSheetRef, jsSIPService, phoneChoose}) => {
   const handleCallPress = () => {
     jsSIPService.disconnect();
     navigation.goBack();
@@ -67,17 +115,19 @@ const Header: FC<{navigation: any; jsSIPService: JsSIPService}> = ({
         </TouchableOpacity>
         <View style={Styles.flex}>
           <Text style={styles.title}>Đầu số đang chọn</Text>
-          <Text style={styles.number}>Không có đầu số khả dụng</Text>
+          <Text style={styles.number}>
+            {phoneChoose ? phoneChoose : 'Không có đầu số khả dụng'}
+          </Text>
         </View>
-        <EditButton navigation={navigation} />
+        <EditButton bottomSheetRef={bottomSheetRef} />
       </RowComponent>
     </SafeAreaView>
   );
 };
 
-const EditButton: FC<{navigation: any}> = ({navigation}) => {
+const EditButton: FC<{bottomSheetRef: any}> = ({bottomSheetRef}) => {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')}>
+    <TouchableOpacity onPress={() => bottomSheetRef.current.expand()}>
       <View style={[styles.editContainer, Styles.center]}>
         <View style={styles.editBackground} />
         <FontAwesome5 name="pen" size={20} color={AppColors.white} />

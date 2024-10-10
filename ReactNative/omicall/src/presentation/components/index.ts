@@ -1,5 +1,6 @@
 import AvatarCircle from './AvatarCircle';
 import ButtonComponent from './ButtonComponent';
+import ButtonSquare from './ButtonSquare';
 import ChatComponent from './ChatComponent';
 import EmptyComponent from './EmptyComponent';
 import FileComponent from './FileComponent';
@@ -22,4 +23,5 @@ export {
   MessageBubble,
   FileComponent,
   EmptyComponent,
+  ButtonSquare,
 };

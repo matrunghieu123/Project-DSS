@@ -12,9 +12,16 @@ import JsSIPService from '../../services/jsSIP_service';
 import {Styles} from '../../core/constants/Styles.ts';
 import {AppColors} from '../../core/constants/AppColors.ts';
 import CallOutIcon from '../../../assets/svg/CallOutIcon.tsx';
-import {AvatarCircle, RowComponent, SpaceComponent} from '../components';
+import {
+  AvatarCircle,
+  ButtonSquare,
+  RowComponent,
+  SpaceComponent,
+} from '../components';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Fonts} from '../../core/constants/Fonts.ts';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 interface Props {
   isCalling: boolean;
@@ -22,11 +29,18 @@ interface Props {
   remoteStream: MediaStream;
   jsSIPService: JsSIPService;
   numberCallOut: string;
+  numberCallIn: string;
 }
 
 const ModalCallingScreen = (props: Props) => {
-  const {isCalling, setIsCalling, remoteStream, jsSIPService, numberCallOut} =
-    props;
+  const {
+    isCalling,
+    setIsCalling,
+    remoteStream,
+    jsSIPService,
+    numberCallOut,
+    numberCallIn,
+  } = props;
 
   const [connectionStatus, setConnectionStatus] = useState('');
   const [time, setTime] = useState(0);
@@ -72,9 +86,7 @@ const ModalCallingScreen = (props: Props) => {
           setTimeout(() => setIsCalling(false), 5000);
           break;
         case 'unwanted':
-          setConnectionStatus(
-            'Khách hàng đăng ký không nhận cuộc gọi này',
-          );
+          setConnectionStatus('Khách hàng đăng ký không nhận cuộc gọi này');
           setTimeout(() => setIsCalling(false), 5000);
           break;
         default:
@@ -108,7 +120,7 @@ const ModalCallingScreen = (props: Props) => {
         <RowComponent style={styles.row}>
           <RowComponent>
             <CallOutIcon />
-            <Text style={styles.callIn}>0123456789</Text>
+            <Text style={styles.callIn}>{numberCallIn}</Text>
           </RowComponent>
           <Text style={styles.callOut}>
             Cuộc gọi đi{' '}
@@ -125,6 +137,7 @@ const ModalCallingScreen = (props: Props) => {
           <Text style={styles.callOut}>{numberCallOut}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
+          <FunctionComponent />
           <Text style={styles.status}>
             {connectionStatus !== 'confirmed'
               ? connectionStatus
@@ -137,6 +150,53 @@ const ModalCallingScreen = (props: Props) => {
         </View>
       </SafeAreaView>
     </Modal>
+  );
+};
+
+const FunctionComponent = () => {
+  return (
+    <RowComponent style={{width: '90%', justifyContent: 'space-evenly'}}>
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={
+          <MaterialIcons name="add-call" size={26} color={AppColors.white} />
+        }
+        backgroundColor="white"
+      />
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={
+          <Ionicons name="pause" size={26} color={AppColors.white} />
+        }
+        backgroundColor="white"
+      />
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={
+          <Ionicons name="keypad" size={26} color={AppColors.white} />
+        }
+        backgroundColor="white"
+      />
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={
+          <FontAwesome name="microphone-slash" size={26} color={AppColors.white} />
+        }
+        backgroundColor="white"
+      />
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={
+          <FontAwesome name="volume-up" size={26} color={AppColors.white} />
+        }
+        backgroundColor="white"
+      />
+    </RowComponent>
   );
 };
 

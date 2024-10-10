@@ -46,30 +46,30 @@ const LoginScreen = ({navigation}: any) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      // const response = await authenticationAPI.HandleAuthentication(
-      //   '/token',
-      //   {
-      //     userName: 'CRM',
-      //     password: '1',
-      //     parameters: {
-      //       languageName: 'Việt Nam',
-      //       languageCode: 'vi_VN',
-      //     },
-      //   },
-      //   'post',
-      // );
-      //
-      // const loginResponse = response as LoginModel;
-      // const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
+      const response = await authenticationAPI.HandleAuthentication(
+        '/token',
+        {
+          userName: 'CRM',
+          password: '1',
+          parameters: {
+            languageName: 'Việt Nam',
+            languageCode: 'vi_VN',
+          },
+        },
+        'post',
+      );
 
-      const loginResponsePlain = {
-        token: 'abc',
-        UserInfo: {
-          AD_User_ID: 1,
-          UserName: 'CRM',
-          Email: 'abc@gmail.com'
-        }
-      }
+      const loginResponse = response as LoginModel;
+      const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
+
+      // const loginResponsePlain = {
+      //   token: 'abc',
+      //   UserInfo: {
+      //     AD_User_ID: 1,
+      //     UserName: 'CRM',
+      //     Email: 'abc@gmail.com'
+      //   }
+      // }
 
       dispatch(addAuth(loginResponsePlain));
       await AsyncStorage.setItem('auth', JSON.stringify(loginResponsePlain));
