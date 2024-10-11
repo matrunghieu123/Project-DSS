@@ -5,7 +5,7 @@ import BottomSheet, {
 import React, {RefObject} from 'react';
 import {
   Alert,
-  FlatList,
+  FlatList, Platform, StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -107,11 +107,12 @@ const BottomSheetListPhone = (props: Props) => {
 
   return (
     <BottomSheet
-      snapPoints={['50%']}
+      snapPoints={['55%']}
       ref={bottomSheetRef}
       index={-1}
       enablePanDownToClose={true}
-      backdropComponent={backdrop}>
+      backdropComponent={backdrop}
+    >
       <BottomSheetView style={[Styles.flex, styles.container]}>
         <RowComponent style={styles.row}>
           <View>

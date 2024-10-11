@@ -2,7 +2,7 @@ import React from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Styles} from '../../../core/constants/Styles.ts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {ButtonComponent} from '../../components';
 import {useDispatch} from 'react-redux';
 import {removeAuth} from '../../redux/AuthReducer.ts';
@@ -25,6 +25,7 @@ const SettingScreens = ({navigation}: any) => {
   };
   return (
     <SafeAreaView style={Styles.container}>
+      <StatusBar backgroundColor={AppColors.white} barStyle="dark-content" />
       <View style={Styles.headerContainer}>
         <Text style={Styles.headerText}>Tài khoản</Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>

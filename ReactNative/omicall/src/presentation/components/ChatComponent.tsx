@@ -30,7 +30,7 @@ const ChatComponent = (props: ChatComponentProps) => {
         <SpaceComponent width={10} />
         <View style={Styles.flex}>
           <RowComponent style={styles.row}>
-            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.name} numberOfLines={1}>{name}</Text>
             <Text style={styles.time}>Bây giờ</Text>
           </RowComponent>
           <Text style={styles.content}>{content}</Text>

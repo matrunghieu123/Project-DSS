@@ -1,15 +1,17 @@
 import React, {useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Styles} from '../../../../core/constants/Styles.ts';
 import ConfirmModal from '../../../modal/ConfirmModal.tsx';
 import EmptyNotification from './EmptyNotification.tsx';
+import {AppColors} from '../../../../core/constants/AppColors.ts';
 
 const NotificationScreen = ({navigation}: any) => {
   const [visible, setVisible] = useState(false);
   return (
     <SafeAreaView style={Styles.container}>
+      <StatusBar backgroundColor={AppColors.white} barStyle="dark-content" />
       <ConfirmModal
         visible={visible}
         title={'Xác nhận'}

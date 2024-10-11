@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {
   Alert,
   StyleSheet,
@@ -6,6 +6,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  SafeAreaView,
+  AppState,
+  Keyboard,
 } from 'react-native';
 import {Styles} from '../../../core/constants/Styles';
 import {RowComponent} from '../../components';
@@ -30,6 +33,7 @@ const CustomKeyboard: FC<{
   const [inputValue, setInputValue] = useState('');
   const textInputRef = React.useRef<TextInput>(null);
   const [isCalling, setIsCalling] = useState(false);
+  const [appState, setAppState] = useState(AppState.currentState);
 
   const handleKeyPress = (key: string) => {
     textInputRef.current?.focus();
@@ -60,9 +64,34 @@ const CustomKeyboard: FC<{
     setInputValue(filteredText);
   };
 
+  useEffect(() => {
+    const handleAppStateChange = (
+      nextAppState:
+        | 'active'
+        | 'background'
+        | 'inactive'
+        | 'unknown'
+        | 'extension',
+    ) => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        Keyboard.dismiss();
+      }
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
+
   return (
     <>
-      <View style={[Styles.flex, styles.keyboardContainer]}>
+      <SafeAreaView style={styles.keyboardContainer}>
         <RowComponent style={styles.inputRow}>
           <TextInput
             placeholder={'Nhập số điện thoại'}
@@ -87,12 +116,14 @@ const CustomKeyboard: FC<{
             </TouchableOpacity>
           ))}
         </RowComponent>
+        <View style={Styles.flex} />
         <RowComponent style={styles.bottomRow}>
           <SettingButton />
           <CallButton onPress={handleCallPress} />
           <DeleteButton onPress={handleDeletePress} />
         </RowComponent>
-      </View>
+        <View style={Styles.flex} />
+      </SafeAreaView>
       {isCalling && (
         <ModalCallingScreen
           isCalling={isCalling}
@@ -146,6 +177,7 @@ const DeleteButton: FC<{onPress: () => void}> = ({onPress}) => {
 
 const styles = StyleSheet.create({
   keyboardContainer: {
+    flex: 6,
     backgroundColor: AppColors.white,
   },
   input: {

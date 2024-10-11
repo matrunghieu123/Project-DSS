@@ -1,6 +1,11 @@
 import React, {FC, useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  SafeAreaView, StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {AppColors} from '../../../core/constants/AppColors';
 import {
   AvatarCircle,
@@ -41,6 +46,7 @@ const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
 
   return (
     <View style={Styles.flex}>
+      <StatusBar backgroundColor={AppColors.secondary} barStyle="light-content" />
       <TopContainer navigation={navigation} />
       <SpaceComponent height={10} />
       <View style={styles.topTabContainer}>
@@ -58,24 +64,26 @@ const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
 const TopContainer: FC<{navigation: any}> = ({navigation}) => {
   const user = useSelector(authSelector).UserInfo;
   return (
-    <SafeAreaView style={styles.topContainer}>
-      <RowComponent>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('Setting', {
-              screen: 'SettingScreen',
-            })
-          }>
-          <AvatarCircle />
-        </TouchableOpacity>
-        <SpaceComponent width={10} />
-        <View style={Styles.flex}>
-          <Text style={styles.name}>{user.UserName}</Text>
-          <Text style={styles.email}>{user.Email}</Text>
-        </View>
-        <NotificationButton navigation={navigation} />
-      </RowComponent>
-    </SafeAreaView>
+    <View style={styles.topContainer}>
+      <SafeAreaView>
+        <RowComponent>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('Setting', {
+                screen: 'SettingScreen',
+              })
+            }>
+            <AvatarCircle />
+          </TouchableOpacity>
+          <SpaceComponent width={10} />
+          <View style={Styles.flex}>
+            <Text style={styles.name} numberOfLines={1}>{user.UserName}</Text>
+            <Text style={styles.email} numberOfLines={1}>{user.Email}</Text>
+          </View>
+          <NotificationButton navigation={navigation} />
+        </RowComponent>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -113,8 +121,8 @@ const FilterButton = ({navigation}: any) => {
 const styles = StyleSheet.create({
   topContainer: {
     backgroundColor: AppColors.secondary,
-    paddingHorizontal: 20,
-    paddingBottom: -20, //TODO: fix for android
+    paddingHorizontal: '5%',
+    paddingVertical: '3%',
   },
   name: {
     fontSize: 19,

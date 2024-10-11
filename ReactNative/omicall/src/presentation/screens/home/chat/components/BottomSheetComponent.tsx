@@ -3,7 +3,7 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import {Alert, StyleSheet} from 'react-native';
+import {Alert, StyleSheet, StatusBar, Platform} from 'react-native';
 import ItemComponent from './ItemComponent.tsx';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import {Constants} from '../../../../../core/constants/Constants.ts';
@@ -86,34 +86,49 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
     }
   };
 
+  const handleSheetChanges = (index: number) => {
+    if (index >= 0) {
+      Platform.OS === 'android' &&
+        StatusBar.setBackgroundColor('rgba(0, 0, 0, 0.5)');
+      StatusBar.setBarStyle('light-content');
+    } else {
+      Platform.OS === 'android' && StatusBar.setBackgroundColor('transparent');
+      StatusBar.setBarStyle('dark-content');
+    }
+  };
+
   return (
-    <BottomSheet
-      snapPoints={['30%']}
-      ref={bottomSheetRef}
-      index={-1}
-      enablePanDownToClose={true}
-      backdropComponent={backdrop}>
-      <BottomSheetView style={styles.contentContainer}>
-        <ItemComponent
-          icon={'image'}
-          title={'Phương tiện'}
-          description={'Chia sẻ ảnh hoặc video'}
-          onPress={handleMediaPicker}
-        />
-        <ItemComponent
-          icon={'camera'}
-          title={'Camera'}
-          description={'Chụp ảnh mới'}
-          onPress={handleOpenCamera}
-        />
-        <ItemComponent
-          icon={'attach'}
-          title={'File'}
-          description={'Chia sẻ tập tin'}
-          onPress={handleDocumentPicker}
-        />
-      </BottomSheetView>
-    </BottomSheet>
+    <>
+      <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+      <BottomSheet
+        snapPoints={['30%']}
+        ref={bottomSheetRef}
+        index={-1}
+        enablePanDownToClose={true}
+        backdropComponent={backdrop}
+        onChange={handleSheetChanges}>
+        <BottomSheetView style={styles.contentContainer}>
+          <ItemComponent
+            icon={'image'}
+            title={'Phương tiện'}
+            description={'Chia sẻ ảnh hoặc video'}
+            onPress={handleMediaPicker}
+          />
+          <ItemComponent
+            icon={'camera'}
+            title={'Camera'}
+            description={'Chụp ảnh mới'}
+            onPress={handleOpenCamera}
+          />
+          <ItemComponent
+            icon={'attach'}
+            title={'File'}
+            description={'Chia sẻ tập tin'}
+            onPress={handleDocumentPicker}
+          />
+        </BottomSheetView>
+      </BottomSheet>
+    </>
   );
 };
 

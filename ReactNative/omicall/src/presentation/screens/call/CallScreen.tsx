@@ -5,6 +5,8 @@ import {
   Text,
   Keyboard,
   TouchableWithoutFeedback,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {Styles} from '../../../core/constants/Styles.ts';
@@ -13,7 +15,6 @@ import {AppColors} from '../../../core/constants/AppColors.ts';
 import {Fonts} from '../../../core/constants/Fonts.ts';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import CustomKeyboard from './CustomKeyboard.tsx';
 import JsSIPService from '../../../services/jsSIP_service.ts';
 import {MediaStream} from 'react-native-webrtc';
@@ -67,7 +68,11 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
       <LoadingModal visible={isLoading} />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={Styles.flex}>
-          <View style={Styles.flex}>
+          <StatusBar
+            backgroundColor={AppColors.secondary}
+            barStyle="light-content"
+          />
+          <View style={{flex: 5}}>
             <Header
               navigation={navigation}
               bottomSheetRef={bottomSheetRef}
@@ -148,11 +153,11 @@ const Content: FC = () => {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: AppColors.secondary,
-    paddingHorizontal: 20,
-    paddingBottom: -20, //TODO: fix for android
   },
   row: {
     alignItems: 'center',
+    paddingHorizontal: '5%',
+    paddingBottom: '3%',
   },
   title: {
     fontFamily: Fonts.regular,

@@ -4,7 +4,7 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
+  Platform, StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -188,7 +188,7 @@ const ChatScreen = ({navigation, route}: any) => {
       <SafeAreaView style={styles.safeArea}>
         <HeaderChat navigation={navigation} name={name} />
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={Styles.flex}>
           <View style={[Styles.flex, styles.container]}>
             <FlatList

@@ -1,4 +1,4 @@
-import {View, Text, Modal, StyleSheet} from 'react-native';
+import {View, Text, Modal, StyleSheet, StatusBar} from 'react-native';
 import React from 'react';
 import {Fonts} from '../../core/constants/Fonts.ts';
 import {ButtonComponent, RowComponent} from '../components';
@@ -15,6 +15,7 @@ interface ConfirmModalProps {
 const ConfirmModal = (props: ConfirmModalProps) => {
   return (
     <Modal animationType={'none'} visible={props.visible} transparent={true}>
+      <StatusBar backgroundColor={'rgba(0, 0, 0, 0.5)'} barStyle="dark-content" />
       <View style={styles.modalBackground}>
         <View>
           <View style={styles.modalContainer}>
