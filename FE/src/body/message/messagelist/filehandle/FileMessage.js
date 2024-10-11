@@ -14,6 +14,12 @@ const getFileIcon = (fileType) => {
 };
 
 const FileMessage = ({ fileUrl, fileType, fileName }) => {
+    // Kiểm tra nếu fileUrl hoặc fileName bị rỗng
+    if (!fileUrl || !fileName) {
+        console.warn('File URL hoặc tên file bị rỗng');
+        return null; // Không hiển thị gì nếu thiếu thông tin
+    }
+
     return (
         <div style={styles.fileMessage}>
             {getFileIcon(fileType)}

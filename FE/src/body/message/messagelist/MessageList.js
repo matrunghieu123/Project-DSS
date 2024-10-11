@@ -115,8 +115,14 @@ const MessageList = ({ chats, userData, endOfMessagesRef, tab, avatarColors }) =
                                 {senderTimeWrapper}
                                 <div className={`message-content-inner ${isSelf ? "self" : ""}`}>
                                     <div className="message-data">
-                                        <span className="message-content">{chat.message}</span>
-                                        {chat.fileUrl && renderFileContent(chat.fileUrl, chat.fileType, chat.fileName)}
+                                        {/* Hiển thị nội dung tin nhắn văn bản nếu có */}
+                                        {chat.message && <span className="message-content">{chat.message}</span>}
+                                        {/* Hiển thị nội dung file nếu có, bên dưới nội dung văn bản */}
+                                        {chat.fileUrl && (
+                                            <div className="message-file">
+                                                {renderFileContent(chat.fileUrl, chat.fileType, chat.fileName)}
+                                            </div>
+                                        )}
                                         <span className="message-time-hover">{formatDateTime(chat.time)}</span>
                                     </div>
                                 </div>

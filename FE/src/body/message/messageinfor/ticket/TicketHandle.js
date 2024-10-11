@@ -10,7 +10,7 @@ import {
     DeleteOutlined 
 } from '@ant-design/icons';
 import { FaPaperclip } from 'react-icons/fa';
-import './Ticket.css';
+import './TicketHandle.css';
 
 const { TextArea } = Input;
 const { Step } = Steps;
@@ -196,8 +196,7 @@ const Ticket = ({ visible, onClose }) => {
         <Drawer
             placement="right"
             onClose={onClose}
-            visible={visible}
-            width={'71%'}
+            open={visible}
             closable={false}
             title={
                 <div className="ticket-header-top">
@@ -209,12 +208,27 @@ const Ticket = ({ visible, onClose }) => {
                         <span className="close-tab" onClick={() => handleCloseTab('process')}>×</span>
                     </div>
                     <div className="right-buttons">
-                        <Button type="text" className="close-button" onClick={onClose}>Đóng tất cả</Button>
+                    <Button 
+                            type="text" 
+                            className="close-button" 
+                            onClick={onClose}
+                            style={{
+                                padding: '4px',
+                            }}
+                        >
+                            Đóng tất cả
+                            <span className="close-tab" onClick={() => handleCloseTab('process')}>×</span>
+                        </Button>
                     </div>
                 </div>
             }
         >
-            <div className="ticket-content">
+            <div 
+                className="ticket-content"
+                style={{
+                    marginTop: '20px',
+                }}
+            >
                 <div className="ticket-header">
                     <Button 
                         type="text" 

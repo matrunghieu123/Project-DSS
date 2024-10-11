@@ -25,76 +25,84 @@ const ColNavbar = ({ setTab, handleResetFilter, setLoginType, setSource, setMemb
     }
   };
 
+  const menuItems = [
+    {
+      key: "0",
+      label: (
+        <Tooltip title="Chat chung" placement="top" overlayInnerStyle={tooltipStyle}>
+          <div onClick={() => handleTabChange("CHATROOM", null)} style={iconContainerStyle}>
+            <MessageOutlined style={{ fontSize: "20px" }} />
+          </div>
+        </Tooltip>
+      ),
+      style: menuItemStyle,
+    },
+    {
+      key: "5",
+      label: (
+        <Tooltip title="Facebook" placement="top" overlayInnerStyle={tooltipStyle}>
+          <img
+            src={LogoFB}
+            alt="LogoFB"
+            style={iconStyle}
+            onClick={() => handleTabChange("FACEBOOK", "facebook")}
+          />
+        </Tooltip>
+      ),
+      style: menuItemStyle,
+    },
+    {
+      key: "3",
+      label: (
+        <Tooltip title="Zalo" placement="top" overlayInnerStyle={tooltipStyle}>
+          <img
+            src={LogoZL}
+            alt="LogoZL"
+            style={iconStyle}
+            onClick={() => handleTabChange("ZALO", "zalo")}
+          />
+        </Tooltip>
+      ),
+      style: menuItemStyle,
+    },
+    {
+      key: "2",
+      label: (
+        <Tooltip title="Telegram" placement="top" overlayInnerStyle={tooltipStyle}>
+          <img
+            src={LogoTL}
+            alt="LogoTL"
+            style={iconStyle}
+            onClick={() => handleTabChange("TELEGRAM", "telegram")}
+          />
+        </Tooltip>
+      ),
+      style: menuItemStyle,
+    },
+    {
+      key: "4",
+      label: (
+        <Tooltip title="Viber" placement="top" overlayInnerStyle={tooltipStyle}>
+          <img
+            src={LogoVB}
+            alt="LogoVB"
+            style={iconStyle}
+            onClick={() => handleTabChange("VIBER", "viber")}
+          />
+        </Tooltip>
+      ),
+      style: menuItemStyle,
+    },
+  ];
+
   return (
     <Sider theme="light" width={70} style={{ backgroundColor: 'rgb(245, 246, 250)' }}>
       <Menu
         theme="light"
         mode="vertical"
         style={{ textAlign: "center", marginTop: "20px", padding: 0, backgroundColor: '#f5f6fa', border: 'none' }}
-      >
-        <Menu.Item
-          key="0"
-          style={menuItemStyle}
-        >
-          <Tooltip
-            title="Chat chung"
-            placement="top"
-            overlayInnerStyle={tooltipStyle}
-          >
-            <div
-              onClick={() => handleTabChange("CHATROOM", null)}
-              style={iconContainerStyle}
-            >
-              <MessageOutlined style={{ fontSize: "20px" }} />
-            </div>
-          </Tooltip>
-        </Menu.Item>
-
-        {/* Facebook, Zalo, Telegram, Viber */}
-        <Menu.Item key="5" style={menuItemStyle}>
-          <Tooltip title="Facebook" placement="top" overlayInnerStyle={tooltipStyle}>
-            <img
-              src={LogoFB}
-              alt="LogoFB"
-              style={iconStyle}
-              onClick={() => handleTabChange("FACEBOOK", "facebook")} // Truyền thông tin nguồn
-            />
-          </Tooltip>
-        </Menu.Item>
-
-        <Menu.Item key="3" style={menuItemStyle}>
-          <Tooltip title="Zalo" placement="top" overlayInnerStyle={tooltipStyle}>
-            <img
-              src={LogoZL}
-              alt="LogoZL"
-              style={iconStyle}
-              onClick={() => handleTabChange("ZALO", "zalo")} // Truyền thông tin nguồn
-            />
-          </Tooltip>
-        </Menu.Item>
-
-        <Menu.Item key="2" style={menuItemStyle}>
-          <Tooltip title="Telegram" placement="top" overlayInnerStyle={tooltipStyle}>
-            <img
-              src={LogoTL}
-              alt="LogoTL"
-              style={iconStyle}
-              onClick={() => handleTabChange("TELEGRAM", "telegram")} // Truyền thông tin nguồn
-            />
-          </Tooltip>
-        </Menu.Item>
-
-        <Menu.Item key="4" style={menuItemStyle}>
-          <Tooltip title="Viber" placement="top" overlayInnerStyle={tooltipStyle}>
-            <img
-              src={LogoVB}
-              alt="LogoVB"
-              style={iconStyle}
-              onClick={() => handleTabChange("VIBER", "viber")} // Truyền thông tin nguồn
-            />
-          </Tooltip>
-        </Menu.Item>
-      </Menu>
+        items={menuItems}
+      />
     </Sider>
   );
 };

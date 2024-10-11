@@ -78,10 +78,31 @@
 }
 
 .message.self .message-data {
+  display: flex;
+  flex-direction: column; /* Sắp xếp text và file theo chiều dọc */
+  align-items: flex-end; /* Căn phải cho phần tử con */
+  justify-content: flex-start; /* Căn từ trên xuống dưới */
+  text-align: right; /* Căn phải cho nội dung văn bản */
   background-color: #f0f0f0;
-  text-align: right;
   margin-right: 7px;
   max-width: 100%;
+}
+
+.message:not(.self) .message-data {
+  display: flex;
+  flex-direction: column; /* Sắp xếp text và file theo chiều dọc */
+  align-items: flex-start; /* Căn trái cho phần tử con */
+  justify-content: flex-start; /* Căn từ trên xuống dưới */
+  text-align: left; /* Căn trái cho nội dung văn bản */
+}
+
+/* Thêm border cho phần file */
+.message-file {
+  padding: 10px;
+  border: 1px solid #ccc; /* Đường viền cho phần file */
+  border-radius: 8px;
+  background-color: #fff;
+  margin-top: 5px; /* Khoảng cách giữa text và file */
 }
 
 .message-time-hover {
@@ -116,12 +137,6 @@
 /* Điều chỉnh căn lề cho tin nhắn tiếp theo, ngoại trừ tin nhắn đầu tiên */
 .message:not(.self) .message-data {
   margin-left: 50px;
-}
-
-.message.self .message-data {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
 }
 
 .message.no-border {

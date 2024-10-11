@@ -1,6 +1,4 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { over } from 'stompjs';
-import SockJS from 'sockjs-client';
 import ColNavbar from '../colnavbar/ColNavbar';
 import MessageList from '../body/message/messagelist/MessageList';
 import SendMessage from '../body/message/sendmessage/SendMessage';
@@ -10,56 +8,18 @@ import FilterBar from '../body/filterbar/FilterMenu';
 import ChatTool from '../body/chattool/ChatTool';
 import CallDialog from './calldialog/CallDialog';
 import { Input, Button } from 'antd';
-import axios from 'axios';
+import { loadMessagesFromServer, loadChatHistory, sendMessageToServer, fetchUsersBySource, connectToWebSocket, onUserConnected } from '../services/api';
 
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
-let baseUrl = 'http://192.168.1.12:81'; // Biến toàn cục để lưu URL gốc
-
-const setBaseUrl = (url) => {
-    baseUrl = url;
-};
-
-// Sử dụng hàm setBaseUrl để thiết lập URL gốc
-setBaseUrl('http://192.168.1.12:81');
-
-// Định nghĩa các endpoint API
-const apiEndpoints = {
-    publicChat: '/api/chat/public',
-    privateChat: '/api/chat/private',
-    upload: '/api/upload',
-};
-
-// Hàm kiểm tra các endpoint API
-const checkApiEndpoints = async () => {
-    try {
-        const results = await Promise.all(Object.values(apiEndpoints).map(endpoint => 
-            axios.get(`${baseUrl}${endpoint}`)
-                .then(response => ({ endpoint, status: response.status, data: response.data }))
-                .catch(error => ({ endpoint, error: error.message }))
-        ));
-
-        results.forEach(result => {
-            if (result.error) {
-                console.error(`Error with ${result.endpoint}: ${result.error}`);
-            } else {
-                console.log(`Success with ${result.endpoint}:`, result.data);
-            }
-        });
-    } catch (error) {
-        console.error("Lỗi khi kiểm tra các API:", error);
-    }
-};
-
-// Gọi hàm checkApiEndpoints để kiểm tra các API
-checkApiEndpoints();
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const ChatRoom = () => {
     const [privateChats, setPrivateChats] = useState(() => new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab, setTab] = useState("CHATROOM");
-    const [loginType, setLoginType] = useState("CHATROOM"); // Thêm state để quản lý loại đăng nhập
+    const [loginType, setLoginType] = useState("CHATROOM");
     const [userData, setUserData] = useState({
         username: '',
         receivername: '',
@@ -69,133 +29,73 @@ const ChatRoom = () => {
 
     const endOfMessagesRef = useRef(null);
 
-    const stompClientRef = useRef(null); // Sử dụng useRef để quản lý stompClient
+    const stompClientRef = useRef(null);
 
-    // const storage = getStorage();
+    const [isUpdatedAsc, setIsUpdatedAsc] = useState(true);
+    const [isCuuNhatActive, setIsCuuNhatActive] = useState(false);
 
-    const [isUpdatedAsc, setIsUpdatedAsc] = useState(true); // State để theo dõi trạng thái mũi tên
-    const [isCuuNhatActive, setIsCuuNhatActive] = useState(false); // State để theo dõi trạng thái "Cũ nhất"
-
-    const [isJoined, setIsJoined] = useState(false); // Thêm trạng thái tham gia
+    const [isJoined, setIsJoined] = useState(false);
 
     const [currentCustomer, setCurrentCustomer] = useState({ name: '', avatar: '', color: '' });
     const [avatarColors, setAvatarColors] = useState({});
 
-    const [source, setSource] = useState(null); // Thêm state để lưu nguồn
+    const [source, setSource] = useState(null);
 
-    const [joinedMembers, setJoinedMembers] = useState(new Map()); // Thêm state để theo dõi trạng thái tham gia của từng thành viên
+    const [joinedMembers, setJoinedMembers] = useState(new Map());
 
-    const [members, setMembers] = useState([]); // Thêm state để lưu danh sách thành viên
+    const [members, setMembers] = useState([]);
 
-    // Hàm để lấy avatar
+    const [selectedFiles, setSelectedFiles] = useState([]);
+
     const getAvatar = (name) => {
-        // Lấy URL từ database hoặc API
-        return null; // Trả về null để sử dụng avatar mặc định của Ant Design
+        return null;
     };
 
     const toggleUpdateOrder = () => {
-        setIsUpdatedAsc(!isUpdatedAsc); // Đảo ngược trạng thái
+        setIsUpdatedAsc(!isUpdatedAsc);
     };
 
     const toggleCuuNhat = () => {
-        setIsCuuNhatActive(!isCuuNhatActive); // Đảo ngược trạng thái "Cũ nhất"
+        setIsCuuNhatActive(!isCuuNhatActive);
     };
     
-    const loadMessagesFromServer = async (username) => {
-        if (!username) {
-            console.error("Username is required to load messages.");
-            return;
-        }
-
-        try {
-            const response = await fetch(`${baseUrl}${apiEndpoints.publicChat}?username=${encodeURIComponent(username)}`);
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.statusText}`);
-            }
-
-            const text = await response.text();
-            if (!text) {
-                throw new Error("Empty response from server");
-            }
-
-            const data = JSON.parse(text);
-            // Xử lý dữ liệu nhận được từ server
-            setPublicChats(data.publicMessages);
-            setPrivateChats(data.privateMessages);
-        } catch (error) {
-            console.error("Lỗi khi tải tin nhắn từ server: ", error);
-        }
-    };
-
-    const loadChatHistory = async (senderName, receiverName) => {
-        try {
-            const response = await fetch(`${baseUrl}${apiEndpoints.publicChat}?senderName=${senderName}&receiverName=${receiverName}`);
-            const data = await response.json();
-            // Xử lý dữ liệu nhận được từ server
-            if (receiverName === "Chat chung") {
-                setPublicChats(data);
-            } else {
-                setPrivateChats(prevChats => {
-                    const newChats = new Map(prevChats);
-                    newChats.set(receiverName, data);
-                    return newChats;
-                });
-            }
-        } catch (error) {
-            console.error("Lỗi khi tải lịch sử chat từ server: ", error);
-        }
-    };
-
-    // Thay thế loadMessagesFromFirestore bằng loadMessagesFromServer
     useEffect(() => {
         if (userData.connected) {
-            loadMessagesFromServer(userData.username);
+            loadMessagesFromServer(userData.username)
+                .then(data => {
+                    setPublicChats(data.publicMessages);
+                    setPrivateChats(data.privateMessages);
+                })
+                .catch(error => console.error("Lỗi khi tải tin nhắn từ server: ", error));
         }
     }, [userData.connected, userData.username]); 
 
     useEffect(() => {
         if (userData.connected) {
-            loadChatHistory(userData.username, "Chat chung");
+            loadChatHistory(userData.username, "Chat chung")
+                .then(data => {
+                    setPublicChats(data);
+                })
+                .catch(error => console.error("Lỗi khi tải lịch sử chat từ server: ", error));
         }
     }, [userData.connected, userData.username]);
 
     const connect = () => {
-        let Sock = new SockJS(`${baseUrl}/ws`); // Sử dụng URL gốc để kết nối WebSocket
-        stompClientRef.current = over(Sock);
-        stompClientRef.current.connect({}, onConnected, onError);
-        console.log("Đang cố gắng kết nối đến WebSocket");
+        connectToWebSocket(stompClientRef, onConnected, onError);
     };
 
     const onConnected = () => {
-        console.log("Đã kết nối đến WebSocket");
-        console.log("User Data:", userData);  // Kiểm tra trạng thái userData
+        onUserConnected(stompClientRef, userData, onMessageReceived, onPrivateMessage);
         setUserData({ ...userData, connected: true });
-        stompClientRef.current.subscribe('/topic/public', onMessageReceived); // Đăng ký vào kênh công khai
-        stompClientRef.current.subscribe('/user/' + userData.username + '/private', onPrivateMessage);
-        userJoin();
-        loadMessagesFromServer(userData.username); // Thêm dòng này để tải tin nhắn ngay sau khi kết nối
-        loadChatHistory(userData.username, "Chat chung");
-    };
-
-    const userJoin = () => {
-        // Bỏ qua việc gửi tin nhắn lên WebSocket
-        console.log("User join logic executed without WebSocket request.");
     };
 
     const onMessageReceived = (payload) => {
         try {
             var payloadData = JSON.parse(payload.body);
-            console.log("Tin nhắn nhận được:", payloadData);
 
-            // Gán giá trị mặc định cho các trường null
-            payloadData.chatId = payloadData.chatId || 'defaultChatId';
-            payloadData.fileType = payloadData.fileType || 'text';
             payloadData.fileUrl = payloadData.fileUrl || '';
-            payloadData.fileName = payloadData.fileName || '';  // fileName
-            payloadData.message = payloadData.message || '';
-            payloadData.receiverName = payloadData.receiverName || 'Chat chung';
-            payloadData.senderName = payloadData.senderName || 'unknown';
-            payloadData.time = payloadData.time || new Date().toLocaleTimeString();
+            payloadData.fileName = payloadData.fileName || '';
+            payloadData.fileType = payloadData.fileType || 'text';
 
             switch(payloadData.status) {
                 case "JOIN":
@@ -227,9 +127,7 @@ const ChatRoom = () => {
     const onPrivateMessage = (payload) => {
         try {
             const payloadData = JSON.parse(payload.body);
-            console.log("Tin nhắn riêng nhận được:", payloadData); // Thêm log để kiểm tra
 
-            // Chỉ xử lý tin nhắn đến từ người khác, không xử lý tin nhắn tự gửi
             if (payloadData.senderName !== userData.username) {
                 addMessageToPrivateChat(payloadData);
             }
@@ -251,7 +149,7 @@ const ChatRoom = () => {
     };
 
     const onError = (err) => {
-        console.log("Lỗi kết nối WebSocket:", err); // Thêm log để kiểm tra lỗi kết nối
+        console.log("Lỗi kết nối WebSocket:", err);
     };
 
     const handleMessage = (event) => {
@@ -261,10 +159,11 @@ const ChatRoom = () => {
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
+            const files = selectedFiles.map(fileObj => fileObj.file);
             if (tab === "CHATROOM") {
-                sendValue(userData.message);
+                sendValue(userData.message, files);
             } else {
-                sendPrivateValue(userData.message);
+                sendPrivateValue(userData.message, files);
             }
         }
     };
@@ -273,47 +172,20 @@ const ChatRoom = () => {
         setUserData({ ...userData, username: event.target.value });
     };
 
-    // Hàm sendMessageToServer để gửi tin nhắn đến server BE
-    const sendMessageToServer = async (senderName, receiverName, messageText, file) => {
-        const formData = new FormData();
-        formData.append('senderName', senderName);
-        formData.append('receiverName', receiverName);
-        formData.append('message', messageText);
-        if (file) {
-            formData.append('file', file);
-        }
-
-        try {
-            const response = await axios({
-                method: 'post',
-                url: `${baseUrl}${apiEndpoints.upload}`, // Sử dụng apiEndpoints.upload
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            console.log('Message sent successfully:', response.data);
-            return response; // Trả về phản hồi từ server
-        } catch (error) {
-            console.error('Error sending message:', error);
-            throw error; // Ném lỗi để xử lý ở nơi gọi hàm
-        }
-    };
-
     // Hàm sendValue để gửi tin nhắn công khai
     const sendValue = async (message, files = []) => {
         if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) {
             try {
                 let fileUrl = null;
-                let fileName = null;  // Biến cục bộ để lưu tên file
+                let fileName = null;
                 let fileType = null;
 
                 if (files.length > 0) {
-                    // Gửi file lên server và lấy URL
                     const response = await sendMessageToServer(userData.username, "Chat chung", message, files[0]);
-                    fileUrl = `${baseUrl}/api/${response.data.fileUrl}`; // Thay đổi giá trị fileUrl
-                    fileName = files[0].name;  // Lưu tên file vào biến cục bộ
+                    
+                    const relativePath = response.data.fileUrl.replace(/^.*[\\/]/, '');
+                    fileUrl = `${baseUrl}/uploads/${relativePath}`;
+                    fileName = files[0].name;
                     fileType = files[0].type;
                 }
 
@@ -324,12 +196,11 @@ const ChatRoom = () => {
                     status: "MESSAGE",
                     fileType: fileType,
                     fileUrl: fileUrl,
-                    time: new Date().toISOString() // Sử dụng toISOString để có cả ngày và giờ
+                    time: new Date().toISOString()
                 };
 
-                // Gửi tin nhắn ngay lập tức mà không chờ phản hồi từ server
-                stompClientRef.current.send("/app/message", {}, JSON.stringify(chatMessage));
-                setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);  // Thêm fileName vào tin nhắn hiển thị
+                stompClientRef.current.send("/app/message/public", {}, JSON.stringify(chatMessage));
+                setPublicChats(prevPublicChats => [...prevPublicChats, { ...chatMessage, fileName }]);
 
                 setUserData({ ...userData, message: "" });
             } catch (error) {
@@ -343,14 +214,16 @@ const ChatRoom = () => {
         if (stompClientRef.current && (message.trim() !== '' || files.length > 0)) {
             try {
                 let fileUrl = null;
-                let fileName = null;  // Biến cục bộ để lưu tên file
+                let fileName = null;
                 let fileType = null;
 
                 if (files.length > 0) {
                     // Gửi file lên server và lấy URL
                     const response = await sendMessageToServer(userData.username, tab, message, files[0]);
-                    fileUrl = `${baseUrl}${response.data.fileUrl}`; // Thay đổi giá trị fileUrl
-                    fileName = files[0].name;  // Lưu tên file vào biến cục bộ
+
+                    const relativePath = response.data.fileUrl.replace(/^.*[\\/]/, '');
+                    fileUrl = `${baseUrl}/uploads/${relativePath}`;
+                    fileName = files[0].name;
                     fileType = files[0].type;
                 }
 
@@ -432,39 +305,6 @@ const ChatRoom = () => {
         setAvatarColors(colors);
     };
 
-    const fetchUsersBySource = async (source) => {
-        try {
-            let response;
-            switch (source) {
-                case 'facebook':
-                    response = await fetch(`${baseUrl}/api/facebook/users`);
-                    break;
-                case 'zalo':
-                    response = await fetch(`${baseUrl}/api/zalo/users`);
-                    break;
-                case 'telegram':
-                    response = await fetch(`${baseUrl}/api/chatroom/telegram`);
-                    break;
-                case 'viber':
-                    response = await fetch(`${baseUrl}/api/viber/users`);
-                    break;
-                default:
-                    throw new Error('Nguồn không hợp lệ');
-            }
-
-            if (!response.ok) {
-                throw new Error(`Error fetching users: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.users; // Giả sử API trả về danh sách người dùng trong thuộc tính 'users'
-        } catch (error) {
-            console.error("Lỗi khi gọi API:", error);
-            return []; // Trả về mảng rỗng nếu có lỗi
-        }
-    };
-
-    // Sử dụng useEffect để gọi hàm fetchUsersBySource khi source thay đổi
     useEffect(() => {
         const loadUsers = async () => {
             if (source) {
@@ -623,7 +463,7 @@ const ChatRoom = () => {
                                                             overflow: 'hidden',
                                                         }}
                                                     >
-                                                        <MessageInfor currentCustomer={currentCustomer} />
+                                                        <MessageInfor currentCustomer={currentCustomer} userData={userData} />
                                                     </div>
                                                 </div>
                                                 <div className='chat-input-box'>
@@ -707,7 +547,7 @@ const ChatRoom = () => {
                             </div>
                         </div>
                     </div>
-                    <CallDialog />
+                    <CallDialog members={members} />
                 </div>
             ) : (
 
