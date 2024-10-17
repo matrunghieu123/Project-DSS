@@ -6,6 +6,7 @@ import IconBranch from '../call-icon/branch.png';
 import IconKeyboard from '../call-icon/keyboard.png';
 import IconLazy from '../call-icon/lazy.png';
 import IconSetting from '../call-icon/setting.png';
+import { handleCall } from './callservice/CallService';
 
 const CallFooter = ({
   inputNumber,
@@ -26,6 +27,10 @@ const CallFooter = ({
   toggleSettings,
   handleKeyPress
 }) => {
+  const handleCallButtonClick = () => {
+    handleCall(inputNumber);
+  };
+
   return (
     <div 
       style={{
@@ -81,6 +86,7 @@ const CallFooter = ({
             borderRadius: 12,
             position: 'relative',
           }}
+          onClick={handleCallButtonClick}
         >
         </Button>
         <div

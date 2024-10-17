@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Tooltip } from 'antd';
+import { Button, Input, Tooltip, notification } from 'antd';
 import IconClose from './call-icon/close.png';
 import IconPhone from './call-icon/phone.png';
 import IconArrow from '../../body/message/messageinfor/ticket/icon/play.png';
 import './CallDialog.css';
-import CallFooter from './call-components/CallFooter';
+import CallFooter from './callcomponents/CallFooter';
+import { getAuthToken, getCallRecord } from '../../services/api';
 
 const CallDialog = ({ members }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedNumber, setSelectedNumber] = useState('1234567890');
+  const [selectedNumber, setSelectedNumber] = useState('null');
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [phoneNumbers, setPhoneNumbers] = useState([]);
@@ -143,6 +144,24 @@ const CallDialog = ({ members }) => {
   const handleKeyPress = (key) => {
     // Logic xử lý khi nhấn phím
     console.log(`Key pressed: ${key}`);
+  };
+
+  const handleCallButtonClick = async () => {
+    const phoneRegex = /^[0-9]{9,11}$/; // Giả sử số điện thoại từ 9-11 chữ số
+    
+    if (phoneRegex.test(inputNumber)) {
+      const token = await getAuthToken();
+      if (token) {
+        await getCallRecord(token);
+      }
+      
+      // ... existing modal code ...
+    } else {
+      notification.error({
+        message: 'Lỗi',
+        description: 'Số điện thoại không hợp lệ',
+      });
+    }
   };
 
   return (
@@ -337,6 +356,7 @@ const CallDialog = ({ members }) => {
               settingsRef={settingsRef}
               toggleSettings={toggleSettings}
               handleKeyPress={handleKeyPress}
+              handleCallButtonClick={handleCallButtonClick}
             />
           </div>
         </div>
