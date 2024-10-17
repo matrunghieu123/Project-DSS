@@ -89,7 +89,7 @@ const SendMessage = (props: SendMessageProps) => {
 
 const styles = StyleSheet.create({
   rowChat: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   input: {
     borderWidth: 0,

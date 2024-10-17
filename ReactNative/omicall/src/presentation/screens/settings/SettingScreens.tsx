@@ -2,7 +2,13 @@ import React from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Styles} from '../../../core/constants/Styles.ts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {ButtonComponent} from '../../components';
 import {useDispatch} from 'react-redux';
 import {removeAuth} from '../../redux/AuthReducer.ts';
@@ -37,7 +43,7 @@ const SettingScreens = ({navigation}: any) => {
         onPress={handleLogout}
         style={styles.button}
         styleText={styles.textButton}
-        logo={
+        icon={
           <Octicons
             name={'sign-out'}
             size={20}

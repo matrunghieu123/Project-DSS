@@ -17,22 +17,34 @@ interface ButtonComponentProps {
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   styleText?: StyleProp<TextStyle>;
-  logo?: any;
+  icon?: any;
+  iconPosition?: 'left' | 'right';
 }
 
 const ButtonComponent = (props: ButtonComponentProps) => {
+  const {
+    title,
+    onPress,
+    disabled,
+    style,
+    styleText,
+    icon,
+    iconPosition = 'right',
+  } = props;
+
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        props.disabled ? styles.buttonDisabled : styles.buttonEnabled,
-        props.style,
+        disabled ? styles.buttonDisabled : styles.buttonEnabled,
+        style,
       ]}
-      onPress={props.onPress}
-      disabled={props.disabled}>
+      onPress={onPress}
+      disabled={disabled}>
       <RowComponent>
-        <Text style={[styles.text, props.styleText]}>{props.title}</Text>
-        {props.logo}
+        {iconPosition === 'left' && icon}
+        <Text style={[styles.text, styleText]}>{title}</Text>
+        {iconPosition === 'right' && icon}
       </RowComponent>
     </TouchableOpacity>
   );
@@ -61,4 +73,5 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
 });
+
 export default ButtonComponent;

@@ -1,4 +1,5 @@
 import {Fonts} from './Fonts.ts';
+import {AppColors} from './AppColors.ts';
 
 export const Styles = {
   container: {
@@ -23,14 +24,14 @@ export const Styles = {
     right: 0,
     textAlign: 'center' as 'center',
   },
-  boxShadow:{
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+  boxShadow: {
+    shadowColor: AppColors.black,
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
   },
-  flex:{
+  flex: {
     flex: 1,
   },
 };

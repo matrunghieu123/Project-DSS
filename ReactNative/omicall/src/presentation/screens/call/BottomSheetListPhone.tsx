@@ -5,7 +5,7 @@ import BottomSheet, {
 import React, {RefObject} from 'react';
 import {
   Alert,
-  FlatList, Platform, StatusBar,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,7 +20,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import alohubAPI from '../../../services/alohub_api.ts';
 import {Constants} from '../../../core/constants/Constants.ts';
-import authenticationAPI from '../../../services/auth_api.ts';
+import modelsAPI from '../../../services/models_api.ts';
 
 interface Props {
   bottomSheetRef: RefObject<BottomSheet>;
@@ -51,22 +51,16 @@ const BottomSheetListPhone = (props: Props) => {
         )) as any;
 
         if (response.success) {
-          await authenticationAPI.HandleListPhone(
-            'put',
-            item.CM_PhoneNumber_ID,
-            {isDefault: true},
-          );
-
           const currentDefaultPhone = listPhone.records.find(
             phone => phone.IsDefault,
           );
 
           if (currentDefaultPhone) {
-            await authenticationAPI.HandleListPhone(
-              'put',
+            await modelsAPI.setDefaultPhone(
               String(currentDefaultPhone.CM_PhoneNumber_ID),
-              {isDefault: false},
+              false,
             );
+            await modelsAPI.setDefaultPhone(item.CM_PhoneNumber_ID, true);
           }
 
           Alert.alert('Thành công', 'Đã chọn số thành công');
@@ -107,12 +101,11 @@ const BottomSheetListPhone = (props: Props) => {
 
   return (
     <BottomSheet
-      snapPoints={['55%']}
+      snapPoints={['60%']}
       ref={bottomSheetRef}
       index={-1}
       enablePanDownToClose={true}
-      backdropComponent={backdrop}
-    >
+      backdropComponent={backdrop}>
       <BottomSheetView style={[Styles.flex, styles.container]}>
         <RowComponent style={styles.row}>
           <View>

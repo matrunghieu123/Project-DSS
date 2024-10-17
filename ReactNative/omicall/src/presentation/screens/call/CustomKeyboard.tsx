@@ -8,7 +8,7 @@ import {
   View,
   SafeAreaView,
   AppState,
-  Keyboard,
+  Keyboard, Platform,
 } from 'react-native';
 import {Styles} from '../../../core/constants/Styles';
 import {RowComponent} from '../../components';
@@ -21,6 +21,7 @@ import JsSIPService from '../../../services/jsSIP_service';
 import {MediaStream} from 'react-native-webrtc';
 import {Validate} from '../../../core/utils/Validate.ts';
 import {ModalCallingScreen} from '../index.ts';
+import {AppInfos} from '../../../core/constants/AppInfos.ts';
 
 const CustomKeyboard: FC<{
   navigation: any;
@@ -90,40 +91,38 @@ const CustomKeyboard: FC<{
   }, [appState]);
 
   return (
-    <>
-      <SafeAreaView style={styles.keyboardContainer}>
-        <RowComponent style={styles.inputRow}>
-          <TextInput
-            placeholder={'Nhập số điện thoại'}
-            style={[styles.input, Styles.flex]}
-            value={inputValue}
-            showSoftInputOnFocus={false}
-            onChangeText={handleTextChange}
-            ref={textInputRef}
-          />
-          <AddContactButton navigation={navigation} />
-        </RowComponent>
-        <RowComponent style={styles.keyboard}>
-          {keys.map(key => (
-            <TouchableOpacity
-              key={key}
-              style={styles.key}
-              onPress={() => handleKeyPress(key)}
-              onLongPress={() => handleLongPress(key)}
-              delayLongPress={500}>
-              <Text style={styles.keyText}>{key}</Text>
-              {key === '0' && <Text style={styles.plusText}>+</Text>}
-            </TouchableOpacity>
-          ))}
-        </RowComponent>
-        <View style={Styles.flex} />
-        <RowComponent style={styles.bottomRow}>
-          <SettingButton />
-          <CallButton onPress={handleCallPress} />
-          <DeleteButton onPress={handleDeletePress} />
-        </RowComponent>
-        <View style={Styles.flex} />
-      </SafeAreaView>
+    <SafeAreaView style={styles.keyboardContainer}>
+      <RowComponent style={styles.inputRow}>
+        <TextInput
+          placeholder={'Nhập số điện thoại'}
+          style={[styles.input, Styles.flex]}
+          value={inputValue}
+          showSoftInputOnFocus={false}
+          onChangeText={handleTextChange}
+          ref={textInputRef}
+        />
+        <AddContactButton navigation={navigation} />
+      </RowComponent>
+      <RowComponent style={styles.keyboard}>
+        {keys.map(key => (
+          <TouchableOpacity
+            key={key}
+            style={styles.key}
+            onPress={() => handleKeyPress(key)}
+            onLongPress={() => handleLongPress(key)}
+            delayLongPress={500}>
+            <Text style={styles.keyText}>{key}</Text>
+            {key === '0' && <Text style={styles.plusText}>+</Text>}
+          </TouchableOpacity>
+        ))}
+      </RowComponent>
+      <View style={Styles.flex} />
+      <RowComponent style={styles.bottomRow}>
+        <SettingButton />
+        <CallButton onPress={handleCallPress} />
+        <DeleteButton onPress={handleDeletePress} />
+      </RowComponent>
+      <View style={Styles.flex} />
       {isCalling && (
         <ModalCallingScreen
           isCalling={isCalling}
@@ -134,7 +133,7 @@ const CustomKeyboard: FC<{
           numberCallIn={phoneNumber}
         />
       )}
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
   key: {
     width: '30%',
     margin: 5,
-    padding: 10,
+    padding: AppInfos.sizes.height * 0.01,
     backgroundColor: AppColors.lightGrey,
     justifyContent: 'center',
     alignItems: 'center',

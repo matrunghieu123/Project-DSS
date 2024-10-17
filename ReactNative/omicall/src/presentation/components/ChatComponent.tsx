@@ -26,11 +26,13 @@ const ChatComponent = (props: ChatComponentProps) => {
       style={[Styles.boxShadow, styles.container]}
       onPress={handlePress}>
       <RowComponent>
-        <AvatarCircle />
+        <AvatarCircle style={{width: 50, height: 50}}/>
         <SpaceComponent width={10} />
         <View style={Styles.flex}>
           <RowComponent style={styles.row}>
-            <Text style={styles.name} numberOfLines={1}>{name}</Text>
+            <Text style={styles.name} numberOfLines={1}>
+              {name}
+            </Text>
             <Text style={styles.time}>Bây giờ</Text>
           </RowComponent>
           <Text style={styles.content}>{content}</Text>
@@ -43,13 +45,12 @@ const ChatComponent = (props: ChatComponentProps) => {
 const styles = StyleSheet.create({
   container: {
     width: '95%',
-    backgroundColor: 'white',
+    backgroundColor: AppColors.white,
     alignSelf: 'center',
     marginTop: 15,
     borderRadius: 15,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-
+    paddingVertical: 15,
+    paddingHorizontal: 20,
   },
   name: {
     fontSize: 16,

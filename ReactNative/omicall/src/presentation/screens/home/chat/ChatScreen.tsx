@@ -4,7 +4,7 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  Platform, StatusBar,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,

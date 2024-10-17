@@ -7,12 +7,14 @@ interface Props {
   icon: ReactNode;
   onPress?: () => void;
   backgroundColor: string;
+  disabled?: boolean;
 }
 
 const ButtonSquare = (props: Props) => {
-  const {width, height, icon, onPress, backgroundColor} = props;
+  const {width, height, icon, onPress, backgroundColor, disabled} = props;
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={onPress}
       style={[styles.container, {width: width || 45, height: height || 45}]}>
       <View style={[styles.background, {backgroundColor: backgroundColor}]} />

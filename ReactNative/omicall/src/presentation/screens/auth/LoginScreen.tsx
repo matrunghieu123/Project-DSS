@@ -46,30 +46,8 @@ const LoginScreen = ({navigation}: any) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await authenticationAPI.HandleAuthentication(
-        '/token',
-        {
-          userName: 'CRM',
-          password: '1',
-          parameters: {
-            languageName: 'Việt Nam',
-            languageCode: 'vi_VN',
-          },
-        },
-        'post',
-      );
-
-      const loginResponse = response as LoginModel;
-      const loginResponsePlain = JSON.parse(JSON.stringify(loginResponse));
-
-      // const loginResponsePlain = {
-      //   token: 'abc',
-      //   UserInfo: {
-      //     AD_User_ID: 1,
-      //     UserName: 'CRM',
-      //     Email: 'abc@gmail.com'
-      //   }
-      // }
+      const response: LoginModel = await authenticationAPI.login('CRM', '1');
+      const loginResponsePlain = JSON.parse(JSON.stringify(response));
 
       dispatch(addAuth(loginResponsePlain));
       await AsyncStorage.setItem('auth', JSON.stringify(loginResponsePlain));
@@ -118,7 +96,11 @@ const LoginScreen = ({navigation}: any) => {
             placeholder="Nhập mật khẩu"
             keyboardType={'default'}
             returnKeyType={'done'}
-            onSubmitEditing={handleLogin}
+            onSubmitEditing={
+              validValues.email && validValues.password
+                ? handleLogin
+                : undefined
+            }
             secureTextEntry={true}
             ref={passwordRef}
             value={values.password}

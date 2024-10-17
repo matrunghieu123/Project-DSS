@@ -26,22 +26,27 @@ class JsSIPService {
     this.coolPhone = new JsSIP.UA(configuration);
 
     this.coolPhone.on('connected', () => {
+      console.log('connected');
       this.updateConnectionStatus('connected');
     });
 
     this.coolPhone.on('disconnected', () => {
+      console.log('disconnected');
       this.updateConnectionStatus('disconnected');
     });
 
     this.coolPhone.on('registered', () => {
+      console.log('registered');
       this.updateConnectionStatus('registered');
     });
 
     this.coolPhone.on('unregistered', () => {
+      console.log('unregistered');
       this.updateConnectionStatus('unregistered');
     });
 
     this.coolPhone.on('registrationFailed', () => {
+      console.log('registrationFailed');
       this.updateConnectionStatus('registrationFailed');
     });
 
@@ -51,26 +56,32 @@ class JsSIPService {
         const session = data.session;
 
         session.on('connecting', () => {
+          console.log('connecting');
           this.updateConnectionStatus('connecting');
         });
 
         session.on('progress', () => {
+          console.log('progress');
           this.updateConnectionStatus('progress');
         });
 
         session.on('accepted', () => {
+          console.log('accepted');
           this.updateConnectionStatus('accepted');
         });
 
         session.on('confirmed', () => {
+          console.log('confirmed');
           this.updateConnectionStatus('confirmed');
         });
 
         session.on('ended', () => {
+          console.log('ended');
           this.updateConnectionStatus('ended');
         });
 
         session.on('failed', (e: any) => {
+          console.log('failed');
           const errorCode = e.message?.status_code || 0;
           switch (errorCode) {
             case 607:

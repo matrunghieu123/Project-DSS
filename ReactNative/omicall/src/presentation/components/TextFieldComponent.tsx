@@ -96,7 +96,7 @@ const TextFieldComponent = forwardRef(
             styles.inputContainer,
             {
               width: props.width || '100%',
-              height: props.height || null,
+              height: props.height || 'auto',
             },
           ]}
           onPress={handlePress}
@@ -139,7 +139,7 @@ const TextFieldComponent = forwardRef(
 const styles = StyleSheet.create({
   container: {
     borderRadius: 15,
-    borderColor: AppColors.grey,
+    borderColor: AppColors.greyLine,
     borderWidth: 1,
     marginVertical: 10,
     backgroundColor: AppColors.lightGrey,

@@ -1,7 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SettingNavigator} from './SettingNavigator.tsx';
 import BottomTabNavigator from './BottomTabNavigator.tsx';
-import {ChatScreen, NotificationScreen} from '../screens';
+import {ChatScreen, ChooseTagScreen, NotificationScreen} from '../screens';
 import CallNavigator from './CallNavigator.tsx';
 
 export const MainNavigator = () => {
@@ -11,8 +11,11 @@ export const MainNavigator = () => {
       <Stack.Screen name="Main" component={BottomTabNavigator} />
       <Stack.Screen name="Call" component={CallNavigator} />
       <Stack.Screen name="Setting" component={SettingNavigator} />
-      <Stack.Screen name="ChatScreen" component={ChatScreen}/>
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
+      <Stack.Group screenOptions={{presentation: 'modal'}}>
+        <Stack.Screen name="ChooseTagScreen" component={ChooseTagScreen} />
+      </Stack.Group>
     </Stack.Navigator>
   );
 };

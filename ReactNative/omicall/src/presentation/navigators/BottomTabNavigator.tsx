@@ -1,4 +1,7 @@
-import {CurvedBottomBar} from 'react-native-curved-bottom-bar';
+import {
+  CurvedBottomBar,
+  ICurvedBottomBarRef,
+} from 'react-native-curved-bottom-bar';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {HomeNavigator} from './HomeNavigator';
@@ -7,13 +10,15 @@ import {AppColors} from '../../core/constants/AppColors.ts';
 import {useNavigation} from '@react-navigation/native';
 import {Styles} from '../../core/constants/Styles.ts';
 import {Fonts} from '../../core/constants/Fonts.ts';
+import {createRef} from 'react';
+
+export const bottomTabRef = createRef<ICurvedBottomBarRef>();
 
 const BottomTabNavigator = () => {
   const navigation = useNavigation<any>();
 
   const _renderIcon = (routeName: string, selectedTab: string) => {
-    let icon = '';
-
+    let icon: string;
     switch (routeName) {
       case 'Đa kênh':
         icon = 'home';
@@ -70,13 +75,14 @@ const BottomTabNavigator = () => {
 
   return (
     <CurvedBottomBar.Navigator
+      ref={bottomTabRef}
       screenOptions={{
         headerShown: false,
       }}
       type="DOWN"
       shadowStyle={styles.shadow}
       circleWidth={60}
-      height={75}
+      height={80}
       bgColor="white"
       initialRouteName="Đa kênh"
       borderTopLeftRight

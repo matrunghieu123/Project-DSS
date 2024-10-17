@@ -1,18 +1,7 @@
 import React, {FC, useEffect, useState} from 'react';
-import {
-  SafeAreaView, StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {AppColors} from '../../../core/constants/AppColors';
-import {
-  AvatarCircle,
-  RowComponent,
-  SpaceComponent,
-  TopTabComponent,
-} from '../../components';
+import {SpaceComponent, TopContainer, TopTabComponent} from '../../components';
 import {Fonts} from '../../../core/constants/Fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ContentScreen from './ContentScreen';
@@ -46,10 +35,9 @@ const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
 
   return (
     <View style={Styles.flex}>
-      <StatusBar backgroundColor={AppColors.secondary} barStyle="light-content" />
       <TopContainer navigation={navigation} />
       <SpaceComponent height={10} />
-      <View style={styles.topTabContainer}>
+      <View style={[Styles.boxShadow, styles.topTabContainer]}>
         <Text style={styles.title}>Cuộc trò chuyện</Text>
         <Text style={styles.description}>{tabNames[activeTab]}</Text>
         <SearchButton navigation={navigation} />
@@ -58,43 +46,6 @@ const HomeScreen: FC<{navigation: any}> = ({navigation}) => {
       </View>
       <ContentScreen activeTab={activeTab} navigation={navigation} />
     </View>
-  );
-};
-
-const TopContainer: FC<{navigation: any}> = ({navigation}) => {
-  const user = useSelector(authSelector).UserInfo;
-  return (
-    <View style={styles.topContainer}>
-      <SafeAreaView>
-        <RowComponent>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Setting', {
-                screen: 'SettingScreen',
-              })
-            }>
-            <AvatarCircle />
-          </TouchableOpacity>
-          <SpaceComponent width={10} />
-          <View style={Styles.flex}>
-            <Text style={styles.name} numberOfLines={1}>{user.UserName}</Text>
-            <Text style={styles.email} numberOfLines={1}>{user.Email}</Text>
-          </View>
-          <NotificationButton navigation={navigation} />
-        </RowComponent>
-      </SafeAreaView>
-    </View>
-  );
-};
-
-const NotificationButton = ({navigation}: any) => {
-  return (
-    <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')}>
-      <View style={styles.notificationContainer}>
-        <View style={styles.backgroundNotification} />
-        <Ionicons name="notifications" size={23} color={'white'} />
-      </View>
-    </TouchableOpacity>
   );
 };
 
@@ -119,33 +70,6 @@ const FilterButton = ({navigation}: any) => {
 };
 
 const styles = StyleSheet.create({
-  topContainer: {
-    backgroundColor: AppColors.secondary,
-    paddingHorizontal: '5%',
-    paddingVertical: '3%',
-  },
-  name: {
-    fontSize: 19,
-    fontFamily: Fonts.medium,
-    color: 'white',
-    marginBottom: 5,
-  },
-  email: {
-    color: AppColors.grey,
-    fontFamily: Fonts.regular,
-  },
-  notificationContainer: {
-    width: 45,
-    height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backgroundNotification: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'white',
-    borderRadius: 15,
-    opacity: 0.1,
-  },
   topTabContainer: {
     backgroundColor: 'white',
     width: '95%',

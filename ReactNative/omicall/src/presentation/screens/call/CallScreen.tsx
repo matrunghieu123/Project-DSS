@@ -20,11 +20,11 @@ import JsSIPService from '../../../services/jsSIP_service.ts';
 import {MediaStream} from 'react-native-webrtc';
 import {Constants} from '../../../core/constants/Constants.ts';
 import LoadingModal from '../../modal/LoadingModal.tsx';
-import authenticationAPI from '../../../services/auth_api.ts';
 import {ListPhoneModel} from '../../../models/ListPhoneModel.ts';
 import BottomSheet from '@gorhom/bottom-sheet';
 import BottomSheetListPhone from './BottomSheetListPhone.tsx';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import modelsAPI from '../../../services/models_api.ts';
 
 const CallScreen: FC<{navigation: any}> = ({navigation}) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -36,10 +36,9 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-
-        const response = await authenticationAPI.HandleListPhone();
+        const response: ListPhoneModel = await modelsAPI.getListPhone();
         setListPhone(response);
         response.records.find(item => {
           if (item.IsDefault) {

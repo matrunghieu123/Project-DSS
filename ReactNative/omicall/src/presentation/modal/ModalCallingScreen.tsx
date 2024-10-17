@@ -8,6 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import {MediaStream, RTCView} from 'react-native-webrtc';
+import InCallManager from 'react-native-incall-manager';
 import JsSIPService from '../../services/jsSIP_service';
 import {Styles} from '../../core/constants/Styles.ts';
 import {AppColors} from '../../core/constants/AppColors.ts';
@@ -45,11 +46,32 @@ const ModalCallingScreen = (props: Props) => {
   const [connectionStatus, setConnectionStatus] = useState('');
   const [time, setTime] = useState(0);
   const [callDuration, setCallDuration] = useState(0);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(false);
+  const [isMute, setIsMute] = useState(false);
   let timer: NodeJS.Timeout;
 
   const handleCallEnd = () => {
     setIsCalling(false);
     jsSIPService.cancelCall();
+
+    InCallManager.setSpeakerphoneOn(false);
+    InCallManager.stopProximitySensor();
+    InCallManager.stop();
+  };
+
+  const toggleSpeaker = () => {
+    const newSpeakerState = !isSpeakerOn;
+    setIsSpeakerOn(newSpeakerState);
+    InCallManager.setSpeakerphoneOn(newSpeakerState);
+    isSpeakerOn
+      ? InCallManager.startProximitySensor()
+      : InCallManager.stopProximitySensor();
+  };
+
+  const toggleMute = () => {
+    const newMuteState = !isMute;
+    setIsMute(newMuteState);
+    InCallManager.setMicrophoneMute(newMuteState);
   };
 
   const formatDuration = (duration: number) => {
@@ -62,6 +84,8 @@ const ModalCallingScreen = (props: Props) => {
     if (isCalling) {
       jsSIPService.makeCall(numberCallOut);
       setTime(Date.now());
+      InCallManager.start({media: 'audio'});
+      InCallManager.startProximitySensor();
     }
   }, [isCalling]);
 
@@ -137,7 +161,12 @@ const ModalCallingScreen = (props: Props) => {
           <Text style={styles.callOut}>{numberCallOut}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <FunctionComponent />
+          <FunctionComponent
+            toggleSpeaker={toggleSpeaker}
+            isSpeakerOn={isSpeakerOn}
+            toggleMute={toggleMute}
+            isMute={isMute}
+          />
           <Text style={styles.status}>
             {connectionStatus !== 'confirmed'
               ? connectionStatus
@@ -153,7 +182,17 @@ const ModalCallingScreen = (props: Props) => {
   );
 };
 
-const FunctionComponent = () => {
+const FunctionComponent = ({
+  toggleSpeaker,
+  isSpeakerOn,
+  toggleMute,
+  isMute,
+}: {
+  toggleSpeaker: () => void;
+  isSpeakerOn: boolean;
+  toggleMute: () => void;
+  isMute: boolean;
+}) => {
   return (
     <RowComponent style={{width: '90%', justifyContent: 'space-evenly'}}>
       <ButtonSquare
@@ -167,34 +206,40 @@ const FunctionComponent = () => {
       <ButtonSquare
         width={60}
         height={60}
-        icon={
-          <Ionicons name="pause" size={26} color={AppColors.white} />
-        }
+        icon={<Ionicons name="pause" size={26} color={AppColors.white} />}
+        backgroundColor="white"
+      />
+      <ButtonSquare
+        width={60}
+        height={60}
+        icon={<Ionicons name="keypad" size={26} color={AppColors.white} />}
         backgroundColor="white"
       />
       <ButtonSquare
         width={60}
         height={60}
         icon={
-          <Ionicons name="keypad" size={26} color={AppColors.white} />
+          <FontAwesome
+            name={isMute ? 'microphone-slash' : 'microphone'}
+            size={26}
+            color={AppColors.white}
+          />
         }
         backgroundColor="white"
+        onPress={toggleMute}
       />
       <ButtonSquare
         width={60}
         height={60}
         icon={
-          <FontAwesome name="microphone-slash" size={26} color={AppColors.white} />
+          <FontAwesome
+            name={isSpeakerOn ? 'volume-down' : 'volume-up'}
+            size={26}
+            color={AppColors.white}
+          />
         }
         backgroundColor="white"
-      />
-      <ButtonSquare
-        width={60}
-        height={60}
-        icon={
-          <FontAwesome name="volume-up" size={26} color={AppColors.white} />
-        }
-        backgroundColor="white"
+        onPress={toggleSpeaker}
       />
     </RowComponent>
   );
