@@ -1,10 +1,11 @@
 import React, {useRef, useEffect} from 'react';
-import {View, TouchableOpacity, StyleSheet, Animated} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Animated, Platform} from 'react-native';
 import MultiChannelIcon from '../../../assets/svg/MultiChannelIcon.tsx';
 import FacebookIcon from '../../../assets/svg/FacebookIcon.tsx';
 import TelegramIcon from '../../../assets/svg/TelegramIcon.tsx';
 import ZaloIcon from '../../../assets/svg/ZaloIcon.tsx';
 import InternalIcon from '../../../assets/svg/InternalIcon.tsx';
+import {AppColors} from '../../core/constants/AppColors.ts';
 
 interface TopTabBarProps {
   activeTab: string;
@@ -16,17 +17,19 @@ const TopTabBar: React.FC<TopTabBarProps> = ({activeTab, setActiveTab}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.timing(boxShadowAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    if (Platform.OS === 'ios') {
+      Animated.timing(boxShadowAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
 
-    Animated.spring(scaleAnim, {
-      toValue: activeTab ? 1 : 0.9,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
+      Animated.spring(scaleAnim, {
+        toValue: activeTab ? 1 : 0.9,
+        friction: 5,
+        useNativeDriver: true,
+      }).start();
+    }
   }, [activeTab, boxShadowAnim, scaleAnim]);
 
   const tabs = [
@@ -40,18 +43,20 @@ const TopTabBar: React.FC<TopTabBarProps> = ({activeTab, setActiveTab}) => {
   const boxShadowStyle = (isActive: boolean) => ({
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: boxShadowAnim.interpolate({
+    shadowOpacity: Platform.OS === 'ios' ? boxShadowAnim.interpolate({
       inputRange: [0, 1],
       outputRange: isActive ? [0, 0.15] : [0.15, 0],
-    }),
-    shadowRadius: boxShadowAnim.interpolate({
+    }) : 0,
+    shadowRadius: Platform.OS === 'ios' ? boxShadowAnim.interpolate({
       inputRange: [0, 1],
       outputRange: isActive ? [0, 3.84] : [3.84, 0],
-    }),
-    elevation: boxShadowAnim.interpolate({
+    }) : 0,
+    elevation: Platform.OS === 'ios' ? boxShadowAnim.interpolate({
       inputRange: [0, 1],
       outputRange: isActive ? [0, 5] : [5, 0],
-    }),
+    }) : 0,
+    borderWidth: isActive ? 0.3 : 0,
+    borderColor: AppColors.grey,
   });
 
   return (
@@ -65,7 +70,7 @@ const TopTabBar: React.FC<TopTabBarProps> = ({activeTab, setActiveTab}) => {
             style={[
               styles.view,
               activeTab === tab.key ? boxShadowStyle(true) : boxShadowStyle(false),
-              {
+              Platform.OS === 'ios' && {
                 transform: [
                   {
                     scale: activeTab === tab.key

@@ -17,6 +17,7 @@ export const Styles = {
     alignItems: 'center' as 'center',
   },
   headerText: {
+    color: AppColors.black,
     fontSize: 20,
     fontFamily: Fonts.medium,
     position: 'absolute' as 'absolute',

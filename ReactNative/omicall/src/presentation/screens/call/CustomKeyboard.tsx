@@ -8,7 +8,7 @@ import {
   View,
   SafeAreaView,
   AppState,
-  Keyboard, Platform,
+  Keyboard,
 } from 'react-native';
 import {Styles} from '../../../core/constants/Styles';
 import {RowComponent} from '../../components';
@@ -28,10 +28,11 @@ const CustomKeyboard: FC<{
   remoteStream: MediaStream;
   jsSIPService: JsSIPService;
   phoneNumber: string;
-}> = ({navigation, remoteStream, jsSIPService, phoneNumber}) => {
+  inputPhone?: string;
+}> = ({navigation, remoteStream, jsSIPService, phoneNumber, inputPhone}) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(inputPhone || '');
   const textInputRef = React.useRef<TextInput>(null);
   const [isCalling, setIsCalling] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
@@ -96,6 +97,7 @@ const CustomKeyboard: FC<{
         <TextInput
           placeholder={'Nhập số điện thoại'}
           style={[styles.input, Styles.flex]}
+          placeholderTextColor={AppColors.greyLine}
           value={inputValue}
           showSoftInputOnFocus={false}
           onChangeText={handleTextChange}
@@ -182,6 +184,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 26,
     fontFamily: Fonts.bold,
+    color: AppColors.secondary,
   },
   addButton: {
     backgroundColor: AppColors.lightGreen,

@@ -37,6 +37,11 @@ import {bottomTabRef} from '../../navigators/BottomTabNavigator';
 import {useNavigation} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import modelsAPI from '../../../services/models_api.ts';
+import {StackNavigationProp} from '@react-navigation/stack';
+
+type RootStackParamList = {
+  ChooseTagScreen: {tag: string[]; setTag: (tags: string[]) => void};
+};
 
 interface Props {
   bottomSheetRef: RefObject<BottomSheet>;
@@ -233,6 +238,7 @@ const EditInfo = ({
 
   const handleUpdate = async () => {
     try {
+      Keyboard.dismiss();
       await modelsAPI.updateTagNoteCall(
         record.CM_Call_ID,
         selectedTag[0],
@@ -274,7 +280,11 @@ const TagInput = ({
   selectedTag: string[];
   setSelectedTag: (tags: string[]) => void;
 }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    navigation.setOptions({});
+  }, [navigation, setSelectedTag]);
 
   return (
     <TouchableOpacity
@@ -354,7 +364,7 @@ const styles = StyleSheet.create({
   },
   tagContainer: {
     width: '100%',
-    backgroundColor: AppColors.lightGrey,
+    backgroundColor: AppColors.background,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: AppColors.greyLine,

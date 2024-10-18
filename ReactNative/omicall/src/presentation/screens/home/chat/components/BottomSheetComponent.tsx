@@ -3,7 +3,7 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import {Alert, StyleSheet, StatusBar, Platform} from 'react-native';
+import {Alert, StyleSheet, StatusBar, Platform, Linking} from 'react-native';
 import ItemComponent from './ItemComponent.tsx';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import {Constants} from '../../../../../core/constants/Constants.ts';
@@ -39,7 +39,28 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
         bottomSheetRef?.current?.close();
       })
       .catch(err => {
-        console.log(err);
+        if (err.code === 'E_NO_LIBRARY_PERMISSION') {
+          Alert.alert(
+            'Thông báo',
+            'Vui lòng cấp quyền truy cập ảnh để sử dụng tính năng này',
+            [
+              {
+                text: 'Hủy',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              {
+                text: 'Cài đặt',
+                onPress: () => {
+                  Linking.openSettings().then(
+                    () => {},
+                    err => console.error('An error occurred', err),
+                  );
+                },
+              },
+            ],
+          );
+        }
       });
   };
 
@@ -52,7 +73,28 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
         bottomSheetRef?.current?.close();
       })
       .catch(err => {
-        console.log(err);
+        if (err.code === 'E_NO_CAMERA_PERMISSION') {
+          Alert.alert(
+            'Thông báo',
+            'Vui lòng cấp quyền truy cập camera để sử dụng tính năng này',
+            [
+              {
+                text: 'Hủy',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              {
+                text: 'Cài đặt',
+                onPress: () => {
+                  Linking.openSettings().then(
+                    () => {},
+                    err => console.error('An error occurred', err),
+                  );
+                },
+              },
+            ],
+          );
+        }
       });
   };
 
@@ -92,14 +134,14 @@ const BottomSheetComponent = (props: BottomSheetComponentProps) => {
         StatusBar.setBackgroundColor('rgba(0, 0, 0, 0.5)');
       StatusBar.setBarStyle('light-content');
     } else {
-      Platform.OS === 'android' && StatusBar.setBackgroundColor('transparent');
+      Platform.OS === 'android' && StatusBar.setBackgroundColor('white');
       StatusBar.setBarStyle('dark-content');
     }
   };
 
   return (
     <>
-      <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
       <BottomSheet
         snapPoints={['30%']}
         ref={bottomSheetRef}

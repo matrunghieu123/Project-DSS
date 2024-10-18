@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: Fonts.regular,
     marginVertical: 4,
+    color: AppColors.black,
   },
   content: {
     fontSize: 14,

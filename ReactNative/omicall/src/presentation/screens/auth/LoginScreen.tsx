@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginTop: 30,
     marginBottom: 10,
+    color: AppColors.black,
   },
   icon: {
     fontSize: 20,

@@ -15,7 +15,10 @@ import {AppColors} from '../../core/constants/AppColors.ts';
 import {Fonts} from '../../core/constants/Fonts.ts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const TopContainer: FC<{navigation: any}> = ({navigation}) => {
+const TopContainer: FC<{navigation: any; child?: any}> = ({
+  navigation,
+  child,
+}) => {
   const user = useSelector(authSelector).UserInfo;
   return (
     <View style={styles.topContainer}>
@@ -31,7 +34,7 @@ const TopContainer: FC<{navigation: any}> = ({navigation}) => {
                 screen: 'SettingScreen',
               })
             }>
-            <AvatarCircle style={{width: 50, height: 50}}/>
+            <AvatarCircle style={{width: 50, height: 50}} />
           </TouchableOpacity>
           <SpaceComponent width={10} />
           <View style={Styles.flex}>
@@ -42,6 +45,7 @@ const TopContainer: FC<{navigation: any}> = ({navigation}) => {
               {user.Email}
             </Text>
           </View>
+          {child}
           <NotificationButton navigation={navigation} />
         </RowComponent>
       </SafeAreaView>

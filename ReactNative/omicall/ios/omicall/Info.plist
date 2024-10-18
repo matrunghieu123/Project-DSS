@@ -74,12 +74,15 @@
 		<string>Roboto-Thin.ttf</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) would like to access your photo gallery</string>
-	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) would like to access your camera</string>
-	<key>NSMicrophoneUsageDescription</key>
-  <string>$(PRODUCT_NAME) would like to access your microphone</string>
-	<key>LSApplicationQueriesSchemes</key>
+  <string>$(PRODUCT_NAME) would like to access your photo gallery</string>
+  <key>NSCameraUsageDescription</key>
+  <string>$(PRODUCT_NAME) would like to access your camera</string>
+  <key>NSMicrophoneUsageDescription</key>
+    <string>$(PRODUCT_NAME) would like to access your microphone</string>
+  <key>NSContactsUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs your permission to access your contacts</string>
+
+  <key>LSApplicationQueriesSchemes</key>
   <array>
     <string>file</string>
     <string>http</string>

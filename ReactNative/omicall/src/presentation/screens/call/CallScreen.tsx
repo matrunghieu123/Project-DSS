@@ -25,6 +25,8 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import BottomSheetListPhone from './BottomSheetListPhone.tsx';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import modelsAPI from '../../../services/models_api.ts';
+import alohubAPI from '../../../services/alohub_api.ts';
+import {RouteProp, useRoute} from '@react-navigation/native';
 
 const CallScreen: FC<{navigation: any}> = ({navigation}) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -33,6 +35,10 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [listPhone, setListPhone] = useState<ListPhoneModel | null>(null);
   const [phoneChoose, setPhoneChoose] = useState<string>('');
+  const route =
+    useRoute<RouteProp<{params: {phoneNumber: string}}, 'params'>>();
+
+  const {phoneNumber} = route.params || '';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +49,11 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
         response.records.find(item => {
           if (item.IsDefault) {
             setPhoneChoose(`${item.Value} - ${item.Name}`);
+            alohubAPI.HandleSetPhoneNumber(
+              Constants.usernameAlohub,
+              item.CallInID,
+              [Constants.extensionAlohub],
+            );
           }
         });
       } catch (error) {
@@ -85,6 +96,7 @@ const CallScreen: FC<{navigation: any}> = ({navigation}) => {
             jsSIPService={jsSIPService!}
             remoteStream={remoteStream!}
             phoneNumber={phoneChoose}
+            inputPhone={phoneNumber && phoneNumber.replace(/\s+/g, '')}
           />
           <BottomSheetListPhone
             bottomSheetRef={bottomSheetRef}

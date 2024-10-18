@@ -137,7 +137,7 @@ const ModalCallingScreen = (props: Props) => {
   }, [connectionStatus]);
 
   return (
-    <Modal visible={isCalling}>
+    <Modal visible={true}>
       <SafeAreaView
         style={[Styles.flex, {backgroundColor: AppColors.secondary}]}>
         {remoteStream && <RTCView streamURL={remoteStream.toURL()} />}
@@ -176,6 +176,7 @@ const ModalCallingScreen = (props: Props) => {
           <TouchableOpacity style={styles.callEnd} onPress={handleCallEnd}>
             <MaterialIcons name="call-end" size={40} color={AppColors.white} />
           </TouchableOpacity>
+          <SpaceComponent height={50} />
         </View>
       </SafeAreaView>
     </Modal>

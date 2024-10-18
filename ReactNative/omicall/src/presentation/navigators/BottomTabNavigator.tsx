@@ -89,7 +89,7 @@ const BottomTabNavigator = () => {
       renderCircle={() => (
         <TouchableOpacity
           style={styles.btnCircleUp}
-          onPress={() => navigation.navigate('Call')}>
+          onPress={() => navigation.navigate('CallScreen')}>
           <Ionicons name={'call'} color="white" size={25} />
         </TouchableOpacity>
       )}

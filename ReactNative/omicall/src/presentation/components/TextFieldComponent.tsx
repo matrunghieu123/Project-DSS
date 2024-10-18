@@ -16,6 +16,7 @@ import {FileComponent} from './index.ts';
 import {ImageOrVideo} from 'react-native-image-crop-picker';
 import {createThumbnail} from 'react-native-create-thumbnail';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Fonts} from '../../core/constants/Fonts.ts';
 
 interface InputComponentProps {
   value?: string;
@@ -103,6 +104,7 @@ const TextFieldComponent = forwardRef(
           activeOpacity={1}>
           {props.prefix && <View style={styles.prefix}>{props.prefix}</View>}
           <TextInput
+            placeholderTextColor={AppColors.greyIcon}
             ref={ref}
             value={props.value}
             placeholder={props.placeholder}
@@ -153,6 +155,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 16,
+    fontFamily: Fonts.regular,
+    color: AppColors.black,
   },
   prefix: {
     marginLeft: 15,
@@ -188,7 +192,7 @@ const styles = StyleSheet.create({
   },
   playIcon: {
     position: 'absolute',
-  }
+  },
 });
 
 export default TextFieldComponent;

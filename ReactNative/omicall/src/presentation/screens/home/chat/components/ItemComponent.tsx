@@ -20,7 +20,7 @@ const ItemComponent = (props: ItemComponentProps) => {
       <RowComponent>
         <View style={styles.container}>
           <View style={styles.background} />
-          <Ionicons name={icon} size={24} />
+          <Ionicons name={icon} size={24} color={AppColors.secondary} />
         </View>
         <View style={Styles.flex}>
           <Text style={styles.title}>{title}</Text>

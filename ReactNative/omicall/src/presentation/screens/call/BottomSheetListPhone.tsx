@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: 16,
     marginBottom: 5,
+    color: AppColors.secondary
   },
   description: {
     fontFamily: Fonts.regular,
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium,
     fontSize: 16,
     marginBottom: 5,
+    color: AppColors.black,
   },
   name: {
     fontFamily: Fonts.regular,

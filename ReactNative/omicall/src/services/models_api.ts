@@ -5,6 +5,8 @@ import axiosService from './axios_service.ts';
 import {Constants} from '../core/constants/Constants.ts';
 import {ListPhoneModel} from '../models/ListPhoneModel.ts';
 import {HistoryCallModel} from '../models/HistoryCallModel.ts';
+import {ContactModel} from '../models/ContactModel.ts';
+import {AddContactParam} from '../params/AddContactParam.ts';
 
 const getAccessToken = async () => {
   const result = await AsyncStorage.getItem('auth');
@@ -55,6 +57,16 @@ class ModelsApi {
       Tag,
       Note,
     });
+  }
+
+  async getContact(): Promise<ContactModel> {
+    return ContactModel.fromJson(
+      await this.HandleModels('/CM_Customer', 'get'),
+    );
+  }
+
+  async addContact(addContactParam: AddContactParam): Promise<void> {
+    await this.HandleModels('/CM_Customer', 'post', addContactParam.toObject());
   }
 }
 

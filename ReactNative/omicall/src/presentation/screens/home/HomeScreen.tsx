@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: Fonts.medium,
     marginBottom: 5,
+    color: AppColors.black,
   },
   description: {
     fontSize: 14,

@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  RefreshControl,
+  RefreshControl, Vibration,
 } from 'react-native';
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {Styles} from '../../../core/constants/Styles.ts';
@@ -40,6 +40,7 @@ const HistoryScreen: FC<{navigation: any}> = ({navigation}) => {
   };
 
   const onRefresh = async () => {
+    Vibration.vibrate(100);
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);

@@ -11,4 +11,5 @@ export const AppColors = {
   white: '#FFFFFF',
   green: '#4bc35b',
   lightGreen: '#e9f7ed',
+  background: '#F6F6FD',
 };

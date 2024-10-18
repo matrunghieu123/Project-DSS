@@ -17,6 +17,7 @@ import FilterScreen from './home/filter/FilterScreen.tsx';
 import ChatScreen from './home/chat/ChatScreen.tsx';
 import ModalCallingScreen from '../modal/ModalCallingScreen.tsx';
 import ChooseTagScreen from './history/ChooseTagScreen.tsx';
+import AddContactScreen from './contacts/AddContactScreen.tsx';
 
 export {
   SplashScreen,
@@ -38,4 +39,5 @@ export {
   RecordScreen,
   ModalCallingScreen,
   ChooseTagScreen,
+  AddContactScreen,
 };
